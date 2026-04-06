@@ -1,0 +1,1888 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ELARA — Manual de RPG</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Cinzel:wght@400;600;700&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold: #c9a84c;
+    --gold-light: #e8c96e;
+    --gold-dark: #8a6520;
+    --ember: #d4511a;
+    --crimson: #7a1a1a;
+    --deep: #0a0608;
+    --dark: #110d0f;
+    --panel: #1a1218;
+    --panel2: #221820;
+    --text: #e8dcc8;
+    --text-dim: #a09080;
+    --rune: #3a2a1a;
+    --border: #3d2e1a;
+    --blue-el: #3a7ab5;
+    --fire-el: #c94a1a;
+    --earth-el: #7a6a3a;
+    --air-el: #7ab5c9;
+    --shadow-el: #5a3a7a;
+    --water-el: #1a6a9a;
+    --lightning-el: #c9c41a;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--deep);
+    color: var(--text);
+    font-family: 'EB Garamond', serif;
+    font-size: 17px;
+    line-height: 1.75;
+    overflow-x: hidden;
+  }
+  html {
+        min-width: fit-content;
+  }
+
+  .manual-back-btn {
+    position: fixed;
+    top: 18px;
+    left: 18px;
+    z-index: 1000;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    border-radius: 999px;
+    border: 1px solid rgba(201, 168, 76, 0.26);
+    background: rgba(10, 6, 8, 0.70);
+    color: var(--gold-light);
+    font-family: 'Cinzel', serif;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    cursor: pointer;
+    backdrop-filter: blur(8px);
+    box-shadow: 0 14px 40px rgba(0,0,0,0.55);
+    transition: transform 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+  }
+
+  .manual-back-btn:hover {
+    transform: translateY(-1px);
+    background: rgba(201, 168, 76, 0.10);
+    border-color: rgba(201, 168, 76, 0.36);
+  }
+
+  .manual-back-btn:active {
+    transform: translateY(0px);
+  }
+
+  @media (max-width: 520px) {
+    .manual-back-btn {
+      top: 12px;
+      left: 12px;
+      padding: 9px 12px;
+      gap: 8px;
+      font-size: 12px;
+    }
+  }
+
+  /* ── NOISE TEXTURE ── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ── COVER ── */
+  .cover {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    background: radial-gradient(ellipse 80% 60% at 50% 40%, #2a1a0a 0%, #0a0608 70%);
+    border-bottom: 3px solid var(--gold-dark);
+    overflow: hidden;
+    padding: 60px 20px;
+  }
+
+  .cover-stars {
+    position: absolute;
+    inset: 0;
+    background-image:
+      radial-gradient(1px 1px at 10% 15%, rgba(201,168,76,0.6) 0%, transparent 100%),
+      radial-gradient(1px 1px at 25% 70%, rgba(201,168,76,0.4) 0%, transparent 100%),
+      radial-gradient(2px 2px at 50% 10%, rgba(201,168,76,0.5) 0%, transparent 100%),
+      radial-gradient(1px 1px at 75% 30%, rgba(201,168,76,0.6) 0%, transparent 100%),
+      radial-gradient(1px 1px at 88% 80%, rgba(201,168,76,0.3) 0%, transparent 100%),
+      radial-gradient(1px 1px at 60% 55%, rgba(201,168,76,0.5) 0%, transparent 100%),
+      radial-gradient(1px 1px at 38% 88%, rgba(201,168,76,0.4) 0%, transparent 100%),
+      radial-gradient(2px 2px at 15% 45%, rgba(201,168,76,0.3) 0%, transparent 100%),
+      radial-gradient(1px 1px at 92% 18%, rgba(201,168,76,0.6) 0%, transparent 100%);
+  }
+
+  .cover-glow {
+    position: absolute;
+    width: 500px; height: 500px;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -60%);
+    background: radial-gradient(circle, rgba(201,168,76,0.08) 0%, transparent 70%);
+    animation: pulse 4s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 0.6; transform: translate(-50%, -60%) scale(1); }
+    50% { opacity: 1; transform: translate(-50%, -60%) scale(1.15); }
+  }
+
+  .cover-emblem {
+    width: 140px; height: 140px;
+    border: 2px solid var(--gold-dark);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 32px;
+    position: relative;
+    background: radial-gradient(circle, rgba(201,168,76,0.1) 0%, transparent 70%);
+    box-shadow: 0 0 40px rgba(201,168,76,0.15), inset 0 0 20px rgba(0,0,0,0.5);
+  }
+
+  .cover-emblem svg { width: 80px; height: 80px; }
+
+  .cover-subtitle-top {
+    font-family: 'Cinzel', serif;
+    font-size: 13px;
+    letter-spacing: 0.4em;
+    color: var(--gold-dark);
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+
+  .cover-title {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: clamp(52px, 8vw, 100px);
+    font-weight: 900;
+    color: var(--gold);
+    text-shadow: 0 0 60px rgba(201,168,76,0.4), 0 4px 20px rgba(0,0,0,0.8);
+    letter-spacing: 0.08em;
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+
+  .cover-divider {
+    display: flex; align-items: center; gap: 16px;
+    margin: 16px 0;
+    width: 400px; max-width: 90vw;
+  }
+
+  .cover-divider-line {
+    flex: 1; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold-dark), transparent);
+  }
+
+  .cover-divider-diamond {
+    width: 8px; height: 8px;
+    background: var(--gold);
+    transform: rotate(45deg);
+  }
+
+  .cover-tagline {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(13px, 2vw, 16px);
+    letter-spacing: 0.25em;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    text-align: center;
+    max-width: 500px;
+    margin-bottom: 8px;
+  }
+
+  .cover-edition {
+    font-family: 'Cinzel', serif;
+    font-size: 12px;
+    letter-spacing: 0.3em;
+    color: var(--gold-dark);
+    margin-top: 40px;
+  }
+
+  .cover-scroll-hint {
+    position: absolute;
+    bottom: 30px;
+    font-family: 'Cinzel', serif;
+    font-size: 11px;
+    letter-spacing: 0.3em;
+    color: var(--gold-dark);
+    animation: bounce 2s ease-in-out infinite;
+  }
+
+  @keyframes bounce {
+    0%,100% { transform: translateY(0); }
+    50% { transform: translateY(6px); }
+  }
+
+  /* ── LAYOUT ── */
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 30px;
+  }
+
+  /* ── CHAPTER HEADER ── */
+  .chapter-header {
+    padding: 80px 0 0;
+    text-align: center;
+    position: relative;
+  }
+
+  .chapter-number {
+    font-family: 'Cinzel', serif;
+    font-size: 11px;
+    letter-spacing: 0.5em;
+    color: var(--gold-dark);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  .chapter-title {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: clamp(26px, 4vw, 42px);
+    font-weight: 700;
+    color: var(--gold);
+    text-shadow: 0 2px 20px rgba(201,168,76,0.3);
+    margin-bottom: 24px;
+    line-height: 1.2;
+  }
+
+  .chapter-rule {
+    display: flex; align-items: center; gap: 12px;
+    justify-content: center;
+    margin-bottom: 48px;
+  }
+
+  .chapter-rule-line {
+    width: 120px; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold-dark));
+  }
+
+  .chapter-rule-line.right {
+    background: linear-gradient(90deg, var(--gold-dark), transparent);
+  }
+
+  .chapter-rule-icon {
+    color: var(--gold);
+    font-size: 18px;
+  }
+
+  /* ── SECTIONS ── */
+  section { padding: 0 0 60px; }
+
+  .section-title {
+    font-family: 'Cinzel', serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--gold-light);
+    margin: 48px 0 20px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+  }
+
+  .section-title::after {
+    content: '';
+    position: absolute;
+    bottom: -1px; left: 0;
+    width: 60px; height: 2px;
+    background: var(--gold);
+  }
+
+  .subsection-title {
+    font-family: 'Cinzel', serif;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--gold);
+    margin: 32px 0 12px;
+    letter-spacing: 0.05em;
+  }
+
+  p { margin-bottom: 16px; }
+
+  em { color: var(--gold-light); font-style: italic; }
+
+  strong { color: var(--gold-light); font-weight: 600; }
+
+  /* ── LORE BOX ── */
+  .lore-box {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--gold);
+    padding: 24px 28px;
+    margin: 32px 0;
+    position: relative;
+  }
+
+  .lore-box::before {
+    content: '❝';
+    position: absolute;
+    top: -12px; left: 16px;
+    font-size: 32px;
+    color: var(--gold-dark);
+    line-height: 1;
+    font-family: serif;
+  }
+
+  .lore-box p { color: var(--text-dim); font-style: italic; margin-bottom: 8px; }
+  .lore-box p:last-child { margin-bottom: 0; }
+
+  .lore-attribution {
+    font-family: 'Cinzel', serif;
+    font-size: 12px;
+    color: var(--gold-dark);
+    letter-spacing: 0.1em;
+    margin-top: 12px;
+  }
+
+  /* ── INFO TABLE ── */
+  .info-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 24px 0;
+    font-size: 15px;
+  }
+
+  .info-table th {
+    font-family: 'Cinzel', serif;
+    font-size: 13px;
+    letter-spacing: 0.1em;
+    color: var(--gold);
+    background: var(--rune);
+    padding: 10px 16px;
+    text-align: left;
+    border: 1px solid var(--border);
+  }
+
+  .info-table td {
+    padding: 10px 16px;
+    border: 1px solid var(--border);
+    background: var(--panel);
+    vertical-align: top;
+  }
+
+  .info-table tr:nth-child(even) td { background: var(--panel2); }
+
+  .container-main {
+        display: flex;
+  }
+
+  /* ── CHARACTER CARD ── */
+  .character-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    margin: 40px 0;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .character-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--gold-dark), var(--gold), var(--gold-dark));
+  }
+
+  .character-header {
+    display: flex;
+    align-items: stretch;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .character-element-bar {
+    width: 8px;
+    flex-shrink: 0;
+  }
+
+  .character-portrait {
+    width: 132px;
+    min-height: 132px;
+    flex-shrink: 0;
+    background-size: cover;
+    background-position: center;
+    border-right: 1px solid var(--border);
+    filter: saturate(1.05) contrast(1.05);
+  }
+
+  .character-header-info {
+    flex: 1;
+    padding: 24px 28px;
+  }
+
+  .character-name {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--gold);
+    margin-bottom: 4px;
+  }
+
+  .character-title {
+    font-family: 'Cinzel', serif;
+    font-size: 13px;
+    letter-spacing: 0.2em;
+    color: var(--text-dim);
+    text-transform: uppercase;
+  }
+
+  .character-element-badge {
+    display: inline-block;
+    padding: 3px 12px;
+    border: 1px solid currentColor;
+    font-family: 'Cinzel', serif;
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-top: 10px;
+    border-radius: 2px;
+  }
+
+  .character-body {
+    padding: 24px 28px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
+
+  @media (max-width: 600px) {
+    .character-body { grid-template-columns: 1fr; }
+    .character-header { flex-direction: column; }
+    .character-portrait {
+      width: 100%;
+      height: 200px;
+      border-right: none;
+      border-bottom: 1px solid var(--border);
+    }
+  }
+
+  .character-stats {
+    border: 1px solid var(--border);
+    padding: 16px;
+    background: var(--panel2);
+  }
+
+  .stat-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+  }
+
+  .stat-row:last-child { border-bottom: none; }
+
+  .stat-name {
+    font-family: 'Cinzel', serif;
+    font-size: 12px;
+    color: var(--text-dim);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .stat-value {
+    font-family: 'Cinzel', serif;
+    font-size: 14px;
+    color: var(--gold-light);
+    font-weight: 600;
+  }
+
+  .character-bio { }
+
+  .character-bio p { font-size: 15px; color: var(--text-dim); }
+
+  .ability-list { margin-top: 12px; }
+
+  .ability-item {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 8px;
+    font-size: 15px;
+  }
+
+  .ability-bullet {
+    color: var(--gold);
+    flex-shrink: 0;
+    line-height: 1.75;
+  }
+
+  /* ── ELEMENT COLORS ── */
+  .el-fire { color: var(--fire-el); }
+  .el-water { color: var(--water-el); }
+  .el-earth { color: var(--earth-el); }
+  .el-air { color: var(--air-el); }
+  .el-lightning { color: var(--lightning-el); }
+  .el-shadow { color: var(--shadow-el); }
+  .el-void { color: #9a7ab5; }
+  .el-ice { color: #a0d4f0; }
+
+  .bar-fire { background: var(--fire-el); }
+  .bar-water { background: var(--water-el); }
+  .bar-earth { background: var(--earth-el); }
+  .bar-air { background: var(--air-el); }
+  .bar-lightning { background: var(--lightning-el); }
+  .bar-shadow { background: var(--shadow-el); }
+  .bar-void { background: #9a7ab5; }
+  .bar-ice { background: #a0d4f0; }
+
+  /* ── VILLAIN CARD ── */
+  .villain-card {
+    background: linear-gradient(135deg, #150d10 0%, #0a0608 100%);
+    border: 1px solid #5a1a1a;
+    margin: 40px 0;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .villain-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #5a1a1a, #c9a84c, #5a1a1a);
+  }
+
+  .villain-card::after {
+    content: '';
+    position: absolute;
+    bottom: -60px; right: -60px;
+    width: 200px; height: 200px;
+    background: radial-gradient(circle, rgba(201,168,76,0.04) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+
+  .villain-title-bar {
+    padding: 24px 28px 20px;
+    border-bottom: 1px solid #3a1a1a;
+    background: linear-gradient(90deg, rgba(90,26,26,0.3) 0%, transparent 100%);
+  }
+
+  .villain-label {
+    font-family: 'Cinzel', serif;
+    font-size: 11px;
+    letter-spacing: 0.5em;
+    color: #7a3a3a;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  .villain-name {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: 32px;
+    font-weight: 900;
+    color: var(--gold);
+    text-shadow: 0 0 30px rgba(201,168,76,0.3);
+  }
+
+  .villain-epithet {
+    font-family: 'Cinzel', serif;
+    font-size: 14px;
+    letter-spacing: 0.2em;
+    color: #7a3a3a;
+    text-transform: uppercase;
+    margin-top: 4px;
+  }
+
+  .villain-body {
+    padding: 28px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 28px;
+  }
+
+  @media (max-width: 600px) { .villain-body { grid-template-columns: 1fr; } }
+
+  /* ── RULES BOX ── */
+  .rules-box {
+    background: var(--panel2);
+    border: 1px solid var(--border);
+    padding: 20px 24px;
+    margin: 24px 0;
+  }
+
+  .rules-box-title {
+    font-family: 'Cinzel', serif;
+    font-size: 14px;
+    letter-spacing: 0.15em;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .rules-box ul { padding-left: 0; list-style: none; }
+
+  .rules-box ul li {
+    padding: 5px 0 5px 20px;
+    position: relative;
+    font-size: 15px;
+    color: var(--text-dim);
+  }
+
+  .rules-box ul li::before {
+    content: '◆';
+    position: absolute;
+    left: 0;
+    color: var(--gold-dark);
+    font-size: 10px;
+    top: 9px;
+  }
+
+  /* ── ELEMENT GRID ── */
+  .element-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 16px;
+    margin: 28px 0;
+  }
+
+  .element-tile {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .element-tile::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+  }
+
+  .element-tile-name {
+    font-family: 'Cinzel', serif;
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+
+  .element-tile-desc {
+    font-size: 14px;
+    color: var(--text-dim);
+    line-height: 1.6;
+  }
+
+  /* ── PAGE BREAK ORNAMENT ── */
+  .ornament {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin: 48px 0;
+    justify-content: center;
+  }
+
+  .ornament-line {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border));
+    max-width: 200px;
+  }
+
+  .ornament-line.right {
+    background: linear-gradient(90deg, var(--border), transparent);
+  }
+
+  .ornament-symbol {
+    font-size: 20px;
+    color: var(--gold-dark);
+  }
+
+  /* ── NAV SIDEBAR (desktop) ── */
+  .manual-layout {
+    display: flex;
+    flex-direction: column;
+    max-width: min-content;
+    margin: 0 auto;
+  }
+
+  .toc-sidebar {
+    width: 220px;
+    flex-shrink: 0;
+    position: sticky;
+    top: 20px;
+    height: 100vh;
+    padding: 30px 0 30px 20px;
+    border-right: 1px solid var(--border);
+    display: none;
+  }
+
+  @media (min-width: 1000px) { .toc-sidebar { display: block; } }
+
+  .toc-title {
+    font-family: 'Cinzel', serif;
+    font-size: 11px;
+    letter-spacing: 0.4em;
+    color: var(--gold-dark);
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+
+  .toc-link {
+    display: block;
+    font-family: 'Cinzel', serif;
+    font-size: 12px;
+    color: var(--text-dim);
+    text-decoration: none;
+    padding: 6px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+    transition: color 0.2s;
+    letter-spacing: 0.05em;
+  }
+
+  .toc-link:hover { color: var(--gold); }
+
+  .toc-link.chapter {
+    color: var(--gold-dark);
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-top: 8px;
+  }
+
+  .main-content {
+    flex: 1;
+    min-width: max-content;
+    padding: 0 30px;
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 40px 20px;
+    text-align: center;
+    font-family: 'Cinzel', serif;
+    font-size: 11px;
+    letter-spacing: 0.3em;
+    color: var(--gold-dark);
+    text-transform: uppercase;
+  }
+</style>
+</head>
+<body>
+
+<button id="btn-manual-back" class="manual-back-btn" type="button">← Voltar</button>
+
+<!-- ══════════════════════════════ COVER ══════════════════════════════ -->
+<div class="cover" id="top">
+  <div class="cover-stars"></div>
+  <div class="cover-glow"></div>
+
+  <div class="cover-emblem">
+    <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <!-- 8-pointed star / compass -->
+      <polygon points="50,5 54,40 95,50 54,60 50,95 46,60 5,50 46,40" fill="none" stroke="#c9a84c" stroke-width="1.5"/>
+      <circle cx="50" cy="50" r="15" fill="none" stroke="#c9a84c" stroke-width="1"/>
+      <circle cx="50" cy="50" r="5" fill="#c9a84c"/>
+      <line x1="50" y1="35" x2="50" y2="20" stroke="#c9a84c" stroke-width="1"/>
+      <line x1="50" y1="65" x2="50" y2="80" stroke="#c9a84c" stroke-width="1"/>
+      <line x1="35" y1="50" x2="20" y2="50" stroke="#c9a84c" stroke-width="1"/>
+      <line x1="65" y1="50" x2="80" y2="50" stroke="#c9a84c" stroke-width="1"/>
+    </svg>
+  </div>
+
+  <div class="cover-subtitle-top">Manual de Jogo de Interpretação</div>
+
+  <h1 class="cover-title">ELARA</h1>
+
+  <div class="cover-divider">
+    <div class="cover-divider-line"></div>
+    <div class="cover-divider-diamond"></div>
+    <div class="cover-divider-line"></div>
+  </div>
+
+  <p class="cover-tagline">A Ilha dos Experimentos — O Despertar dos Elementais</p>
+
+  <div class="cover-divider" style="margin-top:8px">
+    <div class="cover-divider-line"></div>
+    <div class="cover-divider-diamond"></div>
+    <div class="cover-divider-line"></div>
+  </div>
+
+  <div class="cover-edition">Primeira Edição · Suplemento Completo de Campanha</div>
+
+  <div class="cover-scroll-hint">▾ rolar para ler</div>
+</div>
+
+<!-- ══════════════════════════════ LAYOUT ══════════════════════════════ -->
+<div class="manual-layout">
+
+<div class="container-main">
+<!-- TOC -->
+<nav class="toc-sidebar">
+  <div class="toc-title">Índice</div>
+  <a class="toc-link chapter" href="#intro">Introdução</a>
+  <a class="toc-link" href="#world">O Mundo de Elara</a>
+  <a class="toc-link" href="#history">A Grande Fuga</a>
+  <a class="toc-link chapter" href="#elements">Elementos</a>
+  <a class="toc-link" href="#elements">Os Seis Elementos</a>
+  <a class="toc-link chapter" href="#chars">Personagens</a>
+  <a class="toc-link" href="#kael">Kael Cindervane</a>
+  <a class="toc-link" href="#lyra">Lyron Tideborn</a>
+  <a class="toc-link" href="#torak">Torak Stoneclaw</a>
+  <a class="toc-link" href="#senna">Senno Galewing</a>
+  <a class="toc-link" href="#mira">Mira Voidwhisper</a>
+  <a class="toc-link" href="#dax">Dax Stormfist</a>
+  <a class="toc-link" href="#orin">Orin Mistwalker</a>
+  <a class="toc-link" href="#vera">Varo Sunshard</a>
+  <a class="toc-link" href="#nyla">Nyla Frostveil</a>
+  <a class="toc-link" href="#cassia">Cassia Thornveil</a>
+  <a class="toc-link" href="#riven">Riva Ashcroft</a>
+  <a class="toc-link chapter" href="#villain">Vilão</a>
+  <a class="toc-link" href="#thefirst">The First</a>
+  <a class="toc-link" href="#servos">Servos de The First</a>
+  <a class="toc-link" href="#servo-goblin">Goblin</a>
+  <a class="toc-link" href="#servo-esqueleto">Esqueleto</a>
+  <a class="toc-link" href="#servo-lobo-atroz">Lobo Atroz</a>
+  <a class="toc-link" href="#servo-zumbi-elite">Zumbi de Elite</a>
+  <a class="toc-link" href="#servo-gargula">Gárgula</a>
+  <a class="toc-link" href="#servo-aranha-gigante">Aranha Gigante</a>
+  <a class="toc-link" href="#servo-golem-ferro">Golem de Ferro</a>
+  <a class="toc-link" href="#servo-quimera">Quimera</a>
+  <a class="toc-link" href="#servo-observador">Observador</a>
+  <a class="toc-link" href="#servo-dragao-vermelho">Dragão Vermelho</a>
+  <a class="toc-link chapter" href="#rules">Regras</a>
+  <a class="toc-link" href="#mechanics">Mecânicas</a>
+  <a class="toc-link" href="#combat">Combate</a>
+  <a class="toc-link" href="#campaign">Campanha</a>
+</nav>
+
+<!-- MAIN CONTENT -->
+<div class="main-content">
+
+<!-- ══ CHAPTER 1: INTRO ══ -->
+<div class="chapter-header" id="intro">
+  <div class="chapter-number">Capítulo I</div>
+  <h2 class="chapter-title">A Ilha que Respira Poder</h2>
+  <div class="chapter-rule">
+    <div class="chapter-rule-line"></div>
+    <span class="chapter-rule-icon">✦</span>
+    <div class="chapter-rule-line right"></div>
+  </div>
+</div>
+
+<div class="container">
+<section id="world">
+
+  <div class="lore-box">
+    <p>Não existe mapa que mostre Elara. Não existe livro que a mencione. Há apenas sussurros — nos porões de tavernas, nos pesadelos de marinheiros, nos olhos dourados de quem chegou ao continente com cicatrizes que nunca deveriam existir.</p>
+    <p>Elara existe. E ela ainda lembra de você.</p>
+    <div class="lore-attribution">— Fragmento encontrado numa garrafa, oceano desconhecido, ano 0 pós-fuga</div>
+  </div>
+
+  <div class="section-title">O Que é Este Manual</div>
+  <p>Este é o Manual Completo de Campanha para <em>Elara: O Despertar dos Elementais</em>, um sistema de RPG de mesa inspirado nas mecânicas de Dungeons & Dragons 5ª edição, porém ambientado num universo inteiramente original.</p>
+  <p>Neste jogo, os jogadores interpretam <strong>Evadidos</strong> — sobreviventes de experimentos científico-arcanos realizados na ilha secreta de Elara, uma instalação criada pelo ser mais antigo e poderoso já documentado: <strong>The First</strong>. Cada personagem escapou durante o Grande Terremoto e carrega em seu corpo a marca permanente de um <strong>Elemento</strong>, um poder que lhes foi forçosamente implantado.</p>
+  <p>O mundo não está pronto para eles. E Elara jamais os deixará partir de verdade.</p>
+
+  <div class="section-title" id="history">A História de Elara</div>
+
+  <div class="subsection-title">A Ilha Proibida</div>
+  <p>Situada no coração do <em>Mar de Cinzas</em>, a aproximadamente trezentas léguas de qualquer costa civilizada, Elara é uma ilha de origem vulcânica cujos picos negros nunca apareceram em nenhum atlas oficial. Por séculos, aventureiros relataram avistamentos, apenas para serem ridicularizados ou desaparecerem pouco depois.</p>
+  <p>A ilha foi escolhida por seu isolamento perfeito e por uma característica geológica única: seu núcleo contém uma <strong>Câmara de Convergência Elemental</strong>, um ponto onde os seis elementos primordiais — Fogo, Água, Terra, Ar, Sombra e Relâmpago — se cruzam em equilíbrio absoluto. Tal fenômeno ocorre apenas uma vez a cada dez mil anos, e The First esperou pacientemente por essa oportunidade.</p>
+
+  <div class="subsection-title">O Propósito dos Experimentos</div>
+  <p>Durante décadas, The First capturou humanos de todos os cantos do mundo: pescadores, mercenários, eruditos, crianças órfãs, nobres falidos, criminosos condenados. Para o mundo exterior, essas pessoas simplesmente desapareceram. Para Elara, elas se tornaram <strong>Recipientes</strong>.</p>
+  <p>O objetivo do projeto era criar a primeira geração de <em>Elementais Perfeitos</em>: seres humanos capazes de canalizar um elemento primordial de forma estável, permanente e controlável. A maioria dos experimentos resultava em morte, insanidade ou mutações irreversíveis. Apenas uma fração sobrevivia com o processo bem-sucedido — e esses sobreviventes eram mantidos nos <strong>Módulos de Contenção</strong>, estudados indefinidamente.</p>
+
+  <div class="lore-box">
+    <p>Módulo 7, Sujeito 49. Feminino. Aproximadamente 22 anos. Implantação de Fogo estabilizada com sucesso na terceira tentativa. Risco de auto-combustão emocional reduzido a 14%. Manter em observação por mais sessenta ciclos antes de considerar liberação controlada para Fase Beta.</p>
+    <div class="lore-attribution">— Registro interno de Elara, Módulo de Dados 7, fragmento recuperado</div>
+  </div>
+
+  <div class="subsection-title">O Grande Terremoto — Dia Zero</div>
+  <p>No que os Evadidos chamam de <strong>Dia Zero</strong>, um cataclismo de origem desconhecida sacudiu Elara até os alicerces. As estruturas de contenção falharam. As grades das celas se abriram. Os sistemas de monitoramento entraram em colapso. Durante um período de caos que durou aproximadamente seis horas, centenas de prisioneiros-sujeitos encontraram a oportunidade que jamais esperavam ter.</p>
+  <p>A maioria morreu tentando. Outros fugiram para o interior da ilha, incapazes de se orientar. Apenas um pequeno grupo conseguiu roubar embarcações dos atracadouros de pesquisa e alcançar o mar.</p>
+  <p>The First permitiu que alguns escapassem. Cada Evadido, em algum momento sombrio de lucidez, percebe que talvez a fuga tenha sido planejada. Que eles são parte de uma fase maior do experimento. Que Elara nunca terminou com eles.</p>
+
+  <div class="rules-box">
+    <div class="rules-box-title">Criando Sua História de Origem</div>
+    <ul>
+      <li>Como e quando você foi capturado e levado a Elara?</li>
+      <li>Qual experimento foi realizado em você, e quantas vezes ele falhou antes de ter sucesso?</li>
+      <li>O que você perdeu durante o tempo em Elara (memórias, pessoas, identidade)?</li>
+      <li>Você viu The First pessoalmente — ou apenas sentiu sua presença?</li>
+      <li>O que você fez durante as seis horas do caos para sobreviver?</li>
+    </ul>
+  </div>
+
+</section>
+
+<!-- ══ CHAPTER 2: ELEMENTS ══ -->
+<div class="chapter-header" id="elements">
+  <div class="chapter-number">Capítulo II</div>
+  <h2 class="chapter-title">Os Seis Elementos</h2>
+  <div class="chapter-rule">
+    <div class="chapter-rule-line"></div>
+    <span class="chapter-rule-icon">✦</span>
+    <div class="chapter-rule-line right"></div>
+  </div>
+</div>
+
+<section>
+  <p>Cada Evadido carrega em seu corpo e alma a marca de um dos seis elementos primordiais implantados em Elara. O Elemento determina as habilidades disponíveis, a aparência de seus poderes e aspectos de sua personalidade que foram alterados permanentemente pelo processo.</p>
+
+  <div class="element-grid">
+
+    <div class="element-tile" style="border-top-color: var(--fire-el);">
+      <div class="element-tile-name el-fire">🔥 Fogo</div>
+      <div class="element-tile-desc">Agressividade explosiva. Temperatura corporal elevada. Habilidades de destruição e velocidade de combustão. Emoções intensificadas pelo calor interno.</div>
+    </div>
+
+    <div class="element-tile" style="border-top-color: var(--water-el);">
+      <div class="element-tile-name el-water">🌊 Água</div>
+      <div class="element-tile-desc">Adaptabilidade e cura. Capacidade de sentir fluxos de energia. Habilidades de cura, controle de fluidos e visão aguçada em ambientes aquáticos.</div>
+    </div>
+
+    <div class="element-tile" style="border-top-color: var(--earth-el);">
+      <div class="element-tile-name el-earth">🗿 Terra</div>
+      <div class="element-tile-desc">Resistência absoluta. Força sobre-humana. Capacidade de sentir vibrações pelo solo. Regeneração lenta mas contínua quando em contato com superfícies naturais.</div>
+    </div>
+
+    <div class="element-tile" style="border-top-color: var(--air-el);">
+      <div class="element-tile-name el-air">💨 Ar</div>
+      <div class="element-tile-desc">Velocidade e evasão incomparáveis. Leveza corporal. Habilidades de manipulação de vento, invisibilidade temporária e leitura de emoções pelo olfato.</div>
+    </div>
+
+    <div class="element-tile" style="border-top-color: var(--shadow-el);">
+      <div class="element-tile-name el-shadow">🌑 Sombra</div>
+      <div class="element-tile-desc">Controle das trevas e da luz ausente. Telepatia limitada. Capacidade de ver no escuro absoluto e de se fundir brevemente com sombras projetadas.</div>
+    </div>
+
+    <div class="element-tile" style="border-top-color: var(--lightning-el);">
+      <div class="element-tile-name el-lightning">⚡ Relâmpago</div>
+      <div class="element-tile-desc">Reflexos acima do humano. Capacidade de carregar e descarregar eletricidade. Velocidade de processamento mental aumentada. Instabilidade emocional em tempestades.</div>
+    </div>
+
+  </div>
+
+  <div class="section-title">Instabilidade Elemental</div>
+  <p>Os poderes concedidos em Elara não foram obtidos naturalmente — foram forçados. Isso significa que cada Elemental convive com uma <strong>Fratura</strong>: um estado de instabilidade onde o elemento começa a agir por conta própria, especialmente sob estresse extremo, privação de sono ou exposição ao <em>Sinal de Elara</em>, um pulso de energia que The First emite periodicamente para monitorar seus sujeitos.</p>
+
+  <table class="info-table">
+    <thead>
+      <tr>
+        <th>Nível de Fratura</th>
+        <th>Manifestação</th>
+        <th>Mecanismo de Jogo</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>1 — Dormência</td>
+        <td>Estável. Poderes sob controle total.</td>
+        <td>Funcionamento normal.</td>
+      </tr>
+      <tr>
+        <td>2 — Tremor</td>
+        <td>Manifestações involuntárias menores.</td>
+        <td>–1 em testes de Destreza/Furtividade.</td>
+      </tr>
+      <tr>
+        <td>3 — Fissura</td>
+        <td>Perdas de controle em situações de raiva.</td>
+        <td>Rolar 1d6; em 1, o poder age sem permissão.</td>
+      </tr>
+      <tr>
+        <td>4 — Colapso</td>
+        <td>O elemento começa a consumir o hospedeiro.</td>
+        <td>Dano de 1d8 por turno até contenção.</td>
+      </tr>
+      <tr>
+        <td>5 — Fragmentação</td>
+        <td>O personagem deixa de existir. O elemento assume.</td>
+        <td>Transformação em NPC controlado pelo mestre.</td>
+      </tr>
+    </tbody>
+  </table>
+
+</section>
+
+<!-- ══ CHAPTER 3: CHARACTERS ══ -->
+<div class="chapter-header" id="chars">
+  <div class="chapter-number">Capítulo III</div>
+  <h2 class="chapter-title">Os Evadidos</h2>
+  <div class="chapter-rule">
+    <div class="chapter-rule-line"></div>
+    <span class="chapter-rule-icon">✦</span>
+    <div class="chapter-rule-line right"></div>
+  </div>
+</div>
+
+<section>
+  <p>Os personagens a seguir são os <strong>Evadidos Canônicos</strong> de Elara — figuras que os jogadores podem interpretar diretamente ou usar como NPCs de suporte em suas campanhas. Cada um carregou algo de Elara que não consegue descrever com palavras, apenas mostrar com o brilho estranho em seus olhos e as cicatrizes que parecem pulsar no escuro.</p>
+
+  <!-- KAEL -->
+  <div id="kael" class="character-card">
+    <div class="character-header">
+      <div class="character-element-bar bar-fire"></div>
+      <div class="character-portrait" style="background-image:url('assets/Jogar/Hist%C3%B3ria/personagens/04%20Finalizado.png')"></div>
+      <div class="character-header-info">
+        <div class="character-name">Kael Cindervane</div>
+        <div class="character-title">O Primeiro a Queimar — O Último a Ceder</div>
+        <span class="character-element-badge el-fire" style="border-color: var(--fire-el);">Elemental de Fogo · Classe: Destruidor</span>
+      </div>
+    </div>
+    <div class="character-body">
+      <div>
+        <div class="character-stats">
+          <div class="stat-row"><span class="stat-name">Força</span><span class="stat-value">17 (+3)</span></div>
+          <div class="stat-row"><span class="stat-name">Destreza</span><span class="stat-value">14 (+2)</span></div>
+          <div class="stat-row"><span class="stat-name">Constituição</span><span class="stat-value">18 (+4)</span></div>
+          <div class="stat-row"><span class="stat-name">Inteligência</span><span class="stat-value">10 (0)</span></div>
+          <div class="stat-row"><span class="stat-name">Sabedoria</span><span class="stat-value">9 (–1)</span></div>
+          <div class="stat-row"><span class="stat-name">Carisma</span><span class="stat-value">15 (+2)</span></div>
+          <div class="stat-row"><span class="stat-name">Pontos de Vida</span><span class="stat-value">85</span></div>
+          <div class="stat-row"><span class="stat-name">Classe de Armadura</span><span class="stat-value">15</span></div>
+        </div>
+      </div>
+      <div class="character-bio">
+        <p>Kael tinha dezenove anos quando pescadores de Elara o capturaram enquanto dormia num porto do sul. Era um ferreiro aprendiz, filho de migrantes, sem família próxima — o tipo de pessoa que ninguém vai procurar. Em Elara, sobreviveu a doze tentativas de implantação de Fogo antes que o décimo terceiro procedimento funcionasse.</p>
+        <p>Ele é o único Evadido que parece genuinamente gostar de seus poderes — o que o torna, segundo Mira Voidwhisper, o mais perigoso de todos.</p>
+        <div class="ability-list">
+          <div class="ability-item"><span class="ability-bullet el-fire">◆</span><span><strong>Punhos de Cinzas:</strong> Ataques corpo-a-corpo causam 2d6 de dano de fogo adicional.</span></div>
+          <div class="ability-item"><span class="ability-bullet el-fire">◆</span><span><strong>Combustão Voluntária:</strong> Envolve o próprio corpo em chamas por 1 minuto; imune a fogo durante o efeito.</span></div>
+          <div class="ability-item"><span class="ability-bullet el-fire">◆</span><span><strong>Memória da Forja:</strong> Pode derreter qualquer metal com toque sustentado de 10 segundos.</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LYRA -->
+  <div id="lyra" class="character-card">
+    <div class="character-header">
+      <div class="character-element-bar bar-water"></div>
+      <div class="character-portrait" style="background-image:url('assets/Jogar/Hist%C3%B3ria/personagens/06%20Finallizado.png')"></div>
+      <div class="character-header-info">
+        <div class="character-name">Lyron Tideborn</div>
+        <div class="character-title">O Curador das Marés — O Que Nunca Esquece</div>
+        <span class="character-element-badge el-water" style="border-color: var(--water-el);">Elemental de Água · Classe: Médica Arcana</span>
+      </div>
+    </div>
+    <div class="character-body">
+      <div>
+        <div class="character-stats">
+          <div class="stat-row"><span class="stat-name">Força</span><span class="stat-value">9 (–1)</span></div>
+          <div class="stat-row"><span class="stat-name">Destreza</span><span class="stat-value">16 (+3)</span></div>
+          <div class="stat-row"><span class="stat-name">Constituição</span><span class="stat-value">14 (+2)</span></div>
+          <div class="stat-row"><span class="stat-name">Inteligência</span><span class="stat-value">18 (+4)</span></div>
+          <div class="stat-row"><span class="stat-name">Sabedoria</span><span class="stat-value">17 (+3)</span></div>
+          <div class="stat-row"><span class="stat-name">Carisma</span><span class="stat-value">13 (+1)</span></div>
+          <div class="stat-row"><span class="stat-name">Pontos de Vida</span><span class="stat-value">62</span></div>
+          <div class="stat-row"><span class="stat-name">Classe de Armadura</span><span class="stat-value">13</span></div>
+        </div>
+      </div>
+      <div class="character-bio">
+        <p>Lyron era professor numa cidade costeira quando foi levado, junto com seus alunos, durante uma excursão marítima. Os alunos nunca foram encontrados. Ele passou quatro anos em Elara e saiu com três implantações de Água sobrepostas — um erro de protocolo que The First considerou "um feliz acidente" em seus registros.</p>
+        <p>Ele carrega um caderno com todos os nomes e números de sujeito que conseguiu memorizar durante o cativeiro. Sua missão pessoal é encontrar cada um deles — vivos ou não.</p>
+        <div class="ability-list">
+          <div class="ability-item"><span class="ability-bullet el-water">◆</span><span><strong>Maré Curadora:</strong> Restaura 3d8+5 pontos de vida em um aliado; usa reação de ação.</span></div>
+          <div class="ability-item"><span class="ability-bullet el-water">◆</span><span><strong>Memória das Profundezas:</strong> Nunca esquece nada que viu ou ouviu — habilidade passiva permanente.</span></div>
+          <div class="ability-item"><span class="ability-bullet el-water">◆</span><span><strong>Dissolução:</strong> Pode dissolver venenos e maldições com contato físico (2 usos por descanso longo).</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TORAK -->
+  <div id="torak" class="character-card">
+    <div class="character-header">
+      <div class="character-element-bar bar-earth"></div>
+      <div class="character-portrait" style="background-image:url('assets/Jogar/Hist%C3%B3ria/personagens/12%20Finalizado.jpg')"></div>
+      <div class="character-header-info">
+        <div class="character-name">Torak Stoneclaw</div>
+        <div class="character-title">O Muralha Viva — Aquele Que Ouve o Chão</div>
+        <span class="character-element-badge el-earth" style="border-color: var(--earth-el);">Elemental de Terra · Classe: Guardião</span>
+      </div>
+    </div>
+    <div class="character-body">
+      <div>
+        <div class="character-stats">
+          <div class="stat-row"><span class="stat-name">Força</span><span class="stat-value">20 (+5)</span></div>
+          <div class="stat-row"><span class="stat-name">Destreza</span><span class="stat-value">8 (–1)</span></div>
+          <div class="stat-row"><span class="stat-name">Constituição</span><span class="stat-value">20 (+5)</span></div>
+          <div class="stat-row"><span class="stat-name">Inteligência</span><span class="stat-value">11 (0)</span></div>
+          <div class="stat-row"><span class="stat-name">Sabedoria</span><span class="stat-value">14 (+2)</span></div>
+          <div class="stat-row"><span class="stat-name">Carisma</span><span class="stat-value">8 (–1)</span></div>
+          <div class="stat-row"><span class="stat-name">Pontos de Vida</span><span class="stat-value">130</span></div>
+          <div class="stat-row"><span class="stat-name">Classe de Armadura</span><span class="stat-value">19</span></div>
+        </div>
+      </div>
+      <div class="character-bio">
+        <p>Torak era minerador numa colônia a norte — corpulento, silencioso, venerado pelos colegas de mina. Capturado durante um colapso de túnel que, suspeita-se agora, foi orquestrado. Em Elara, o experimento de Terra funcionou na primeira tentativa, e isso assustou até os pesquisadores.</p>
+        <p>Sua pele endureceu gradualmente ao longo dos anos até adquirir a textura e a resistência de granito fraturado. Ele raramente fala. Quando fala, todo o grupo presta atenção.</p>
+        <div class="ability-list">
+          <div class="ability-item"><span class="ability-bullet el-earth">◆</span><span><strong>Pele de Pedra:</strong> Resistência a dano físico e perfurante; reduz todo dano recebido em 5.</span></div>
+          <div class="ability-item"><span class="ability-bullet el-earth">◆</span><span><strong>Terremoto Localizado:</strong> Cria uma onda sísmica em 6 metros; inimigos devem passar em Atletismo CD 16 ou cair.</span></div>
+          <div class="ability-item"><span class="ability-bullet el-earth">◆</span><span><strong>Escuta do Solo:</strong> Detecta qualquer movimento a até 30 metros através do chão; passivo contínuo.</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SENNA -->
+  <div id="senna" class="character-card">
+    <div class="character-header">
+      <div class="character-element-bar bar-air"></div>
+      <div class="character-portrait" style="background-image:url('assets/Jogar/Hist%C3%B3ria/personagens/13%20Finalizado.jpg')"></div>
+      <div class="character-header-info">
+        <div class="character-name">Senno Galewing</div>
+        <div class="character-title">O Vento que Ri — O Que Ninguém Consegue Segurar</div>
+        <span class="character-element-badge el-air" style="border-color: var(--air-el);">Elemental de Ar · Classe: Explorador Fantasma</span>
+      </div>
+    </div>
+    <div class="character-body">
+      <div>
+        <div class="character-stats">
+          <div class="stat-row"><span class="stat-name">Força</span><span class="stat-value">11 (0)</span></div>
+          <div class="stat-row"><span class="stat-name">Destreza</span><span class="stat-value">20 (+5)</span></div>
+          <div class="stat-row"><span class="stat-name">Constituição</span><span class="stat-value">12 (+1)</span></div>
+          <div class="stat-row"><span class="stat-name">Inteligência</span><span class="stat-value">15 (+2)</span></div>
+          <div class="stat-row"><span class="stat-name">Sabedoria</span><span class="stat-value">16 (+3)</span></div>
+          <div class="stat-row"><span class="stat-name">Carisma</span><span class="stat-value">17 (+3)</span></div>
+          <div class="stat-row"><span class="stat-name">Pontos de Vida</span><span class="stat-value">55</span></div>
+          <div class="stat-row"><span class="stat-name">Classe de Armadura</span><span class="stat-value">16</span></div>
+        </div>
+      </div>
+      <div class="character-bio">
+        <p>Ninguém sabe exatamente quem Senno era antes de Elara. Os registros da ilha o identificam apenas como "Sujeito Volátil — Captura Oportunista, Porto Leste". O que se sabe é que Senno claramente se divertiu durante o caos do Dia Zero — foi visto rindo enquanto corria pelos corredores em chamas.</p>
+        <p>Ele usa seu Elemento de Ar como se sempre tivesse sido parte dele — dançando entre os ataques, desaparecendo antes do impacto, reaparecendo atrás do atacante. Mas nas noites de tempestade, quando o vento uiva, ele para de falar e apenas olha para o céu com um rosto que ninguém consegue interpretar.</p>
+        <div class="ability-list">
+          <div class="ability-item"><span class="ability-bullet el-air">◆</span><span><strong>Passo do Vento:</strong> Move 15 metros adicionais sem provocar ataques de oportunidade.</span></div>
+          <div class="ability-item"><span class="ability-bullet el-air">◆</span><span><strong>Sussurro do Ar:</strong> Ouve qualquer conversa a até 60 metros se o ar estiver circulando.</span></div>
+          <div class="ability-item"><span class="ability-bullet el-air">◆</span><span><strong>Tornado Pessoal:</strong> Gira em velocidade elemental por 1 turno; desvia projéteis automaticamente.</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MIRA -->
+  <div id="mira" class="character-card">
+    <div class="character-header">
+      <div class="character-element-bar bar-shadow"></div>
+      <div class="character-portrait" style="background-image:url('assets/Jogar/Hist%C3%B3ria/personagens/14%20Finalizado.jpg')"></div>
+      <div class="character-header-info">
+        <div class="character-name">Mira Voidwhisper</div>
+        <div class="character-title">A Que Vê o que Não Deveria Existir</div>
+        <span class="character-element-badge el-shadow" style="border-color: var(--shadow-el);">Elemental de Sombra · Classe: Oráculo das Trevas</span>
+      </div>
+    </div>
+    <div class="character-body">
+      <div>
+        <div class="character-stats">
+          <div class="stat-row"><span class="stat-name">Força</span><span class="stat-value">8 (–1)</span></div>
+          <div class="stat-row"><span class="stat-name">Destreza</span><span class="stat-value">15 (+2)</span></div>
+          <div class="stat-row"><span class="stat-name">Constituição</span><span class="stat-value">12 (+1)</span></div>
+          <div class="stat-row"><span class="stat-name">Inteligência</span><span class="stat-value">20 (+5)</span></div>
+          <div class="stat-row"><span class="stat-name">Sabedoria</span><span class="stat-value">18 (+4)</span></div>
+          <div class="stat-row"><span class="stat-name">Carisma</span><span class="stat-value">12 (+1)</span></div>
+          <div class="stat-row"><span class="stat-name">Pontos de Vida</span><span class="stat-value">48</span></div>
+          <div class="stat-row"><span class="stat-name">Classe de Armadura</span><span class="stat-value">13</span></div>
+        </div>
+      </div>
+      <div class="character-bio">
+        <p>Mira foi uma acadêmica dedicada ao estudo de fenômenos paranormais — o que, ironicamente, a tornou um alvo de interesse de Elara. Ela passou dois anos em cativeiro sendo submetida a experimentos de Sombra antes que The First pessoalmente autorizasse a continuação do processo, descrito em seus diários como "a mais promissora integração Sombra-cognição em três décadas".</p>
+        <p>Ela é a que mais claramente compreende o que The First planeja — e é exatamente por isso que quase nunca dorme. Suas sombras se movem ligeiramente fora de sincronia com seu corpo.</p>
+        <div class="ability-list">
+          <div class="ability-item"><span class="ability-bullet el-shadow">◆</span><span><strong>Leitura da Sombra:</strong> Toca a sombra de alguém e lê os últimos 24 horas de suas memórias visuais.</span></div>
+          <div class="ability-item"><span class="ability-bullet el-shadow">◆</span><span><strong>Passo das Trevas:</strong> Teletransporte entre sombras a até 30 metros; requer escuridão nos dois pontos.</span></div>
+          <div class="ability-item"><span class="ability-bullet el-shadow">◆</span><span><strong>Véu do Nada:</strong> Torna a si mesma e até dois aliados adjacentes invisíveis por 1 minuto (1 uso/descanso longo).</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DAX -->
+  <div id="dax" class="character-card">
+    <div class="character-header">
+      <div class="character-element-bar bar-lightning"></div>
+      <div class="character-portrait" style="background-image:url('assets/Jogar/Hist%C3%B3ria/personagens/Atlas%20Finalizado.jpg')"></div>
+      <div class="character-header-info">
+        <div class="character-name">Dax Stormfist</div>
+        <div class="character-title">O Relâmpago com Rosto Humano</div>
+        <span class="character-element-badge el-lightning" style="border-color: var(--lightning-el);">Elemental de Relâmpago · Classe: Combatente Veloz</span>
+      </div>
+    </div>
+    <div class="character-body">
+      <div>
+        <div class="character-stats">
+          <div class="stat-row"><span class="stat-name">Força</span><span class="stat-value">15 (+2)</span></div>
+          <div class="stat-row"><span class="stat-name">Destreza</span><span class="stat-value">19 (+4)</span></div>
+          <div class="stat-row"><span class="stat-name">Constituição</span><span class="stat-value">16 (+3)</span></div>
+          <div class="stat-row"><span class="stat-name">Inteligência</span><span class="stat-value">14 (+2)</span></div>
+          <div class="stat-row"><span class="stat-name">Sabedoria</span><span class="stat-value">10 (0)</span></div>
+          <div class="stat-row"><span class="stat-name">Carisma</span><span class="stat-value">11 (0)</span></div>
+          <div class="stat-row"><span class="stat-name">Pontos de Vida</span><span class="stat-value">70</span></div>
+          <div class="stat-row"><span class="stat-name">Classe de Armadura</span><span class="stat-value">14</span></div>
+        </div>
+      </div>
+      <div class="character-bio">
+        <p>Dax cresceu em favelas portuárias e sobreviveu anos como batedor e ladrão de alta precisão — o que explica por que Elara o queria especificamente. A implantação de Relâmpago foi descrita nos registros como "espetacularmente bem-sucedida" porque Dax já possuía reflexos acima da média humana; o experimento simplesmente amplificou o que já existia.</p>
+        <p>Ele fala rápido, pensa mais rápido ainda, e às vezes começa frases que termina três assuntos depois. Em combate, é o primeiro a agir e o último a parar. Seus cabelos ficam permanentemente em estado de estática elétrica.</p>
+        <div class="ability-list">
+          <div class="ability-item"><span class="ability-bullet el-lightning">◆</span><span><strong>Surto de Relâmpago:</strong> Realiza três ataques no lugar de um; uma vez por turno.</span></div>
+          <div class="ability-item"><span class="ability-bullet el-lightning">◆</span><span><strong>Descarga:</strong> Libera 4d10 de dano elétrico em linha de 15 metros; CD 15 Destreza para metade.</span></div>
+          <div class="ability-item"><span class="ability-bullet el-lightning">◆</span><span><strong>Sentidos de Tempestade:</strong> Não pode ser surpreendido; iniciativa com vantagem permanente.</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="orin" class="character-card">
+    <div class="character-header">
+      <div class="character-element-bar bar-water"></div>
+      <div class="character-portrait" style="background-image:url('assets/Jogar/Hist%C3%B3ria/personagens/Daniel%20Finalizado.jpg')"></div>
+      <div class="character-header-info">
+        <div class="character-name">Orin Mistwalker</div>
+        <div class="character-title">O Cartógrafo do Nevoeiro — Aquele que Sempre Volta</div>
+        <span class="character-element-badge el-water" style="border-color: var(--water-el);">Elemental de Água · Classe: Navegador Arcano</span>
+      </div>
+    </div>
+    <div class="character-body">
+      <div>
+        <div class="character-stats">
+          <div class="stat-row"><span class="stat-name">Força</span><span class="stat-value">12 (+1)</span></div>
+          <div class="stat-row"><span class="stat-name">Destreza</span><span class="stat-value">14 (+2)</span></div>
+          <div class="stat-row"><span class="stat-name">Constituição</span><span class="stat-value">15 (+2)</span></div>
+          <div class="stat-row"><span class="stat-name">Inteligência</span><span class="stat-value">16 (+3)</span></div>
+          <div class="stat-row"><span class="stat-name">Sabedoria</span><span class="stat-value">16 (+3)</span></div>
+          <div class="stat-row"><span class="stat-name">Carisma</span><span class="stat-value">10 (0)</span></div>
+          <div class="stat-row"><span class="stat-name">Pontos de Vida</span><span class="stat-value">64</span></div>
+          <div class="stat-row"><span class="stat-name">Classe de Armadura</span><span class="stat-value">14</span></div>
+        </div>
+      </div>
+      <div class="character-bio">
+        <p>Orin era guia de embarcações em águas traiçoeiras, alguém que conhecia correntes como quem conhece o próprio pulso. Em Elara, o elemento de Água grudou nele como sal na pele — e desde então ele sente mapas onde não existem mapas.</p>
+        <p>Entre os Evadidos, é o que melhor entende distâncias impossíveis: atalhos, retornos e rotas que se dobram dentro de névoa.</p>
+        <div class="ability-list">
+          <div class="ability-item"><span class="ability-bullet el-water">◆</span><span><strong>Névoa Guiada:</strong> Cria cobertura densa em 9 metros e escolhe quem enxerga através dela.</span></div>
+          <div class="ability-item"><span class="ability-bullet el-water">◆</span><span><strong>Rastro de Maré:</strong> Pode deixar uma trilha aquosa que acelera aliados e desacelera inimigos.</span></div>
+          <div class="ability-item"><span class="ability-bullet el-water">◆</span><span><strong>Ponto de Retorno:</strong> Uma vez por descanso longo, retorna ao lugar em que estava no turno anterior.</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="vera" class="character-card">
+    <div class="character-header">
+      <div class="character-element-bar bar-lightning"></div>
+      <div class="character-portrait" style="background-image:url('assets/Jogar/Hist%C3%B3ria/personagens/Donnovan%20Finalizado.jpg')"></div>
+      <div class="character-header-info">
+        <div class="character-name">Varo Sunshard</div>
+        <div class="character-title">A Lâmina do Clarão — O Que Corta o Escuro</div>
+        <span class="character-element-badge el-lightning" style="border-color: var(--lightning-el);">Elemental de Relâmpago · Classe: Duelista</span>
+      </div>
+    </div>
+    <div class="character-body">
+      <div>
+        <div class="character-stats">
+          <div class="stat-row"><span class="stat-name">Força</span><span class="stat-value">13 (+1)</span></div>
+          <div class="stat-row"><span class="stat-name">Destreza</span><span class="stat-value">18 (+4)</span></div>
+          <div class="stat-row"><span class="stat-name">Constituição</span><span class="stat-value">14 (+2)</span></div>
+          <div class="stat-row"><span class="stat-name">Inteligência</span><span class="stat-value">12 (+1)</span></div>
+          <div class="stat-row"><span class="stat-name">Sabedoria</span><span class="stat-value">11 (0)</span></div>
+          <div class="stat-row"><span class="stat-name">Carisma</span><span class="stat-value">16 (+3)</span></div>
+          <div class="stat-row"><span class="stat-name">Pontos de Vida</span><span class="stat-value">72</span></div>
+          <div class="stat-row"><span class="stat-name">Classe de Armadura</span><span class="stat-value">16</span></div>
+        </div>
+      </div>
+      <div class="character-bio">
+        <p>Varo foi treinado para lutar antes de aprender a descansar. Em Elara, sobreviveu ao Relâmpago por teimosia — e saiu com o olhar de quem enxerga o mundo em instantes.</p>
+        <p>Ele não é rápido. Ele é inevitável. Onde Varo pisa, faíscas lembram ao chão que tudo que existe pode se partir.</p>
+        <div class="ability-list">
+          <div class="ability-item"><span class="ability-bullet el-lightning">◆</span><span><strong>Golpe de Clarão:</strong> Teleporta 6 metros até um alvo e realiza um ataque com vantagem.</span></div>
+          <div class="ability-item"><span class="ability-bullet el-lightning">◆</span><span><strong>Ruptura Elétrica:</strong> Ao acertar crítico, paralisa por 1 turno (CD 15 Constituição).</span></div>
+          <div class="ability-item"><span class="ability-bullet el-lightning">◆</span><span><strong>Passo Estático:</strong> Reação que reduz dano recebido pela metade e reposiciona 3 metros.</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="nyla" class="character-card">
+    <div class="character-header">
+      <div class="character-element-bar bar-air"></div>
+      <div class="character-portrait" style="background-image:url('assets/Jogar/Hist%C3%B3ria/personagens/Fernanda%20Finalizado.jpg')"></div>
+      <div class="character-header-info">
+        <div class="character-name">Nyla Frostveil</div>
+        <div class="character-title">A Voz do Inverno — A Que Apaga Pegadas</div>
+        <span class="character-element-badge el-air" style="border-color: var(--air-el);">Elemental de Ar · Classe: Espreitadora</span>
+      </div>
+    </div>
+    <div class="character-body">
+      <div>
+        <div class="character-stats">
+          <div class="stat-row"><span class="stat-name">Força</span><span class="stat-value">9 (–1)</span></div>
+          <div class="stat-row"><span class="stat-name">Destreza</span><span class="stat-value">19 (+4)</span></div>
+          <div class="stat-row"><span class="stat-name">Constituição</span><span class="stat-value">12 (+1)</span></div>
+          <div class="stat-row"><span class="stat-name">Inteligência</span><span class="stat-value">14 (+2)</span></div>
+          <div class="stat-row"><span class="stat-name">Sabedoria</span><span class="stat-value">17 (+3)</span></div>
+          <div class="stat-row"><span class="stat-name">Carisma</span><span class="stat-value">13 (+1)</span></div>
+          <div class="stat-row"><span class="stat-name">Pontos de Vida</span><span class="stat-value">58</span></div>
+          <div class="stat-row"><span class="stat-name">Classe de Armadura</span><span class="stat-value">15</span></div>
+        </div>
+      </div>
+      <div class="character-bio">
+        <p>Nyla não deixa rastros. Nem no chão, nem na memória. Em Elara, o Ar a escolheu como faz com lâminas: afinando até a invisibilidade.</p>
+        <p>Ela aparece onde o vento muda. Some quando alguém decide olhar.</p>
+        <div class="ability-list">
+          <div class="ability-item"><span class="ability-bullet el-air">◆</span><span><strong>Silêncio Cortante:</strong> Cria uma zona sem som e sem cheiro por 1 minuto.</span></div>
+          <div class="ability-item"><span class="ability-bullet el-air">◆</span><span><strong>Lâmina de Brisa:</strong> Ataque à distância que causa dano cortante e empurra 3 metros.</span></div>
+          <div class="ability-item"><span class="ability-bullet el-air">◆</span><span><strong>Passagem Fria:</strong> Pode atravessar grades e frestas como corrente de ar.</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="cassia" class="character-card">
+    <div class="character-header">
+      <div class="character-element-bar bar-shadow"></div>
+      <div class="character-portrait" style="background-image:url('assets/Jogar/Hist%C3%B3ria/personagens/Fiora%20Dr%20Maia%20Finalizado.jpg')"></div>
+      <div class="character-header-info">
+        <div class="character-name">Cassia Thornveil</div>
+        <div class="character-title">A Jardineira do Vazio — A Que Planta Sombras</div>
+        <span class="character-element-badge el-shadow" style="border-color: var(--shadow-el);">Elemental de Sombra · Classe: Hexer</span>
+      </div>
+    </div>
+    <div class="character-body">
+      <div>
+        <div class="character-stats">
+          <div class="stat-row"><span class="stat-name">Força</span><span class="stat-value">10 (0)</span></div>
+          <div class="stat-row"><span class="stat-name">Destreza</span><span class="stat-value">13 (+1)</span></div>
+          <div class="stat-row"><span class="stat-name">Constituição</span><span class="stat-value">13 (+1)</span></div>
+          <div class="stat-row"><span class="stat-name">Inteligência</span><span class="stat-value">18 (+4)</span></div>
+          <div class="stat-row"><span class="stat-name">Sabedoria</span><span class="stat-value">15 (+2)</span></div>
+          <div class="stat-row"><span class="stat-name">Carisma</span><span class="stat-value">14 (+2)</span></div>
+          <div class="stat-row"><span class="stat-name">Pontos de Vida</span><span class="stat-value">52</span></div>
+          <div class="stat-row"><span class="stat-name">Classe de Armadura</span><span class="stat-value">13</span></div>
+        </div>
+      </div>
+      <div class="character-bio">
+        <p>Cassia entendia de remédios e venenos antes de Elara. Depois, passou a entender de ausências. Suas sombras têm espinhos e crescem para onde ela aponta.</p>
+        <p>Ela fala baixo, mas as palavras ficam no ar como fumaça presa — e alguém sempre se arrepende de respirar fundo.</p>
+        <div class="ability-list">
+          <div class="ability-item"><span class="ability-bullet el-shadow">◆</span><span><strong>Hera Sombria:</strong> Raízes de sombra prendem inimigos (CD 15 Força).</span></div>
+          <div class="ability-item"><span class="ability-bullet el-shadow">◆</span><span><strong>Marcação do Vazio:</strong> Um alvo marcado recebe +1d8 dano de poderes de Sombra.</span></div>
+          <div class="ability-item"><span class="ability-bullet el-shadow">◆</span><span><strong>Jardim Sem Luz:</strong> Campo de escuridão que reduz cura e visão no interior.</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="riven" class="character-card">
+    <div class="character-header">
+      <div class="character-element-bar bar-earth"></div>
+      <div class="character-portrait" style="background-image:url('assets/Jogar/Hist%C3%B3ria/personagens/Mandy%20Finalizado.jpg')"></div>
+      <div class="character-header-info">
+        <div class="character-name">Riva Ashcroft</div>
+        <div class="character-title">O Escudo Fraturado — A Que Aguenta de Pé</div>
+        <span class="character-element-badge el-earth" style="border-color: var(--earth-el);">Elemental de Terra · Classe: Sentinela</span>
+      </div>
+    </div>
+    <div class="character-body">
+      <div>
+        <div class="character-stats">
+          <div class="stat-row"><span class="stat-name">Força</span><span class="stat-value">18 (+4)</span></div>
+          <div class="stat-row"><span class="stat-name">Destreza</span><span class="stat-value">10 (0)</span></div>
+          <div class="stat-row"><span class="stat-name">Constituição</span><span class="stat-value">18 (+4)</span></div>
+          <div class="stat-row"><span class="stat-name">Inteligência</span><span class="stat-value">11 (0)</span></div>
+          <div class="stat-row"><span class="stat-name">Sabedoria</span><span class="stat-value">14 (+2)</span></div>
+          <div class="stat-row"><span class="stat-name">Carisma</span><span class="stat-value">12 (+1)</span></div>
+          <div class="stat-row"><span class="stat-name">Pontos de Vida</span><span class="stat-value">96</span></div>
+          <div class="stat-row"><span class="stat-name">Classe de Armadura</span><span class="stat-value">18</span></div>
+        </div>
+      </div>
+      <div class="character-bio">
+        <p>Riva não é invencível. Ela só é a última. Em Elara, aprendeu a trocar dor por tempo e tempo por sobrevivência.</p>
+        <p>Ela se move como rocha cedendo: devagar o bastante para parecer seguro, pesado o bastante para ninguém querer testar.</p>
+        <div class="ability-list">
+          <div class="ability-item"><span class="ability-bullet el-earth">◆</span><span><strong>Postura de Rocha:</strong> Recebe metade do dano e não pode ser empurrado.</span></div>
+          <div class="ability-item"><span class="ability-bullet el-earth">◆</span><span><strong>Muralha Estilhaçada:</strong> Cria cobertura de pedra em linha de 6 metros.</span></div>
+          <div class="ability-item"><span class="ability-bullet el-earth">◆</span><span><strong>Âncora:</strong> Puxa um aliado para perto e intercepta o próximo ataque contra ele.</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</section>
+
+<!-- ══ CHAPTER 4: VILLAIN ══ -->
+<div class="chapter-header" id="villain">
+  <div class="chapter-number">Capítulo IV</div>
+  <h2 class="chapter-title">O Antagonista</h2>
+  <div class="chapter-rule">
+    <div class="chapter-rule-line"></div>
+    <span class="chapter-rule-icon">✦</span>
+    <div class="chapter-rule-line right"></div>
+  </div>
+</div>
+
+<section>
+
+  <div class="lore-box">
+    <p>Antes do Fogo havia escuridão. Antes da escuridão havia silêncio. Antes do silêncio havia Ele — e foi Ele quem decidiu que silêncio era desperdício.</p>
+    <div class="lore-attribution">— Inscrição no centro da Câmara de Convergência de Elara</div>
+  </div>
+
+  <div id="thefirst" class="villain-card">
+    <div class="villain-title-bar">
+      <div class="villain-label">Antagonista Principal</div>
+      <div class="villain-name">The First</div>
+      <div class="villain-epithet">O Arquiteto · O Precursor · O Ancião sem Nome</div>
+    </div>
+    <div class="villain-body">
+      <div>
+        <div class="character-stats" style="background: rgba(90,26,26,0.2); border-color: #3a1a1a;">
+          <div class="stat-row"><span class="stat-name">Força</span><span class="stat-value">28 (+9)</span></div>
+          <div class="stat-row"><span class="stat-name">Destreza</span><span class="stat-value">22 (+6)</span></div>
+          <div class="stat-row"><span class="stat-name">Constituição</span><span class="stat-value">30 (+10)</span></div>
+          <div class="stat-row"><span class="stat-name">Inteligência</span><span class="stat-value">30 (+10)</span></div>
+          <div class="stat-row"><span class="stat-name">Sabedoria</span><span class="stat-value">26 (+8)</span></div>
+          <div class="stat-row"><span class="stat-name">Carisma</span><span class="stat-value">24 (+7)</span></div>
+          <div class="stat-row"><span class="stat-name">Pontos de Vida</span><span class="stat-value">666</span></div>
+          <div class="stat-row"><span class="stat-name">Classe de Armadura</span><span class="stat-value">24 (natural)</span></div>
+          <div class="stat-row"><span class="stat-name">Resistências</span><span class="stat-value">Todos os elementos</span></div>
+          <div class="stat-row"><span class="stat-name">Imunidades</span><span class="stat-value">Encantamento, Medo, Morte</span></div>
+          <div class="stat-row"><span class="stat-name">Grau de Desafio</span><span class="stat-value">30 (155.000 XP)</span></div>
+        </div>
+      </div>
+      <div>
+        <p style="font-size:15px; color: var(--text-dim); margin-bottom:16px;">The First não é humano e nunca foi. É o ser que existia antes que qualquer civilização pensasse em nomear o que havia além do oceano. Sua forma é a de um ancião de proporções monumentais, envolto em armadura que parece ter crescido sobre seu corpo como minerais sobre uma rocha. Suas asas — negras como espaço entre estrelas — são uma manifestação de sua antiguidade, não de natureza aviar.</p>
+        <p style="font-size:15px; color: var(--text-dim); margin-bottom:16px;">The First acredita genuinamente estar fazendo algo necessário. Em sua perspectiva, humanos são recipientes desperdiçando o potencial dos elementos. Elara é sua solução: <em>forçar</em> a evolução, em vez de esperar por ela.</p>
+        <p style="font-size:15px; color: var(--text-dim); margin-bottom:20px;">Ele não persegue os Evadidos por raiva. Ele os monitorar com interesse científico. Para The First, a fuga foi parte do experimento.</p>
+        <div class="ability-list">
+          <div class="ability-item"><span class="ability-bullet" style="color:#c9a84c;">◆</span><span style="font-size:15px;"><strong>Convergência dos Seis:</strong> Canaliza todos os seis elementos simultaneamente; 3 ações de lenda.</span></div>
+          <div class="ability-item"><span class="ability-bullet" style="color:#c9a84c;">◆</span><span style="font-size:15px;"><strong>Sinal de Elara:</strong> Pulso de energia que eleva em 1 o nível de Fratura de todos os Evadidos em 100km.</span></div>
+          <div class="ability-item"><span class="ability-bullet" style="color:#c9a84c;">◆</span><span style="font-size:15px;"><strong>Presença Avassaladora:</strong> Criaturas com menos de 100 PV devem passar em Sabedoria CD 22 ou ficar paralisadas.</span></div>
+          <div class="ability-item"><span class="ability-bullet" style="color:#c9a84c;">◆</span><span style="font-size:15px;"><strong>Protocolo de Recuperação:</strong> Pode "chamar" um Evadido de volta a Elara se sua Fratura atingir nível 4.</span></div>
+          <div class="ability-item"><span class="ability-bullet" style="color:#c9a84c;">◆</span><span style="font-size:15px;"><strong>Imortalidade Condicional:</strong> Só pode ser morto se todos os seis elementos forem usados contra ele simultaneamente.</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-title">A Motivação de The First</div>
+  <p>O que torna The First perturbador como antagonista não é sua crueldade, mas sua <strong>lógica impecável</strong>. Ele tem dezenas de milênios de evidências de que os humanos desperdiçam o potencial dos elementos que os rodeiam. Elara é sua resposta a esse desperdício.</p>
+  <p>Ele não odeia os Evadidos. Ele os <em>admira</em>. Cada um que sobreviveu ao processo e escapou provou que é exatamente o tipo de ser que ele precisava criar. A ironia dolorosa é que ao fugirem, eles se tornaram a prova do sucesso do experimento.</p>
+  <p>O objetivo final de The First, revelado apenas na conclusão de uma campanha completa, é criar uma nova geração de Elementais suficientemente poderosos para <strong>fundir os seis elementos em um único ser</strong> — um Elemental Total capaz de sustentar o equilíbrio do mundo que, segundo ele, está se desfazendo sem supervisão.</p>
+
+  <div class="lore-box">
+    <p>Quando vocês me derrotarem — e talvez consigam — descubram primeiro para onde vão os elementos quando o recipiente morre. Descobrirão que eu tinha razão sobre tudo. Apenas sobre o método é que discordamos.</p>
+    <div class="lore-attribution">— The First, se interrogado pelos Evadidos em encontro direto</div>
+  </div>
+
+  <div class="section-title" id="servos">Servos de The First</div>
+  <p>Os servos a seguir são as <strong>invocações básicas</strong> do Arquiteto. Eles não pertencem ao continente — são ecos moldados a partir de materiais, ossos, instintos e memórias arrancadas de Elara. Quando The First estala os dedos, o espaço <em>cede</em> e eles atravessam como se sempre tivessem estado ali.</p>
+
+  <div id="servo-goblin" class="character-card servant-card">
+    <div class="character-header">
+      <div class="character-element-bar bar-shadow"></div>
+      <div class="character-portrait" style="background-image:url('https://i.postimg.cc/J7c05S4m/Goblins.png')"></div>
+      <div class="character-header-info">
+        <div class="character-name">Goblin</div>
+        <div class="character-title">Batedores de Metal — Os que Riêm Primeiro</div>
+        <span class="character-element-badge el-shadow" style="border-color: var(--shadow-el);">Tipo: Humanoide Pequeno · Nível: 1</span>
+      </div>
+    </div>
+    <div class="character-body">
+      <div>
+        <div class="character-stats">
+          <div class="stat-row"><span class="stat-name">PV</span><span class="stat-value">15</span></div>
+          <div class="stat-row"><span class="stat-name">ATQ</span><span class="stat-value">4</span></div>
+          <div class="stat-row"><span class="stat-name">DEF</span><span class="stat-value">3</span></div>
+          <div class="stat-row"><span class="stat-name">Invocação</span><span class="stat-value">Estalo</span></div>
+        </div>
+      </div>
+      <div class="character-bio">
+        <p>Os goblins de The First não são uma tribo: são uma <strong>função</strong>. Suas gargalhadas parecem engrenagens raspando, e seus olhos carregam o brilho de laboratório. Eles surgem em bandos, testando saídas, armadilhas e fraquezas — e desaparecem tão rápido quanto vieram quando o Arquiteto perde o interesse.</p>
+        <div class="ability-list">
+          <div class="ability-item"><span class="ability-bullet el-shadow">◆</span><span><strong>Chegada no Estalo:</strong> aparece a até 12m do ponto escolhido quando The First estala os dedos.</span></div>
+          <div class="ability-item"><span class="ability-bullet el-shadow">◆</span><span><strong>Riso-Ímã:</strong> provoca distração; o primeiro ataque contra um aliado tem desvantagem.</span></div>
+          <div class="ability-item"><span class="ability-bullet el-shadow">◆</span><span><strong>Fuga Programada:</strong> se cair abaixo de 5 PV, tenta recuar e “marcar” o alvo para um servo maior.</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="servo-esqueleto" class="character-card servant-card">
+    <div class="character-header">
+      <div class="character-element-bar bar-shadow"></div>
+      <div class="character-portrait" style="background-image:url('https://i.postimg.cc/59qySDNJ/esqueleto.png')"></div>
+      <div class="character-header-info">
+        <div class="character-name">Esqueleto</div>
+        <div class="character-title">Arquivos Andantes — Os que Guardam o Nome</div>
+        <span class="character-element-badge el-shadow" style="border-color: var(--shadow-el);">Tipo: Morto-Vivo Médio · Nível: 1</span>
+      </div>
+    </div>
+    <div class="character-body">
+      <div>
+        <div class="character-stats">
+          <div class="stat-row"><span class="stat-name">PV</span><span class="stat-value">20</span></div>
+          <div class="stat-row"><span class="stat-name">ATQ</span><span class="stat-value">5</span></div>
+          <div class="stat-row"><span class="stat-name">DEF</span><span class="stat-value">4</span></div>
+          <div class="stat-row"><span class="stat-name">Invocação</span><span class="stat-value">Estalo</span></div>
+        </div>
+      </div>
+      <div class="character-bio">
+        <p>Os esqueletos invocados por The First carregam inscrições finas gravadas nos ossos — códigos, datas e números de sujeito. Eles marcham sem pressa, como se estivessem sempre a caminho de uma sala que ninguém mais consegue ver.</p>
+        <div class="ability-list">
+          <div class="ability-item"><span class="ability-bullet el-shadow">◆</span><span><strong>Chegada no Estalo:</strong> invocado em formação, como se respondesse a um comando antigo.</span></div>
+          <div class="ability-item"><span class="ability-bullet el-shadow">◆</span><span><strong>Ossos Catalogados:</strong> resiste a efeitos de medo; não recua.</span></div>
+          <div class="ability-item"><span class="ability-bullet el-shadow">◆</span><span><strong>Marcação de Sujeito:</strong> ao acertar, “marca” o alvo; o próximo servo invocado ganha +1 no ataque contra ele.</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="servo-lobo-atroz" class="character-card servant-card">
+    <div class="character-header">
+      <div class="character-element-bar bar-air"></div>
+      <div class="character-portrait" style="background-image:url('https://wiki.runarcana.org/images/d/dc/Lobo_Atroz.png')"></div>
+      <div class="character-header-info">
+        <div class="character-name">Lobo Atroz</div>
+        <div class="character-title">Caçador do Corredor — O Instinto que Obedece</div>
+        <span class="character-element-badge el-air" style="border-color: var(--air-el);">Tipo: Besta Média · Nível: 2</span>
+      </div>
+    </div>
+    <div class="character-body">
+      <div>
+        <div class="character-stats">
+          <div class="stat-row"><span class="stat-name">PV</span><span class="stat-value">35</span></div>
+          <div class="stat-row"><span class="stat-name">ATQ</span><span class="stat-value">8</span></div>
+          <div class="stat-row"><span class="stat-name">DEF</span><span class="stat-value">5</span></div>
+          <div class="stat-row"><span class="stat-name">Invocação</span><span class="stat-value">Estalo</span></div>
+        </div>
+      </div>
+      <div class="character-bio">
+        <p>Quando The First precisa de perseguição, ele não cria estratégia — ele cria <strong>fome</strong>. O lobo atroz aparece com o pelo cheio de poeira de corredor, como se tivesse acabado de correr por túneis longos demais para existir. Ele caça o alvo escolhido e ignora todo o resto.</p>
+        <div class="ability-list">
+          <div class="ability-item"><span class="ability-bullet el-air">◆</span><span><strong>Chegada no Estalo:</strong> surge já em corrida, puxando o vento junto.</span></div>
+          <div class="ability-item"><span class="ability-bullet el-air">◆</span><span><strong>Mordida de Fixação:</strong> se acertar, reduz deslocamento do alvo até o fim do próximo turno.</span></div>
+          <div class="ability-item"><span class="ability-bullet el-air">◆</span><span><strong>Uivo de Caça:</strong> revela a posição do alvo mesmo através de névoa/escuro por 1 turno.</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="servo-zumbi-elite" class="character-card servant-card">
+    <div class="character-header">
+      <div class="character-element-bar bar-shadow"></div>
+      <div class="character-portrait" style="background-image:url('assets/inimigos/Zumbi.png')"></div>
+      <div class="character-header-info">
+        <div class="character-name">Zumbi de Elite</div>
+        <div class="character-title">Carne Reescrita — O Corpo que Não Recebe Permissão</div>
+        <span class="character-element-badge el-shadow" style="border-color: var(--shadow-el);">Tipo: Morto-Vivo Médio · Nível: 2</span>
+      </div>
+    </div>
+    <div class="character-body">
+      <div>
+        <div class="character-stats">
+          <div class="stat-row"><span class="stat-name">PV</span><span class="stat-value">45</span></div>
+          <div class="stat-row"><span class="stat-name">ATQ</span><span class="stat-value">7</span></div>
+          <div class="stat-row"><span class="stat-name">DEF</span><span class="stat-value">6</span></div>
+          <div class="stat-row"><span class="stat-name">Invocação</span><span class="stat-value">Estalo</span></div>
+        </div>
+      </div>
+      <div class="character-bio">
+        <p>O zumbi de elite é uma prova do método de The First: não é “vida”, é <strong>persistência</strong>. Costuras impossíveis mantêm o corpo funcionando, e cada passo parece uma decisão que o morto não tomou. Ele não persegue; ele avança.</p>
+        <div class="ability-list">
+          <div class="ability-item"><span class="ability-bullet el-shadow">◆</span><span><strong>Chegada no Estalo:</strong> invocado como barreira, fechando corredores e portas.</span></div>
+          <div class="ability-item"><span class="ability-bullet el-shadow">◆</span><span><strong>Persistência:</strong> na primeira vez que cair a 0 PV, continua com 1 PV.</span></div>
+          <div class="ability-item"><span class="ability-bullet el-shadow">◆</span><span><strong>Toque de Febre:</strong> ao acertar, reduz cura recebida pelo alvo até o fim do combate.</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="servo-gargula" class="character-card servant-card">
+    <div class="character-header">
+      <div class="character-element-bar bar-earth"></div>
+      <div class="character-portrait" style="background-image:url('assets/inimigos/Gargula.png')"></div>
+      <div class="character-header-info">
+        <div class="character-name">Gárgula</div>
+        <div class="character-title">Sentinela de Pedra — O Olhar que Não Pisca</div>
+        <span class="character-element-badge el-earth" style="border-color: var(--earth-el);">Tipo: Elemental Médio · Nível: 3</span>
+      </div>
+    </div>
+    <div class="character-body">
+      <div>
+        <div class="character-stats">
+          <div class="stat-row"><span class="stat-name">PV</span><span class="stat-value">60</span></div>
+          <div class="stat-row"><span class="stat-name">ATQ</span><span class="stat-value">12</span></div>
+          <div class="stat-row"><span class="stat-name">DEF</span><span class="stat-value">15</span></div>
+          <div class="stat-row"><span class="stat-name">Invocação</span><span class="stat-value">Estalo</span></div>
+        </div>
+      </div>
+      <div class="character-bio">
+        <p>Gárgulas são os “olhos” que The First deixa para trás. Elas surgem onde a luz falha e o ar fica pesado, como se o mundo tivesse sido esculpido em pedra. Não são animais: são <strong>vigias</strong> com ordem única — proteger a vontade do Arquiteto.</p>
+        <div class="ability-list">
+          <div class="ability-item"><span class="ability-bullet el-earth">◆</span><span><strong>Chegada no Estalo:</strong> aparece agarrada a paredes e tetos, pronta para cair sobre o alvo.</span></div>
+          <div class="ability-item"><span class="ability-bullet el-earth">◆</span><span><strong>Imobilidade:</strong> quando fica parada, ganha resistência a dano até ser atingida.</span></div>
+          <div class="ability-item"><span class="ability-bullet el-earth">◆</span><span><strong>Olhar de Vigia:</strong> detecta invisibilidade a curta distância por 1 turno.</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="servo-aranha-gigante" class="character-card servant-card">
+    <div class="character-header">
+      <div class="character-element-bar bar-shadow"></div>
+      <div class="character-portrait" style="background-image:url('assets/inimigos/Aranha.png')"></div>
+      <div class="character-header-info">
+        <div class="character-name">Aranha Gigante</div>
+        <div class="character-title">Tecelã de Corredores — A Fome que Prende</div>
+        <span class="character-element-badge el-shadow" style="border-color: var(--shadow-el);">Tipo: Besta Grande · Nível: 3</span>
+      </div>
+    </div>
+    <div class="character-body">
+      <div>
+        <div class="character-stats">
+          <div class="stat-row"><span class="stat-name">PV</span><span class="stat-value">55</span></div>
+          <div class="stat-row"><span class="stat-name">ATQ</span><span class="stat-value">14</span></div>
+          <div class="stat-row"><span class="stat-name">DEF</span><span class="stat-value">10</span></div>
+          <div class="stat-row"><span class="stat-name">Invocação</span><span class="stat-value">Estalo</span></div>
+        </div>
+      </div>
+      <div class="character-bio">
+        <p>Para The First, controle de terreno é ciência simples: trancar rotas, separar alvos, colher resultados. A aranha gigante nasce de um estalo e de um silêncio — e então o chão vira teia, como se a realidade tivesse sido costurada no lugar errado.</p>
+        <div class="ability-list">
+          <div class="ability-item"><span class="ability-bullet el-shadow">◆</span><span><strong>Chegada no Estalo:</strong> aparece já soltando fios, criando zona difícil em volta.</span></div>
+          <div class="ability-item"><span class="ability-bullet el-shadow">◆</span><span><strong>Teia de Elara:</strong> prende um alvo; testes de força têm desvantagem até cortar a teia.</span></div>
+          <div class="ability-item"><span class="ability-bullet el-shadow">◆</span><span><strong>Picada Analítica:</strong> o veneno “lê” o corpo; o próximo ataque da aranha contra o mesmo alvo tem vantagem.</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="servo-golem-ferro" class="character-card servant-card">
+    <div class="character-header">
+      <div class="character-element-bar bar-earth"></div>
+      <div class="character-portrait" style="background-image:url('assets/inimigos/Golem.png')"></div>
+      <div class="character-header-info">
+        <div class="character-name">Golem de Ferro</div>
+        <div class="character-title">Execução Sem Ódio — A Mão do Arquiteto</div>
+        <span class="character-element-badge el-earth" style="border-color: var(--earth-el);">Tipo: Construto Grande · Nível: 4</span>
+      </div>
+    </div>
+    <div class="character-body">
+      <div>
+        <div class="character-stats">
+          <div class="stat-row"><span class="stat-name">PV</span><span class="stat-value">120</span></div>
+          <div class="stat-row"><span class="stat-name">ATQ</span><span class="stat-value">25</span></div>
+          <div class="stat-row"><span class="stat-name">DEF</span><span class="stat-value">30</span></div>
+          <div class="stat-row"><span class="stat-name">Invocação</span><span class="stat-value">Estalo</span></div>
+        </div>
+      </div>
+      <div class="character-bio">
+        <p>O golem de ferro é o servo que chega quando The First não quer “testar”. Ele quer <strong>finalizar</strong>. Uma massa de metal que respira vapor frio, com runas gravadas em placas como cicatrizes. Ele anda como se cada passo fosse uma assinatura em pedra.</p>
+        <div class="ability-list">
+          <div class="ability-item"><span class="ability-bullet el-earth">◆</span><span><strong>Chegada no Estalo:</strong> invocado como martelo; surge já entre você e a saída.</span></div>
+          <div class="ability-item"><span class="ability-bullet el-earth">◆</span><span><strong>Passos de Forja:</strong> empurra criaturas adjacentes ao se mover; quem cair leva dano.</span></div>
+          <div class="ability-item"><span class="ability-bullet el-earth">◆</span><span><strong>Ordem Única:</strong> ignora provocações; só ataca o alvo designado pelo Arquiteto.</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="servo-quimera" class="character-card servant-card">
+    <div class="character-header">
+      <div class="character-element-bar bar-fire"></div>
+      <div class="character-portrait" style="background-image:url('assets/inimigos/Quimera.jpeg')"></div>
+      <div class="character-header-info">
+        <div class="character-name">Quimera</div>
+        <div class="character-title">Mistura de Erro — O Protótipo que Ainda Vive</div>
+        <span class="character-element-badge el-fire" style="border-color: var(--fire-el);">Tipo: Monstruosidade Grande · Nível: 4</span>
+      </div>
+    </div>
+    <div class="character-body">
+      <div>
+        <div class="character-stats">
+          <div class="stat-row"><span class="stat-name">PV</span><span class="stat-value">100</span></div>
+          <div class="stat-row"><span class="stat-name">ATQ</span><span class="stat-value">22</span></div>
+          <div class="stat-row"><span class="stat-name">DEF</span><span class="stat-value">18</span></div>
+          <div class="stat-row"><span class="stat-name">Invocação</span><span class="stat-value">Estalo</span></div>
+        </div>
+      </div>
+      <div class="character-bio">
+        <p>Algumas coisas em Elara não deviam ter sobrevivido ao próprio nascimento. The First chama isso de “aprendizado”. A quimera é a soma de tentativas, uma criatura que respira como se o ar queimasse por dentro — e que obedece ao estalo como se fosse uma corrente no pescoço.</p>
+        <div class="ability-list">
+          <div class="ability-item"><span class="ability-bullet el-fire">◆</span><span><strong>Chegada no Estalo:</strong> invocada quando o Arquiteto quer caos controlado.</span></div>
+          <div class="ability-item"><span class="ability-bullet el-fire">◆</span><span><strong>Três Vontades:</strong> faz 2 ataques por turno se estiver acima de metade dos PV.</span></div>
+          <div class="ability-item"><span class="ability-bullet el-fire">◆</span><span><strong>Bafo de Laboratório:</strong> expele energia instável; alvos próximos fazem teste ou ficam atordoados por 1 turno.</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="servo-observador" class="character-card servant-card">
+    <div class="character-header">
+      <div class="character-element-bar bar-lightning"></div>
+      <div class="character-portrait" style="background-image:url('https://i.postimg.cc/13YfN6RG/Observador.png')"></div>
+      <div class="character-header-info">
+        <div class="character-name">Observador</div>
+        <div class="character-title">Olho de Elara — A Testemunha que Dispara</div>
+        <span class="character-element-badge el-lightning" style="border-color: var(--lightning-el);">Tipo: Aberração Grande · Nível: 5</span>
+      </div>
+    </div>
+    <div class="character-body">
+      <div>
+        <div class="character-stats">
+          <div class="stat-row"><span class="stat-name">PV</span><span class="stat-value">180</span></div>
+          <div class="stat-row"><span class="stat-name">ATQ</span><span class="stat-value">35</span></div>
+          <div class="stat-row"><span class="stat-name">DEF</span><span class="stat-value">25</span></div>
+          <div class="stat-row"><span class="stat-name">Invocação</span><span class="stat-value">Estalo</span></div>
+        </div>
+      </div>
+      <div class="character-bio">
+        <p>O Observador não caça. Ele <strong>registra</strong>. Ele paira como um erro na visão periférica, e cada olho é uma pergunta que dói. Quando The First estala os dedos para invocá-lo, a luz ao redor “pula” um quadro, como se o mundo tivesse perdido um segundo.</p>
+        <div class="ability-list">
+          <div class="ability-item"><span class="ability-bullet el-lightning">◆</span><span><strong>Chegada no Estalo:</strong> surge acima do campo, mirando antes de existir.</span></div>
+          <div class="ability-item"><span class="ability-bullet el-lightning">◆</span><span><strong>Raios de Análise:</strong> escolhe alvos diferentes; cada acerto expõe uma fraqueza.</span></div>
+          <div class="ability-item"><span class="ability-bullet el-lightning">◆</span><span><strong>Proibição de Fuga:</strong> uma vez por combate, “marca” uma área; quem sai sofre dano.</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="servo-dragao-vermelho" class="character-card servant-card">
+    <div class="character-header">
+      <div class="character-element-bar bar-fire"></div>
+      <div class="character-portrait" style="background-image:url('https://img.pikbest.com/origin/09/30/95/865pIkbEsTAcw.png!sw800')"></div>
+      <div class="character-header-info">
+        <div class="character-name">Dragão Vermelho</div>
+        <div class="character-title">O Final no Céu — A Sombra que Arde</div>
+        <span class="character-element-badge el-fire" style="border-color: var(--fire-el);">Tipo: Dragão Enorme · Nível: 5</span>
+      </div>
+    </div>
+    <div class="character-body">
+      <div>
+        <div class="character-stats">
+          <div class="stat-row"><span class="stat-name">PV</span><span class="stat-value">250</span></div>
+          <div class="stat-row"><span class="stat-name">ATQ</span><span class="stat-value">45</span></div>
+          <div class="stat-row"><span class="stat-name">DEF</span><span class="stat-value">40</span></div>
+          <div class="stat-row"><span class="stat-name">Invocação</span><span class="stat-value">Estalo</span></div>
+        </div>
+      </div>
+      <div class="character-bio">
+        <p>Quando The First decide que a lição precisa ser inesquecível, ele chama algo que o mundo reconhece como mito: um dragão. Mas este não é um animal ancestral — é um <strong>modelo</strong>, um servo construído para reduzir cidades a silêncio. Um estalo, e o céu ganha peso.</p>
+        <div class="ability-list">
+          <div class="ability-item"><span class="ability-bullet el-fire">◆</span><span><strong>Chegada no Estalo:</strong> invocado no alto, como trovão sem nuvem.</span></div>
+          <div class="ability-item"><span class="ability-bullet el-fire">◆</span><span><strong>Bafo do Arquiteto:</strong> fogo que não apaga; áreas queimadas continuam perigosas por 3 turnos.</span></div>
+          <div class="ability-item"><span class="ability-bullet el-fire">◆</span><span><strong>Comando Único:</strong> não negocia, não foge; cumpre o objetivo e desaparece quando o estalo termina.</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</section>
+
+<!-- ══ CHAPTER 5: RULES ══ -->
+<div class="chapter-header" id="rules">
+  <div class="chapter-number">Capítulo V</div>
+  <h2 class="chapter-title">Mecânicas de Jogo</h2>
+  <div class="chapter-rule">
+    <div class="chapter-rule-line"></div>
+    <span class="chapter-rule-icon">✦</span>
+    <div class="chapter-rule-line right"></div>
+  </div>
+</div>
+
+<section id="mechanics">
+
+  <div class="section-title">Base do Sistema</div>
+  <p>Elara usa como base o sistema d20, compatível com D&D 5ª edição. Os jogadores precisam de dados de 4, 6, 8, 10, 12 e 20 faces. A maioria dos testes de habilidade usa 1d20 + modificador de atributo + bônus de proficiência quando aplicável.</p>
+
+  <div class="rules-box">
+    <div class="rules-box-title">Diferenças em relação ao D&D padrão</div>
+    <ul>
+      <li>Não existe sistema de classes convencional — os Elementos determinam o "caminho" de cada personagem.</li>
+      <li>O nível de Fratura substitui parcialmente o sistema de Hit Dice para controle de recursos.</li>
+      <li>Magia convencional não existe neste setting — todos os poderes são elementais e têm origem em Elara.</li>
+      <li>Descansos longos em locais próximos a Elara ativam automaticamente o Sinal de Elara.</li>
+      <li>Personagens novos podem ser criados como Evadidos recém-chegados ao continente — nível 3.</li>
+    </ul>
+  </div>
+
+  <div class="section-title" id="combat">Combate</div>
+  <p>O combate segue as regras padrão de iniciativa (1d20 + modificador de Destreza), mas inclui a mecânica de <strong>Ressonância Elemental</strong>: quando dois Evadidos de elementos opostos usam poderes no mesmo turno, o dano combinado é aumentado em 50%.</p>
+
+  <table class="info-table">
+    <thead>
+      <tr><th>Elemento</th><th>Oposto (Ressonância)</th><th>Aliado Natural</th></tr>
+    </thead>
+    <tbody>
+      <tr><td class="el-fire">Fogo</td><td class="el-water">Água</td><td class="el-lightning">Relâmpago</td></tr>
+      <tr><td class="el-water">Água</td><td class="el-fire">Fogo</td><td class="el-earth">Terra</td></tr>
+      <tr><td class="el-earth">Terra</td><td class="el-air">Ar</td><td class="el-water">Água</td></tr>
+      <tr><td class="el-air">Ar</td><td class="el-earth">Terra</td><td class="el-lightning">Relâmpago</td></tr>
+      <tr><td class="el-lightning">Relâmpago</td><td class="el-shadow">Sombra</td><td class="el-fire">Fogo</td></tr>
+      <tr><td class="el-shadow">Sombra</td><td class="el-lightning">Relâmpago</td><td class="el-air">Ar</td></tr>
+    </tbody>
+  </table>
+
+  <div class="section-title" id="campaign">Estrutura de Campanha</div>
+  <p>Uma campanha completa de Elara é dividida em <strong>três Arcos</strong>:</p>
+
+  <div class="subsection-title">Arco I — A Fuga Permanente (Níveis 1–5)</div>
+  <p>Os Evadidos acabaram de chegar ao continente. Eles não entendem seus poderes, o mundo não os entende, e Elara começa a emitir Sinais cada vez mais frequentes. O grupo deve aprender a sobreviver numa sociedade que teme poderes elementais enquanto tenta descobrir o que The First planeja.</p>
+
+  <div class="subsection-title">Arco II — As Raízes de Elara (Níveis 6–12)</div>
+  <p>O grupo descobre que Elara tem instalações secundárias no continente. The First não está preso na ilha — ele nunca esteve. Há outros sujeitos espalhados, alguns leais a ele por escolha, e a rede de experimentos é mais profunda do que qualquer um imaginava.</p>
+
+  <div class="subsection-title">Arco III — O Retorno (Níveis 13–20)</div>
+  <p>O único jeito de encerrar tudo é voltar. A ilha chama, os Sinais se tornam insuportáveis, e o confronto final com The First exige que todos os Evadidos usem seus elementos em uníssono — o que significa confiar uns nos outros de um jeito que nenhum sobrevivente de experimentos aprende facilmente.</p>
+
+  <div class="rules-box">
+    <div class="rules-box-title">Dicas para o Mestre</div>
+    <ul>
+      <li>The First nunca deve parecer malévolo — apenas absolutamente convicto. Deixe os jogadores questionar se ele tem razão.</li>
+      <li>Use os Sinais de Elara como mecânica de tensão: quando os jogadores estiverem se sentindo poderosos demais, emita um Sinal.</li>
+      <li>Cada personagem deve ter um momento privado de dúvida sobre se deseja realmente destruir Elara — afinal, sem ela, seus poderes podem desaparecer.</li>
+      <li>A ilha nunca deve ser completamente mapeada. Elara tem segredos que nem The First conhece.</li>
+      <li>O verdadeiro terror de Elara não é o que foi feito com os personagens — é o que eles descobrem que são capazes de fazer.</li>
+    </ul>
+  </div>
+
+  <div class="ornament">
+    <div class="ornament-line"></div>
+    <span class="ornament-symbol">✦</span>
+    <div class="ornament-line right"></div>
+  </div>
+
+  <div style="text-align:center; padding: 20px 0 40px;">
+    <div style="font-family:'Cinzel Decorative', serif; font-size:18px; color: var(--gold); margin-bottom:12px;">Que o Elemento em você seja uma escolha, não uma prisão.</div>
+    <div style="font-family:'Cinzel', serif; font-size:12px; letter-spacing:0.3em; color: var(--gold-dark); text-transform:uppercase;">Elara aguarda o retorno de todos.</div>
+  </div>
+
+</section>
+
+</div><!-- end main-content -->
+</div><!-- end manual-layout -->
+</div><!-- end container-main -->
+
+<footer>
+  Elara — Manual de RPG · Primeira Edição · Todos os direitos reservados ao criador da campanha
+</footer>
+
+<script>
+  (function () {
+    var btn = document.getElementById('btn-manual-back');
+    if (!btn) return;
+    btn.addEventListener('click', function () {
+      window.location.href = 'index.html';
+    });
+  })();
+</script>
+
+</body>
+</html>

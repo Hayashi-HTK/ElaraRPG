@@ -1,0 +1,432 @@
+/* Guild Page Styles */
+body {
+    background-color: #0a0a0b;
+    color: #e0e0e0;
+    font-family: 'Inter', sans-serif;
+}
+.form-input {
+    width: 100%;
+    padding: 0.8rem;
+    margin-bottom: 1rem;
+    border: 1px solid #2a2a2e;
+    border-radius: 8px;
+    background: #121214;
+    color: #e0e0e0;
+}
+.btn-secondary {
+    background: #2a2a2e;
+    color: #e0e0e0;
+    padding: 0.8rem 1.5rem;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.btn-secondary:hover {
+    background: #3a3a40;
+}
+
+.guild-container {
+    max-width: 1200px;
+    margin: 6rem auto 2rem;
+    padding: 0 1.5rem;
+}
+
+.guild-header {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.lobby-grid {
+    display: grid;
+    grid-template-columns: 1fr 1.5fr 1fr;
+    gap: 1.5rem;
+    align-items: flex-start;
+}
+
+/* Containers */
+.player-list-container, .map-selection-container, .enemy-session-container {
+    background: #121214;
+    border: 1px solid #2a2a2e;
+    border-radius: 15px;
+    padding: 1.5rem;
+    height: 100%;
+}
+
+.enemy-session-container {
+    display: flex;
+    flex-direction: column;
+}
+
+.list-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #2a2a2e;
+    padding-bottom: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.list-header h3 {
+    font-family: 'Cinzel', serif;
+    margin: 0;
+    font-size: 1.1rem;
+}
+
+.btn-add-enemy-session {
+    background: var(--dashboard-accent);
+    color: white;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    transition: all 0.3s;
+    font-size: 0.9rem;
+}
+
+.btn-add-enemy-session:hover {
+    transform: scale(1.1);
+    background: var(--dashboard-accent-hover);
+}
+
+.session-enemy-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+.enemy-session-card {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    background: #1a1a1e;
+    padding: 0.8rem;
+    border-radius: 8px;
+    border: 1px solid transparent;
+    transition: all 0.3s;
+}
+
+.enemy-session-card:hover {
+    border-color: var(--dashboard-accent);
+}
+
+.enemy-session-avatar {
+    width: 45px;
+    height: 45px;
+    border-radius: 8px;
+    background-size: cover;
+    background-position: center;
+    flex-shrink: 0;
+}
+
+.enemy-session-info {
+    flex: 1;
+}
+
+.btn-remove-enemy {
+    background: transparent;
+    border: none;
+    color: #666;
+    cursor: pointer;
+    padding: 5px;
+    transition: all 0.3s;
+    font-size: 0.8rem;
+}
+
+.btn-remove-enemy:hover {
+    color: #ef4444;
+    transform: scale(1.2);
+}
+
+.enemy-session-name {
+    font-weight: bold;
+    font-size: 0.9rem;
+    display: block;
+}
+
+.enemy-session-stars {
+    color: #ffd700;
+    font-size: 0.7rem;
+}
+
+.empty-state {
+    color: #666;
+    text-align: center;
+    font-style: italic;
+    margin-top: 2rem;
+    font-size: 0.9rem;
+}
+
+/* Modal Base (Ajustes para o novo modal) */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    display: none; /* Escondido por padrão */
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    backdrop-filter: blur(5px);
+}
+
+.modal-overlay.active {
+    display: flex;
+}
+
+.selection-modal-content {
+    background: #121214;
+    border: 1px solid #2a2a2e;
+    border-radius: 20px;
+    width: 90%;
+    max-width: 800px;
+    max-height: 85vh;
+    padding: 2rem;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 10px 50px rgba(0, 0, 0, 0.6);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.modal-close-btn {
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 2rem;
+    cursor: pointer;
+    line-height: 1;
+}
+
+.modal-filters {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.selection-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 1.5rem;
+    overflow-y: auto;
+    padding-right: 10px;
+}
+
+/* Scrollbar personalizada para o modal */
+.selection-grid::-webkit-scrollbar {
+    width: 6px;
+}
+
+.selection-grid::-webkit-scrollbar-track {
+    background: #0a0a0b;
+}
+
+.selection-grid::-webkit-scrollbar-thumb {
+    background: var(--dashboard-accent);
+    border-radius: 10px;
+}
+
+/* Cards de Seleção */
+.enemy-selection-card {
+    background: #1a1a1e;
+    border: 1px solid #2a2a2e;
+    border-radius: 12px;
+    padding: 0.8rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+}
+
+.enemy-selection-card:hover {
+    border-color: var(--dashboard-accent);
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(201, 168, 76, 0.3);
+}
+
+.enemy-selection-card img {
+    width: 100%;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-bottom: 0.8rem;
+}
+
+.enemy-selection-card h4 {
+    margin: 0;
+    font-size: 0.9rem;
+    color: #fff;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.enemy-selection-card .stars {
+    color: #ffd700;
+    font-size: 0.7rem;
+    margin-top: 0.3rem;
+    display: block;
+}
+
+.enemy-selection-card.selected-in-session {
+    opacity: 0.6;
+    pointer-events: none;
+    border-color: #4ade80;
+}
+
+/* Estilos para Compartilhamento e Convites */
+.copy-link-box {
+    display: flex;
+    gap: 0.5rem;
+    background: #0a0a0b;
+    padding: 0.5rem;
+    border-radius: 8px;
+    border: 1px solid #2a2a2e;
+}
+
+.copy-link-box input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: var(--dashboard-text-muted);
+    font-size: 0.8rem;
+    outline: none;
+}
+
+.copy-link-box button {
+    background: var(--dashboard-accent);
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.copy-link-box button:hover {
+    background: var(--dashboard-accent-hover);
+}
+
+.player-card.mestre {
+    border-left: 3px solid #ffd700;
+}
+
+.player-card.jogador {
+    border-left: 3px solid #4ade80;
+}
+
+.player-card.espectador {
+    border-left: 3px solid #666;
+}
+
+.player-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    min-height: 200px;
+}
+
+.player-card {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    background: #1a1a1e;
+    padding: 0.8rem;
+    border-radius: 8px;
+}
+
+.player-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-size: cover;
+    background-position: center;
+}
+
+.player-info .player-name {
+    font-weight: bold;
+}
+
+.player-info .player-role {
+    font-size: 0.8rem;
+    color: #ffd700;
+}
+
+/* Map Selection */
+.map-list-tabs {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.map-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1.5rem;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.map-card {
+    border: 2px solid transparent;
+    border-radius: 10px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.map-card.selected {
+    border-color: var(--dashboard-accent);
+    box-shadow: 0 0 15px rgba(201, 168, 76, 0.5);
+}
+
+.map-card img {
+    width: 100%;
+    height: 120px;
+    object-fit: cover;
+    display: block;
+}
+
+.map-card p {
+    background: #1a1a1e;
+    margin: 0;
+    padding: 0.8rem;
+    text-align: center;
+    font-weight: 500;
+}
+
+.start-session-container {
+    text-align: center;
+    margin-top: 3rem;
+}
+
+.filter-tab {
+    background: transparent;
+    border: 1px solid #2a2a2e;
+    color: #fff;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.filter-tab.active {
+    background: var(--dashboard-accent);
+    border-color: var(--dashboard-accent);
+}

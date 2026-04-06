@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ficha D&D - ELARA RPG</title>
+    <link rel="icon" href="/assets/icons/LogoElara.png" type="image/png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Inter:wght@400;500;600&family=Spectral:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/header.css">
+    <link rel="stylesheet" href="css/ficha-dnd.css">
+</head>
+<body class="theme-dark">
+    <!-- Header dinâmico será injetado pelo header.js -->
+
+    <main class="dnd-shell">
+        <div class="dnd-topbar">
+            <div class="dnd-tabs">
+                <button class="dnd-tab active" data-page="1">Personagem</button>
+                <button class="dnd-tab" data-page="2">História</button>
+                <button class="dnd-tab" data-page="3">Magias</button>
+            </div>
+            <button id="save-sheet-btn" class="dnd-save" type="button"><i class="fas fa-save"></i> Salvar</button>
+        </div>
+
+        <input id="dnd-avatar-file" type="file" accept="image/*" style="display:none">
+
+        <div class="dnd-stage">
+            <section id="dnd-page-1" class="dnd-page active" data-page="1">
+                <div class="dnd-paper">
+                    <div class="dnd-banner">
+                        <div class="dnd-banner-left">
+                            <div class="dnd-brand">DUNGEONS &amp; DRAGONS</div>
+                            <div class="dnd-field">
+                                <label>Nome do Personagem</label>
+                                <input id="dnd_character_name" type="text" value="">
+                            </div>
+                        </div>
+                        <div class="dnd-banner-right">
+                            <div class="dnd-banner-grid">
+                                <div class="dnd-field">
+                                    <label>Classe &amp; Nível</label>
+                                    <input id="dnd_class_level" type="text" value="">
+                                </div>
+                                <div class="dnd-field">
+                                    <label>Antecedente</label>
+                                    <input id="dnd_background" type="text" value="">
+                                </div>
+                                <div class="dnd-field">
+                                    <label>Nome do Jogador</label>
+                                    <input id="dnd_player_name" type="text" value="">
+                                </div>
+                                <div class="dnd-field">
+                                    <label>Raça</label>
+                                    <input id="dnd_race" type="text" value="">
+                                </div>
+                                <div class="dnd-field">
+                                    <label>Alinhamento</label>
+                                    <input id="dnd_alignment" type="text" value="">
+                                </div>
+                                <div class="dnd-field">
+                                    <label>Pontos de Experiência</label>
+                                    <input id="dnd_xp" type="text" value="">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="dnd-page-grid">
+                        <div class="dnd-col abilities">
+                            <div class="dnd-abilities">
+                                <div class="dnd-ability">
+                                    <div class="name">FORÇA</div>
+                                    <input id="dnd_str" type="number" value="0">
+                                </div>
+                                <div class="dnd-ability">
+                                    <div class="name">DESTREZA</div>
+                                    <input id="dnd_dex" type="number" value="0">
+                                </div>
+                                <div class="dnd-ability">
+                                    <div class="name">CONSTITUIÇÃO</div>
+                                    <input id="dnd_con" type="number" value="0">
+                                </div>
+                                <div class="dnd-ability">
+                                    <div class="name">INTELIGÊNCIA</div>
+                                    <input id="dnd_int" type="number" value="0">
+                                </div>
+                                <div class="dnd-ability">
+                                    <div class="name">SABEDORIA</div>
+                                    <input id="dnd_wis" type="number" value="0">
+                                </div>
+                                <div class="dnd-ability">
+                                    <div class="name">CARISMA</div>
+                                    <input id="dnd_cha" type="number" value="0">
+                                </div>
+                            </div>
+
+                            <div class="dnd-box">
+                                <div class="dnd-box-title">Salvaguardas &amp; Perícias</div>
+                                <textarea id="dnd_saves_skills"></textarea>
+                            </div>
+
+                            <div class="dnd-box">
+                                <div class="dnd-box-title">Sabedoria Passiva (Percepção)</div>
+                                <input id="dnd_passive_perception" type="number" value="0" class="dnd-number-wide">
+                            </div>
+
+                            <div class="dnd-box">
+                                <div class="dnd-box-title">Outras Proficiências &amp; Idiomas</div>
+                                <textarea id="dnd_other_proficiencies" class="lined"></textarea>
+                            </div>
+                        </div>
+
+                        <div class="dnd-col combat">
+                            <div class="dnd-small-row">
+                                <div class="dnd-mini">
+                                    <div class="dnd-mini-title">Inspiração</div>
+                                    <input id="dnd_inspiration" type="number" value="0">
+                                </div>
+                                <div class="dnd-mini">
+                                    <div class="dnd-mini-title">Bônus de Proficiência</div>
+                                    <input id="dnd_proficiency_bonus" type="number" value="0">
+                                </div>
+                            </div>
+
+                            <div class="dnd-vitals-row">
+                                <div class="dnd-vital">
+                                    <div class="t">Classe de Armadura</div>
+                                    <input id="dnd_ac" type="number" value="0">
+                                </div>
+                                <div class="dnd-vital">
+                                    <div class="t">Iniciativa</div>
+                                    <input id="dnd_initiative" type="number" value="0">
+                                </div>
+                                <div class="dnd-vital">
+                                    <div class="t">Deslocamento</div>
+                                    <input id="dnd_speed" type="text" value="">
+                                </div>
+                            </div>
+
+                            <div class="dnd-box hp">
+                                <div class="dnd-box-title">Pontos de Vida</div>
+                                <div class="dnd-hp-grid">
+                                    <div class="dnd-field">
+                                        <label>Máximos</label>
+                                        <input id="dnd_hp_max" type="number" value="0">
+                                    </div>
+                                    <div class="dnd-field">
+                                        <label>Atuais</label>
+                                        <input id="dnd_hp_current" type="number" value="0">
+                                    </div>
+                                    <div class="dnd-field">
+                                        <label>Temporários</label>
+                                        <input id="dnd_hp_temp" type="number" value="0">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="dnd-box">
+                                <div class="dnd-box-title">Dados de Vida</div>
+                                <div class="dnd-hd-grid">
+                                    <div class="dnd-field">
+                                        <label>Total</label>
+                                        <input id="dnd_hd_total" type="text" value="">
+                                    </div>
+                                    <div class="dnd-field">
+                                        <label>Usados</label>
+                                        <input id="dnd_hd_used" type="text" value="">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="dnd-box">
+                                <div class="dnd-box-title">Salvaguardas Contra a Morte</div>
+                                <div class="dnd-death-grid">
+                                    <div class="dnd-field">
+                                        <label>Sucessos</label>
+                                        <input id="dnd_death_success" type="text" value="">
+                                    </div>
+                                    <div class="dnd-field">
+                                        <label>Falhas</label>
+                                        <input id="dnd_death_fail" type="text" value="">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="dnd-box">
+                                <div class="dnd-box-title">Ataques &amp; Conjuração</div>
+                                <textarea id="dnd_attacks_spellcasting" class="lined"></textarea>
+                            </div>
+
+                            <div class="dnd-box">
+                                <div class="dnd-box-title">Equipamento &amp; Notas</div>
+                                <textarea id="dnd_equipment" class="lined"></textarea>
+                            </div>
+                        </div>
+
+                        <div class="dnd-col traits">
+                            <div class="dnd-box avatar-box">
+                                <div class="dnd-box-title">Aparência do Personagem</div>
+                                <div class="dnd-avatar" id="dnd-avatar-container" style="cursor: pointer;" title="Clique para alterar a foto">
+                                    <img id="dnd_avatar_img" alt="">
+                                    <div class="avatar-overlay" id="dnd-avatar-overlay" style="display: none; position: absolute; inset: 0; background: rgba(0,0,0,0.7); flex-direction: column; align-items: center; justify-content: center; gap: 10px; z-index: 10;">
+                                      <button id="dnd_btn_upload" type="button" style="width: 80%; padding: 8px; border-radius: 8px; background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.4); cursor: pointer; font-weight: bold;">Upload</button>
+                                      <button id="dnd_btn_link" type="button" style="width: 80%; padding: 8px; border-radius: 8px; background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.4); cursor: pointer; font-weight: bold;">Link URL</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="dnd-box">
+                                <div class="dnd-box-title">Traços de Personalidade</div>
+                                <textarea id="dnd_personality_traits" class="lined"></textarea>
+                            </div>
+                            <div class="dnd-box">
+                                <div class="dnd-box-title">Ideais</div>
+                                <textarea id="dnd_ideals" class="lined"></textarea>
+                            </div>
+                            <div class="dnd-box">
+                                <div class="dnd-box-title">Vínculos</div>
+                                <textarea id="dnd_bonds" class="lined"></textarea>
+                            </div>
+                            <div class="dnd-box">
+                                <div class="dnd-box-title">Fraquezas</div>
+                                <textarea id="dnd_flaws" class="lined"></textarea>
+                            </div>
+
+                            <div class="dnd-box">
+                                <div class="dnd-box-title">Características &amp; Talentos</div>
+                                <textarea id="dnd_features_traits" class="lined"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="dnd-page-2" class="dnd-page" data-page="2">
+                <div class="dnd-paper">
+                    <div class="dnd-banner dnd-banner-page2">
+                        <div class="dnd-banner-left">
+                            <div class="dnd-brand">D&amp;D</div>
+                            <div class="dnd-field">
+                                <label>Nome do Personagem</label>
+                                <input id="dnd_character_name_2" type="text" value="">
+                            </div>
+                        </div>
+                        <div class="dnd-banner-right">
+                            <div class="dnd-banner-grid">
+                                <div class="dnd-field">
+                                    <label>Idade</label>
+                                    <input id="dnd_age" type="text" value="">
+                                </div>
+                                <div class="dnd-field">
+                                    <label>Altura</label>
+                                    <input id="dnd_height" type="text" value="">
+                                </div>
+                                <div class="dnd-field">
+                                    <label>Peso</label>
+                                    <input id="dnd_weight" type="text" value="">
+                                </div>
+                                <div class="dnd-field">
+                                    <label>Cor dos Olhos</label>
+                                    <input id="dnd_eyes" type="text" value="">
+                                </div>
+                                <div class="dnd-field">
+                                    <label>Cor da Pele</label>
+                                    <input id="dnd_skin" type="text" value="">
+                                </div>
+                                <div class="dnd-field">
+                                    <label>Cor do Cabelo</label>
+                                    <input id="dnd_hair" type="text" value="">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="dnd-page2-grid">
+                        <div class="dnd-box">
+                            <div class="dnd-box-title">Aparência do Personagem</div>
+                            <textarea id="dnd_appearance" class="lined"></textarea>
+                        </div>
+                        <div class="dnd-box">
+                            <div class="dnd-box-title">Aliados &amp; Organizações</div>
+                            <textarea id="dnd_allies" class="lined"></textarea>
+                        </div>
+                        <div class="dnd-box">
+                            <div class="dnd-box-title">História do Personagem</div>
+                            <textarea id="dnd_history" class="lined"></textarea>
+                        </div>
+                        <div class="dnd-box">
+                            <div class="dnd-box-title">Características &amp; Talentos Adicionais</div>
+                            <textarea id="dnd_features_additional" class="lined"></textarea>
+                        </div>
+                        <div class="dnd-box">
+                            <div class="dnd-box-title">Tesouros</div>
+                            <textarea id="dnd_treasures" class="lined"></textarea>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="dnd-page-3" class="dnd-page" data-page="3">
+                <div class="dnd-paper">
+                    <div class="dnd-banner dnd-banner-page3">
+                        <div class="dnd-brand">D&amp;D</div>
+                        <div class="dnd-spell-head">
+                            <div class="dnd-field">
+                                <label>Classe Conjuradora</label>
+                                <input id="dnd_spellcasting_class" type="text" value="">
+                            </div>
+                            <div class="dnd-field">
+                                <label>Atributo de Conjuração</label>
+                                <input id="dnd_spellcasting_ability" type="text" value="">
+                            </div>
+                            <div class="dnd-field">
+                                <label>CD</label>
+                                <input id="dnd_spell_save_dc" type="text" value="">
+                            </div>
+                            <div class="dnd-field">
+                                <label>Mod. Ataque</label>
+                                <input id="dnd_spell_attack_bonus" type="text" value="">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="dnd-spells-grid">
+                        <div class="spell-col">
+                            <div class="dnd-box spell">
+                                <div class="dnd-box-title">Truques</div>
+                                <textarea id="dnd_spells_0" class="lined"></textarea>
+                            </div>
+                            <div class="dnd-box spell">
+                                <div class="dnd-box-title">Magias 1</div>
+                                <textarea id="dnd_spells_1" class="lined"></textarea>
+                            </div>
+                            <div class="dnd-box spell">
+                                <div class="dnd-box-title">Magias 2</div>
+                                <textarea id="dnd_spells_2" class="lined"></textarea>
+                            </div>
+                        </div>
+                        <div class="spell-col">
+                            <div class="dnd-box spell">
+                                <div class="dnd-box-title">Magias 3</div>
+                                <textarea id="dnd_spells_3" class="lined"></textarea>
+                            </div>
+                            <div class="dnd-box spell">
+                                <div class="dnd-box-title">Magias 4</div>
+                                <textarea id="dnd_spells_4" class="lined"></textarea>
+                            </div>
+                            <div class="dnd-box spell">
+                                <div class="dnd-box-title">Magias 5</div>
+                                <textarea id="dnd_spells_5" class="lined"></textarea>
+                            </div>
+                        </div>
+                        <div class="spell-col">
+                            <div class="dnd-box spell">
+                                <div class="dnd-box-title">Magias 6</div>
+                                <textarea id="dnd_spells_6" class="lined"></textarea>
+                            </div>
+                            <div class="dnd-box spell">
+                                <div class="dnd-box-title">Magias 7</div>
+                                <textarea id="dnd_spells_7" class="lined"></textarea>
+                            </div>
+                            <div class="dnd-box spell">
+                                <div class="dnd-box-title">Magias 8</div>
+                                <textarea id="dnd_spells_8" class="lined"></textarea>
+                            </div>
+                            <div class="dnd-box spell">
+                                <div class="dnd-box-title">Magias 9</div>
+                                <textarea id="dnd_spells_9" class="lined"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <script type="module" src="js/firebase-init.js"></script>
+    <script type="module">
+      const params = new URLSearchParams(window.location.search);
+      const view = String(params.get('view') || '').trim();
+      let isInIframe = false;
+      try {
+        isInIframe = window.self !== window.top;
+      } catch {
+        isInIframe = true;
+      }
+      if (!isInIframe && view !== 'iframe') {
+        import('./js/header.js');
+      }
+    </script>
+    <script type="module" src="js/ficha-dnd.js"></script>
+</body>
+</html>

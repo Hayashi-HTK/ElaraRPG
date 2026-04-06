@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Entrar - RPG Ficha</title>
+    <link rel="icon" href="/assets/icons/LogoElara.png" type="image/png" />
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Inter:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="css/variables.css" />
+    <link rel="stylesheet" href="css/auth-ui.css" />
+
+    <!-- Scripts -->
+    <script src="js/theme.js"></script>
+    <script type="module" src="js/firebase-init.js"></script>
+  </head>
+  <body class="auth-page">
+    <div class="bg-overlay"></div>
+
+    <div class="auth-wrapper">
+      <div class="auth-logo animate-fade-in">
+        <img src="/assets/icons/LogoElara.png" alt="ELARA RPG" />
+      </div>
+
+      <div class="auth-card animate-fade-in">
+        <!-- Error/Success Message Area -->
+        <div id="error-message"></div>
+
+        <!-- Login Section -->
+        <div id="login-section" class="auth-section">
+          <h2>Bem-vindo de volta</h2>
+          <form id="login-form">
+            <div class="auth-form-group">
+              <label for="email">Email</label>
+              <input
+                type="email"
+                id="email"
+                class="auth-input"
+                required
+                placeholder="seu@email.com"
+              />
+            </div>
+            <div class="auth-form-group">
+              <label for="password">Senha</label>
+              <input
+                type="password"
+                id="password"
+                class="auth-input"
+                required
+                placeholder="********"
+              />
+            </div>
+
+            <button type="submit" class="auth-btn">Entrar</button>
+
+            <div class="auth-divider">
+              <span>ou</span>
+            </div>
+
+            <button
+              type="button"
+              id="google-login-btn"
+              class="auth-btn auth-btn-google"
+            >
+              <span class="google-icon">G</span>
+            </button>
+          </form>
+
+          <div class="auth-links">
+            <p>
+              Não tem uma conta? <a href="#" id="to-register">Cadastre-se</a>
+            </p>
+            <p><a href="#" id="to-recover">Esqueceu a senha?</a></p>
+          </div>
+        </div>
+
+        <!-- Register Section -->
+        <div id="register-section" class="auth-section hidden">
+          <h2>Criar Nova Conta</h2>
+          <form id="register-form">
+            <div class="auth-form-group">
+              <label for="reg-fullName">Nome Completo</label>
+              <input
+                type="text"
+                id="reg-fullName"
+                class="auth-input"
+                required
+                placeholder="Ex: Arwen Undómiel"
+              />
+            </div>
+            <div class="auth-form-group">
+              <label for="reg-username">Nome de Usuário</label>
+              <input
+                type="text"
+                id="reg-username"
+                class="auth-input"
+                required
+                placeholder="Ex: arwen_elfa"
+              />
+            </div>
+            <div class="auth-form-group">
+              <label for="reg-email">Email</label>
+              <input
+                type="email"
+                id="reg-email"
+                class="auth-input"
+                required
+                placeholder="seu@email.com"
+              />
+            </div>
+            <div class="auth-form-group">
+              <label for="reg-password">Senha</label>
+              <input
+                type="password"
+                id="reg-password"
+                class="auth-input"
+                required
+                placeholder="********"
+                minlength="6"
+              />
+            </div>
+            <button type="submit" class="auth-btn">Cadastrar</button>
+          </form>
+
+          <div class="auth-links">
+            <p>
+              Já tem uma conta? <a href="#" id="to-login-from-reg">Entrar</a>
+            </p>
+          </div>
+        </div>
+
+        <!-- Recovery Section -->
+        <div id="recover-section" class="auth-section hidden">
+          <h2>Recuperar Senha</h2>
+          <p
+            style="
+              text-align: center;
+              color: var(--auth-text-muted);
+              font-size: 0.9rem;
+              margin-bottom: 20px;
+            "
+          >
+            Enviaremos um link para redefinir sua senha no seu email cadastrado.
+          </p>
+          <form id="recover-form">
+            <div class="auth-form-group">
+              <label for="recover-email">Email</label>
+              <input
+                type="email"
+                id="recover-email"
+                class="auth-input"
+                required
+                placeholder="seu@email.com"
+              />
+            </div>
+            <button type="submit" class="auth-btn">Enviar Link</button>
+          </form>
+
+          <div class="auth-links">
+            <p>
+              <a href="#" id="to-login-from-recover">Voltar para o Login</a>
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main JS -->
+    <script type="module" src="js/auth.js"></script>
+
+    <script>
+      // Check if we should start in register mode
+      window.addEventListener("load", () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const mode = urlParams.get("mode");
+
+        const checkAndToggle = () => {
+          if (window.toggleAuthMode) {
+            if (mode === "register") {
+              window.toggleAuthMode("register");
+            }
+          } else {
+            setTimeout(checkAndToggle, 100);
+          }
+        };
+
+        checkAndToggle();
+      });
+    </script>
+  </body>
+</html>

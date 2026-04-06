@@ -1,0 +1,255 @@
+:root {
+    --pix-color: #32bcad;
+    --pix-bg: rgba(50, 188, 173, 0.1);
+}
+
+.payment-page {
+    background-color: var(--bg-dark);
+    color: var(--text-main);
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+    padding-bottom: 4rem;
+}
+
+.payment-container {
+    max-width: 900px;
+    margin: 4rem auto;
+    padding: 0 1.5rem;
+    display: grid;
+    grid-template-columns: 1fr 1.2fr;
+    gap: 3rem;
+    align-items: start;
+}
+
+.brand-logo-img {
+    width: 34px;
+    height: 34px;
+    object-fit: contain;
+    margin-right: 10px;
+}
+
+@media (max-width: 800px) {
+    .payment-container {
+        grid-template-columns: 1fr;
+        margin: 2rem auto;
+    }
+}
+
+/* Order Summary */
+.order-summary {
+    background: var(--dashboard-card-bg);
+    border: 1px solid var(--dashboard-border);
+    border-radius: 20px;
+    padding: 2.5rem;
+    position: sticky;
+    top: 100px;
+}
+
+.summary-title {
+    font-family: 'Cinzel', serif;
+    font-size: 1.5rem;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--dashboard-border);
+    color: var(--primary-color);
+}
+
+.plan-details {
+    margin-bottom: 2rem;
+}
+
+.plan-info-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+    font-size: 1.1rem;
+}
+
+.plan-info-row span:last-child {
+    font-weight: 700;
+    color: #fff;
+}
+
+.total-row {
+    margin-top: 2rem;
+    padding-top: 1rem;
+    border-top: 2px dashed var(--dashboard-border);
+    display: flex;
+    justify-content: space-between;
+    font-size: 1.4rem;
+    font-weight: 800;
+}
+
+.total-row span:last-child {
+    color: var(--primary-color);
+}
+
+/* Pix Section */
+.pix-payment-card {
+    background: var(--dashboard-card-bg);
+    border: 1px solid var(--dashboard-border);
+    border-radius: 20px;
+    padding: 3rem;
+    text-align: center;
+    box-shadow: var(--shadow-glow);
+}
+
+.pix-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 2.5rem;
+}
+
+.pix-logo {
+    width: 40px;
+    height: 40px;
+    background-color: var(--pix-color);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 900;
+    font-size: 1.2rem;
+}
+
+.pix-title {
+    font-family: 'Cinzel', serif;
+    font-size: 1.8rem;
+    color: #fff;
+}
+
+.qr-code-wrapper {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 15px;
+    display: inline-block;
+    margin-bottom: 2rem;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+
+.qr-code-placeholder {
+    width: 220px;
+    height: 220px;
+    background: #f0f0f0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #333;
+    font-weight: 600;
+}
+
+.pix-copy-paste {
+    margin-bottom: 2rem;
+}
+
+.pix-label {
+    display: block;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 0.8rem;
+}
+
+.copy-input-group {
+    display: flex;
+    background: var(--dashboard-input-bg);
+    border: 1px solid var(--dashboard-border);
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.copy-input-group input {
+    flex-grow: 1;
+    background: transparent;
+    border: none;
+    padding: 12px 15px;
+    color: var(--text-main);
+    font-family: monospace;
+    font-size: 0.9rem;
+    pointer-events: none;
+}
+
+.btn-copy {
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 0 20px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s;
+}
+
+.btn-copy:hover {
+    background: var(--primary-light);
+}
+
+.payment-timer {
+    background: var(--pix-bg);
+    color: var(--pix-color);
+    padding: 1rem;
+    border-radius: 10px;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.8rem;
+    font-weight: 700;
+    margin-bottom: 2rem;
+}
+
+.timer-icon {
+    font-size: 1.2rem;
+}
+
+.payment-instructions {
+    text-align: left;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+.payment-instructions ol {
+    padding-left: 1.5rem;
+}
+
+.payment-instructions li {
+    margin-bottom: 0.5rem;
+}
+
+.btn-confirm-payment {
+    width: 100%;
+    margin-top: 2rem;
+    padding: 1.2rem;
+    font-size: 1.1rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* Success State (Hidden by default) */
+.payment-success {
+    display: none;
+    text-align: center;
+    padding: 4rem 2rem;
+}
+
+.success-icon {
+    width: 80px;
+    height: 80px;
+    background: #10B981;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+    margin: 0 auto 2rem;
+    box-shadow: 0 0 30px rgba(16, 185, 129, 0.3);
+}
+
+.success-title {
+    font-family: 'Cinzel', serif;
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    color: #fff;
+}

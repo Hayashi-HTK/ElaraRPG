@@ -1,0 +1,104 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bestiário - ELARA RPG</title>
+    <link rel="icon" href="/assets/icons/LogoElara.png" type="image/png">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/dashboard-ui.css">
+    <link rel="stylesheet" href="css/header.css">
+    <link rel="stylesheet" href="css/gamification.css">
+    <link rel="stylesheet" href="css/enemies.css">
+    
+    <!-- Scripts -->
+    <script type="module" src="js/firebase-init.js"></script>
+</head>
+<body>
+
+    <main class="enemies-main">
+        <div class="enemies-header">
+            <h2>Bestiário</h2>
+            <button id="add-enemy-btn" class="btn-primary">+ Adicionar Inimigo</button>
+        </div>
+
+        <!-- Filtros e Categorias -->
+        <div class="enemies-filters card-dark">
+            <div class="filter-group">
+                <label>Nível</label>
+                <select id="filter-level" class="form-input">
+                    <option value="">Todos</option>
+                    <option value="1">★ (Iniciante)</option>
+                    <option value="2">★★ (Aventureiro)</option>
+                    <option value="3">★★★ (Veterano)</option>
+                    <option value="4">★★★★ (Mestre)</option>
+                    <option value="5">★★★★★ (Lenda)</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>Espécie</label>
+                <select id="filter-species" class="form-input">
+                    <option value="">Todas</option>
+                    <option value="Humanoide">Humanoide</option>
+                    <option value="Besta">Besta</option>
+                    <option value="Morto-Vivo">Morto-Vivo</option>
+                    <option value="Dragão">Dragão</option>
+                    <option value="Aberração">Aberração</option>
+                    <option value="Elemental">Elemental</option>
+                    <option value="Construto">Construto</option>
+                    <option value="Divindade">Divindade</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>Origem</label>
+                <div class="filter-tabs">
+                    <button class="filter-tab active" data-source="all">Tudo</button>
+                    <button class="filter-tab" data-source="official">Oficiais</button>
+                    <button class="filter-tab" data-source="community">Comunidade</button>
+                </div>
+            </div>
+        </div>
+
+
+
+        <div id="enemies-grid">
+            <!-- As cartas dos inimigos serão inseridas aqui pelo JavaScript -->
+        </div>
+
+                <!-- Boss Final Section -->
+        <div id="final-boss-container" class="final-boss-section" style="display: none;">
+            <h3 class="boss-title">Entidade Suprema</h3>
+            <div id="final-boss-grid">
+                <!-- Boss será inserido aqui -->
+            </div>
+        </div>
+
+        <h3 id="community-title" style="margin-top: 4rem; font-family: 'Cinzel', serif; color: var(--dashboard-text-muted); border-bottom: 1px solid var(--card-border); padding-bottom: 1rem; display: none;">
+            Criados pela Comunidade
+        </h3>
+        <div id="community-enemies-grid" class="community-grid">
+            <!-- Monstros da comunidade aparecerão aqui -->
+        </div>
+    </main>
+
+    <!-- Modal para detalhes do inimigo  -->
+    <div id="enemy-modal-container"></div>
+    <div id="profile-modal-container"></div>
+
+
+    <footer class="footer">
+        <p>&copy; 2026 ELARA RPG. Todos os direitos reservados.</p>
+    </footer>
+
+    <script type="module" src="js/header.js"></script>
+    <script type="module" src="js/enemies.js"></script>
+</body>
+</html>

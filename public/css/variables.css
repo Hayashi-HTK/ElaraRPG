@@ -1,0 +1,334 @@
+@import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&display=swap');
+
+:root {
+  /* Default Theme (Dark / Original) */
+  --color-primary: #c9a84c;
+  --color-primary-dark: #8a6520;
+  --color-secondary: #e8c96e;
+  --color-bg: #0a0608;
+  --color-bg-card: #1a1218;
+  --color-bg-card2: #221820;
+  --color-bg-input: #221820;
+  --color-text: #e8dcc8;
+  --color-text-muted: #a09080;
+  --color-border: #3d2e1a;
+
+  --elara-deep: var(--color-bg);
+  --elara-panel: var(--color-bg-card);
+  --elara-panel-2: var(--color-bg-card2);
+  --elara-border: var(--color-border);
+  --elara-text: var(--color-text);
+  --elara-text-dim: var(--color-text-muted);
+  --elara-gold: var(--color-primary);
+  --elara-gold-light: var(--color-secondary);
+  --elara-gold-dark: var(--color-primary-dark);
+  --elara-rune: #3a2a1a;
+  --landing-card-base: var(--elara-rune);
+  --landing-card-border: var(--elara-border);
+  --landing-card-header-bg: rgba(10, 6, 8, 0.35);
+  --landing-card-header-border: rgba(201, 168, 76, 0.25);
+  --landing-card-body-bg: var(--elara-deep);
+  --landing-card-body-border: rgba(201, 168, 76, 0.18);
+  --landing-card-art-border: rgba(201, 168, 76, 0.14);
+  --landing-card-star: var(--elara-gold-light);
+  --landing-card-holo-a: rgba(255, 255, 255, 0.05);
+  --landing-card-holo-b: rgba(255, 255, 255, 0.15);
+  
+  --font-main: 'Inter', sans-serif;
+  --font-display: 'Cinzel', serif;
+  
+  --color-number-control: #c9a84c;
+  --accent-gold: #c9a84c;
+  --primary-color: var(--color-primary);
+  --secondary-color: var(--color-secondary);
+  --bg-dark: var(--color-bg);
+  --text-main: var(--color-text);
+  --text-muted: var(--color-text-muted);
+}
+
+/* Theme 2: Light (Claro) */
+[data-theme="light"] {
+  --color-primary: #5d2a1a;
+  --color-primary-dark: #3d2e1a;
+  --color-secondary: #c9a84c;
+  --color-bg-input: #f5ebce;
+  --color-bg: #fdf6e3;
+  --color-bg2: #f5ebce;
+  --color-bg-card: #fdf6e3;
+  --color-bg-card2: #f5ebce;
+  --color-text: #3e2723;
+  --color-text-muted: #6d4c41;
+  --color-border: #8a6520;
+  --color-number-control: #5d2a1a;
+  --accent-gold: #c9a84c;
+  --primary-color: var(--color-primary);
+  --secondary-color: var(--color-secondary);
+}
+
+/* Theme 3: Scroll (Pergaminho) */
+[data-theme="scroll"] {
+  --color-primary: #5d2a1a;
+  --color-primary-dark: #3d2e1a;
+  --color-secondary: #c9a84c;
+  --color-bg: #f5ebce;
+  --color-bg2: #e8dcc5;
+  --color-bg-card: #fdf6e3;
+  --color-bg-card2: #e8dcc5;
+  --color-bg-input: #f5ebce;
+  --color-text: #3e2723;
+  --color-text-muted: #6d4c41;
+  --color-border: #8a6520;
+  --color-number-control: #5d2a1a;
+  --accent-gold: #c9a84c;
+  --primary-color: var(--color-primary);
+  --secondary-color: var(--color-secondary);
+}
+
+/* Theme 4: Cyberpunk */
+[data-theme="cyberpunk"] {
+  --color-primary: #5a3a7a;
+  --color-primary-dark: #3d2e1a;
+  --color-secondary: #7ab5c9;
+  --color-bg-input: #221820;
+  --color-bg: #0a0608;
+  --color-bg2: #110d0f;
+  --color-bg-card: #1a1218;
+  --color-bg-card2: #221820;
+  --color-text: #e8dcc8;
+  --color-text-muted: #a09080;
+  --color-border: #3d2e1a;
+  --color-number-control: #5a3a7a;
+  --accent-gold: #c9a84c;
+  --primary-color: var(--color-primary);
+  --secondary-color: var(--color-secondary);
+}
+
+/* Theme 5: Forest (Floresta) */
+[data-theme="forest"] {
+  --color-primary: #7a6a3a;
+  --color-primary-dark: #3d2e1a;
+  --color-secondary: #c9a84c;
+  --color-bg-input: #221820;
+  --color-bg: #0a0608;
+  --color-bg-card: #1a1218;
+  --color-bg-card2: #221820;
+  --color-bg2: #110d0f;
+  --color-text: #e8dcc8;
+  --color-text-muted: #a09080;
+  --color-border: #3d2e1a;
+  --color-number-control: #7a6a3a;
+  --accent-gold: #c9a84c;
+  --primary-color: var(--color-primary);
+  --secondary-color: var(--color-secondary);
+}
+
+/* Audio Controls (Global) */
+.audio-controls {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(0, 0, 0, 0.7);
+    padding: 8px 15px;
+    border-radius: 30px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(8px);
+    z-index: 10000;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+    transition: transform 0.3s;
+}
+
+.audio-controls:hover {
+    transform: translateY(-2px);
+    background: rgba(0, 0, 0, 0.85);
+}
+
+.audio-btn {
+    background: none;
+    border: none;
+    color: #fff;
+    cursor: pointer;
+    font-size: 1rem;
+    opacity: 0.7;
+    transition: all 0.3s;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.audio-btn:hover { 
+    opacity: 1; 
+    color: var(--color-secondary, #ffd700);
+}
+
+.volume-slider {
+    width: 60px;
+    height: 4px;
+    cursor: pointer;
+    accent-color: var(--color-secondary, #ffd700);
+}
+
+.audio-track-info {
+    font-size: 0.75rem;
+    color: var(--color-secondary, #ffd700);
+    /* margin-right: 15px; */
+    font-weight: bold;
+    font-family: 'Cinzel', serif;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 150px;
+}
+
+@media (max-width: 480px) {
+  .audio-controls {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(0, 0, 0, 0.7);
+    padding: 2px 5px;
+    border-radius: 30px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(8px);
+    z-index: 10000;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+    transition: transform 0.3s;
+}
+
+.standby-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(10, 10, 15, 0.95);
+  backdrop-filter: blur(8px);
+  z-index: 100000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 1s ease-in-out;
+}
+
+.standby-overlay.active {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.standby-glow {
+  position: absolute;
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0) 70%);
+  border-radius: 50%;
+  animation: pulseGlow 4s ease-in-out infinite alternate;
+}
+
+.standby-dragon {
+  font-size: 6rem;
+  color: white;
+  text-shadow: 0 0 20px rgb(255, 255, 255);
+  animation: slowRotate 20s linear infinite;
+  position: relative;
+  z-index: 2;
+}
+
+@keyframes pulseGlow {
+  0% { transform: scale(0.8); opacity: 0.5; }
+  100% { transform: scale(1.5); opacity: 1; }
+}
+
+@keyframes slowRotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+.audio-track-info {
+    font-size: 0.75rem;
+    color: var(--color-secondary, #ffd700);
+    /* margin-right: 15px; */
+    font-weight: bold;
+    font-family: 'Cinzel', serif;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 150px;
+}
+}
+
+a {
+  color: var(--color-text);
+  transition: color 0.2s ease, text-decoration-color 0.2s ease;
+}
+
+a:active,
+a:focus-visible {
+  color: var(--color-primary);
+}
+
+a:focus-visible {
+  outline: 2px solid rgba(201, 168, 76, 0.55);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+a:hover {
+  color: var(--color-primary);
+}
+
+:root {
+  --scrollbar-size: 10px;
+  --scrollbar-track: rgba(0, 0, 0, 0.32);
+  --scrollbar-thumb: rgba(201, 168, 76, 0.28);
+  --scrollbar-thumb-hover: rgba(201, 168, 76, 0.44);
+  --scrollbar-thumb-active: rgba(201, 168, 76, 0.62);
+}
+
+html {
+  scrollbar-gutter: stable;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+}
+
+*::-webkit-scrollbar {
+  width: var(--scrollbar-size);
+  height: var(--scrollbar-size);
+}
+
+*::-webkit-scrollbar-track {
+  background: var(--scrollbar-track);
+  border-radius: 999px;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: var(--scrollbar-thumb-hover);
+  background-clip: content-box;
+}
+
+*::-webkit-scrollbar-thumb:active {
+  background: var(--scrollbar-thumb-active);
+  background-clip: content-box;
+}
+
+@media (max-width: 600px) {
+  :root {
+    --scrollbar-size: 8px;
+  }
+}

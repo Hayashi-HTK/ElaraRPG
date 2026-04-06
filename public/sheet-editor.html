@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Editor de Ficha - RPG Ficha</title>
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/dashboard-ui.css">
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/gamification.css">
+  <link rel="stylesheet" href="css/header.css">
+  <script src="js/theme.js"></script>
+  <script type="module" src="js/firebase-init.js"></script>
+  <style>
+
+    .user-avatar-small-fichas {
+      width: 36px;
+      height: 36px;
+    }
+    html {
+          margin-top: 3.5rem;
+    }
+    body {
+      overflow: hidden;
+    }
+
+    .fab {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 100;
+      padding: 0.8rem 1rem;
+      font-size: 1.2rem;
+      border: none;
+      border-radius: 50%;
+      background: var(--color-primary);
+      color: #fff;
+      cursor: pointer;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, .3);
+    }
+
+    /* global scrollbar styling */
+    html,
+    body,
+    iframe {
+      scrollbar-width: thin;
+      scrollbar-color: rgba(100, 100, 100, 0.4) rgba(0, 0, 0, 0.1);
+    }
+
+    html::-webkit-scrollbar,
+    body::-webkit-scrollbar,
+    iframe::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+
+    html::-webkit-scrollbar-track,
+    body::-webkit-scrollbar-track,
+    iframe::-webkit-scrollbar-track {
+      background: var(--bg);
+    }
+
+    html::-webkit-scrollbar-thumb,
+    body::-webkit-scrollbar-thumb,
+    iframe::-webkit-scrollbar-thumb {
+      background: rgba(100, 100, 100, 0.4);
+      border-radius: 3px;
+    }
+  </style>
+</head>
+
+<body>
+  <input type="hidden" id="background-url">
+  <input type="hidden" id="background-style">
+
+  <dialog id="bg-dialog" style="padding: 0; border: none; background: transparent; backdrop-filter: blur(4px);">
+    <div class="card" style="width: 400px; max-width: 90vw; box-shadow: 0 10px 25px rgba(0,0,0,0.5);">
+      <h3 style="margin-top: 0;">Aparência</h3>
+
+      <div style="margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--color-border);">
+        <div style="margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--color-border);">
+          <label for="site-theme-select" style="display: block; margin-bottom: 0.5rem;">Tema do Site (Global)</label>
+          <select id="site-theme-select"
+            style="width: 100%; padding: 0.5rem; background: var(--color-bg-input); border: 1px solid var(--color-border); color: var(--color-text); border-radius: 0.25rem;">
+            <option value="default">Padrão (Escuro)</option>
+            <option value="light">Claro</option>
+            <option value="scroll">Pergaminho (RPG Clássico)</option>
+            <option value="cyberpunk">Cyberpunk (Neon)</option>
+            <option value="forest">Floresta (Druida)</option>
+          </select>
+        </div>
+
+        <h4 style="margin-top: 0; margin-bottom: 1rem;">Fundo da Ficha</h4>
+
+        <div style="margin-bottom: 1rem;">
+          <label for="bg-url-input" style="display: block; margin-bottom: 0.5rem;">URL da Imagem</label>
+          <input type="text" id="bg-url-input" placeholder="https://..." style="width: 100%;">
+        </div>
+
+        <div style="margin-bottom: 1.5rem;">
+          <label for="bg-style-select" style="display: block; margin-bottom: 0.5rem;">Modo de Exibição</label>
+          <select id="bg-style-select"
+            style="width: 100%; padding: 0.5rem; background: var(--color-bg-input); border: 1px solid var(--color-border); color: var(--color-text); border-radius: 0.25rem;">
+            <option value="cover">Cobrir (Cover) - Preenche tudo</option>
+            <option value="contain">Conter (Contain) - Mostra tudo</option>
+            <option value="auto">Padrão (Auto) - Tamanho original</option>
+          </select>
+        </div>
+
+        <div style="display: flex; gap: 0.5rem; justify-content: flex-end;">
+          <button id="bg-cancel-btn" class="btn btn-secondary">Cancelar</button>
+          <button id="bg-remove-btn" class="btn" style="background-color: #ef4444;">Remover</button>
+          <button id="bg-save-btn" class="btn">Salvar</button>
+        </div>
+      </div>
+  </dialog>
+
+  <dialog id="badges-dialog" style="padding: 0; border: none; background: transparent; backdrop-filter: blur(4px);">
+    <div class="card"
+      style="width: 500px; max-width: 90vw; box-shadow: 0 10px 25px rgba(0,0,0,0.5); max-height: 80vh; overflow-y: auto;">
+      <h3
+        style="margin-top: 0; position: sticky; top: 0; background: var(--color-bg-card); padding-bottom: 1rem; border-bottom: 1px solid var(--color-border);">
+        Adicionar Insígnia</h3>
+
+      <div id="badges-list-selection"
+        style="display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 1rem; margin-bottom: 1rem;">
+        <!-- Badges will be populated here -->
+      </div>
+
+      <div
+        style="display: flex; justify-content: flex-end; position: sticky; bottom: 0; background: var(--color-bg-card); padding-top: 1rem; border-top: 1px solid var(--color-border);">
+        <button id="badges-close-btn" class="btn btn-secondary">Fechar</button>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- Template iframe replaces manual form; header and banner remain above -->
+  <iframe id="template-frame" src="" style="width:100%; height: calc(100vh - 3.5rem); border:none;"></iframe>
+
+
+  <script type="module" src="js/sheet-editor.js"></script>
+  <script type="module" src="js/header.js"></script>
+</body>
+
+</html>

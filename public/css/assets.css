@@ -1,0 +1,224 @@
+body {
+  background: var(--elara-deep);
+  color: var(--elara-text);
+}
+
+.assets-page {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 110px 16px 32px;
+}
+
+.assets-card {
+  background: rgba(26, 18, 24, 0.9);
+  border: 1px solid rgba(201, 168, 76, 0.16);
+  border-radius: 18px;
+  padding: 18px;
+  box-shadow: 0 18px 55px rgba(0, 0, 0, 0.55);
+}
+
+.assets-head {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+
+.assets-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.assets-title {
+  font-family: var(--font-display);
+  color: var(--elara-gold-light);
+  margin: 0 0 6px;
+  font-size: 1.6rem;
+  font-weight: 900;
+}
+
+.assets-subtitle {
+  margin: 0 0 14px;
+  color: var(--elara-text-dim);
+}
+
+.assets-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(201, 168, 76, 0.16);
+  background: rgba(10, 6, 8, 0.4);
+  color: var(--elara-text);
+  text-decoration: none;
+  font-weight: 800;
+  transition: transform 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+}
+
+.assets-link:hover {
+  transform: translateY(-1px);
+  background: rgba(201, 168, 76, 0.12);
+  border-color: rgba(201, 168, 76, 0.26);
+}
+
+.assets-sections {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.assets-section {
+  border: 1px solid rgba(201, 168, 76, 0.14);
+  background: rgba(10, 6, 8, 0.28);
+  border-radius: 16px;
+  padding: 14px;
+}
+
+.assets-section-title {
+  margin: 0 0 10px;
+  font-family: var(--font-display);
+  color: rgba(255,255,255,0.92);
+  font-size: 1.1rem;
+  font-weight: 900;
+}
+
+.assets-items-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.assets-item {
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid rgba(201, 168, 76, 0.14);
+  background: rgba(0,0,0,0.18);
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.assets-thumb {
+  height: 120px;
+  background-size: cover;
+  background-position: center;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+.assets-item-meta {
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.assets-item-name {
+  font-weight: 900;
+  color: rgba(255,255,255,0.92);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.assets-item-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.assets-btn {
+  height: 36px;
+  border-radius: 12px;
+  border: 1px solid rgba(201, 168, 76, 0.24);
+  background: rgba(201, 168, 76, 0.14);
+  color: rgba(255,255,255,0.92);
+  font-weight: 900;
+  cursor: pointer;
+  padding: 0 12px;
+}
+
+.assets-btn:hover {
+  background: rgba(201, 168, 76, 0.22);
+}
+
+.assets-btn-secondary {
+  background: rgba(10, 6, 8, 0.30);
+  border-color: rgba(201, 168, 76, 0.16);
+}
+
+.assets-btn-secondary:hover {
+  background: rgba(201, 168, 76, 0.10);
+}
+
+.assets-empty {
+  color: var(--elara-text-dim);
+  font-size: 0.95rem;
+  padding: 6px 2px;
+}
+
+.assets-objects-root {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.assets-obj-category {
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 14px;
+  padding: 12px;
+  background: rgba(0,0,0,0.14);
+}
+
+.assets-obj-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.assets-obj-title {
+  font-weight: 900;
+  color: rgba(255,255,255,0.92);
+}
+
+.assets-obj-count {
+  min-width: 34px;
+  height: 28px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(10, 6, 8, 0.35);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--elara-text-dim);
+  font-weight: 900;
+  font-size: 0.85rem;
+}
+
+.assets-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 18px;
+  transform: translateX(-50%);
+  z-index: 6000;
+  padding: 10px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(201, 168, 76, 0.22);
+  background: rgba(10, 6, 8, 0.80);
+  color: rgba(255,255,255,0.92);
+  font-weight: 900;
+  opacity: 0;
+  transition: opacity 0.18s ease;
+}
+
+.assets-toast.active {
+  opacity: 1;
+}
+
+@media (max-width: 860px) {
+  .assets-items-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}

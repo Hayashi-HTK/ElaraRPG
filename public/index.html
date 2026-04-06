@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="/assets/icons/LogoElara.png" type="image/png">
+  <title>ELARA RPG - Suas Crônicas Começam Aqui</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+  
+  <!-- Styles -->
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/dashboard-ui.css">
+  <link rel="stylesheet" href="css/gamification.css">
+  <link rel="stylesheet" href="css/start.css">
+  <link rel="stylesheet" href="css/index.css">
+  <link rel="stylesheet" href="css/header.css">
+  
+  <script src="js/theme.js"></script>
+  <script type="module" src="js/firebase-init.js"></script>
+</head>
+<body class="landing-page">
+  <div id="start-screen" class="start-screen" aria-hidden="true">
+    <div id="start-cover" class="start-cover">
+      <div class="start-stars"></div>
+      <div class="start-glow"></div>
+      <div class="start-hole"></div>
+      <div class="start-content">
+        <div class="start-subtitle">ELARA RPG</div>
+        <button id="start-enter-btn" class="start-title" type="button">ENTRAR</button>
+        <div class="start-divider" aria-hidden="true">
+          <div class="start-divider-line"></div>
+          <div class="start-divider-diamond"></div>
+          <div class="start-divider-line"></div>
+        </div>
+        <div class="start-hint">Toque para começar</div>
+      </div>
+    </div>
+  </div>
+  <!-- Hero Slider Section -->
+  <header class="hero-slider">
+    <div class="slider-track" id="slider-track">
+      <!-- Slide 1 -->
+      <div class="slide" style="background-image: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('https://images.unsplash.com/photo-1514539079130-25950c84af65?q=80&w=1920&auto=format&fit=crop');">
+        <div class="slide-content">
+          <h1 class="animate-up">Sua Próxima Aventura Começa Aqui</h1>
+          <p class="animate-up delay-1">O gerenciador de fichas definitivo para suas campanhas de RPG de Mesa.</p>
+          <div class="hero-btns animate-up delay-2">
+            <a href="register.html" class="btn-primary btn-large">Começar Agora</a>
+            <a href="#features" class="btn-secondary">Saiba Mais</a>
+          </div>
+        </div>
+      </div>
+      <!-- Slide 2 -->
+      <div class="slide" style="background-image: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('assets/fotos slide/slide\ compacto.png');">
+        <div class="slide-content">
+          <h1>Mistérios e Magia</h1>
+          <p>Organize seus feitiços, itens e história em um só lugar, acessível de qualquer dispositivo.</p>
+          <div class="hero-btns">
+            <a href="register.html" class="btn-primary btn-large">Criar Grimório</a>
+          </div>
+        </div>
+      </div>
+      <!-- Slide 3 -->
+      <div class="slide" style="background-image: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('assets/fotos slide/slide\ 2\ compacto.png');">
+        <div class="slide-content">
+          <h1>Explore Mundos Fantásticos</h1>
+          <p>Crie e gerencie personagens para qualquer sistema de RPG, do D&D ao Ordem Paranormal.</p>
+          <div class="hero-btns">
+            <a href="#features" class="btn-primary btn-large">Ver Ferramentas</a>
+          </div>
+        </div>
+      </div>
+      <!-- Slide 4 -->
+      <div class="slide" style="background-image: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('assets/fotos slide/slide\ 3\ compacto.png');">
+        <div class="slide-content">
+          <h1>Foco na História</h1>
+          <p>Deixe a burocracia conosco e concentre-se no que realmente importa: a sua narrativa.</p>
+          <div class="hero-btns">
+            <a href="register.html" class="btn-primary btn-large">Começar a Narrar</a>
+          </div>
+        </div>
+      </div>
+      <!-- Slide Boss Final -->
+      <div class="slide boss-slide" style="background-image: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url(assets/inimigos/The\ first.png); background-position: center 20%;">
+        <div class="slide-content">
+          <h1 style="color: #ffd700; text-shadow: 0 0 20px rgba(255, 215, 0, 0.6);">The First</h1>
+          <p style="font-family: 'Cinzel', serif; font-size: 1.5rem; color: #eee;">O primeiro e único Deus espera seu desafio.</p>
+          <div class="hero-btns">
+            <a href="enemies.html" class="btn-primary btn-large" style="background: linear-gradient(45deg, #8b0000, #ff0000); border: 1px solid #ffd700;">Desafiar Agora</a>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="slider-controls">
+        <div class="slider-dots" id="slider-dots"></div>
+        <button class="slider-arrow prev" id="slider-prev">❮</button>
+        <button class="slider-arrow next" id="slider-next">❯</button>
+    </div>
+  </header>
+
+  <main>
+    <!-- Stats Section -->
+    <section class="stats-banner">
+        <div class="container stats-wrapper">
+            <div class="stat-box">
+                <span class="stat-num">+10k</span>
+                <span class="stat-desc">Fichas Criadas</span>
+            </div>
+            <div class="stat-box">
+                <span class="stat-num">1 ficha</span>
+                <span class="stat-desc">Gratuita</span>
+            </div>
+            <div class="stat-box">
+                <span class="stat-num">Realtime</span>
+                <span class="stat-desc">Sincronização</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="features-section">
+      <div class="container">
+        <div class="section-header">
+            <h2 class="title-cinzel">Ferramentas de Mestre</h2>
+            <p>Tudo o que você precisa para uma sessão épica.</p>
+        </div>
+        
+        <div class="feature-grid">
+          <!-- Card 1 -->
+          <div class="feature-card-wrapper">
+            <div class="yugioh-card card-monster">
+              <div class="card-inner">
+                <div class="card-header">
+                  <h3 class="card-name">Fichas</h3>
+                  <div class="card-attribute">📜</div>
+                </div>
+                <div class="card-level">
+                  <span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span>
+                </div>
+                <div class="card-image-container">
+                  <div class="card-art-bg">
+                    <img src="assets/feature-cards/1.png" class="card-art-img" alt="Fichas Inteligentes">
+                  </div>
+                </div>
+                <div class="card-body">
+                  <p class="card-type">[ GERENCIADOR / EFEITO ]</p>
+                  <p class="card-description">Cálculos automáticos de atributos, perícias e vida. Chega de apagar papel até rasgar!</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Card 2 -->
+          <div class="feature-card-wrapper">
+            <div class="yugioh-card card-monster">
+              <div class="card-inner">
+                <div class="card-header">
+                  <h3 class="card-name">Evolução</h3>
+                  <div class="card-attribute">🛡️</div>
+                </div>
+                <div class="card-level">
+                  <span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span>
+                </div>
+                <div class="card-image-container">
+                  <div class="card-art-bg">
+                    <img src="assets/feature-cards/2.png" class="card-art-img" alt="Sistema de Evolução">
+                  </div>
+                </div>
+                <div class="card-body">
+                  <p class="card-type">[ CONQUISTA ]</p>
+                  <p class="card-description">Ganhe XP e desbloqueie molduras exclusivas para o seu perfil enquanto joga.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Card 3 -->
+          <div class="feature-card-wrapper">
+            <div class="yugioh-card card-monster">
+              <div class="card-inner">
+                <div class="card-header">
+                  <h3 class="card-name">Sincronização</h3>
+                  <div class="card-attribute">🔄</div>
+                </div>
+                <div class="card-level">
+                  <span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span>
+                </div>
+                <div class="card-image-container">
+                  <div class="card-art-bg">
+                    <img src="assets/feature-cards/3.png" class="card-art-img" alt="Sincronização ao Vivo">
+                  </div>
+                </div>
+                <div class="card-body">
+                  <p class="card-type">[ MESTRE / SINCRONIZAÇÃO ]</p>
+                  <p class="card-description">O mestre vê suas alterações instantaneamente. Perfeito para mesas online e presenciais.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 4 -->
+          <div class="feature-card-wrapper">
+            <div class="yugioh-card card-monster">
+              <div class="card-inner">
+                <div class="card-header">
+                  <h3 class="card-name">Personalização</h3>
+                  <div class="card-attribute">🎨</div>
+                </div>
+                <div class="card-level">
+                  <span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span>
+                </div>
+                <div class="card-image-container">
+                  <div class="card-art-bg">
+                    <img src="assets/feature-cards/4.png" class="card-art-img" alt="Personalização Total">
+                  </div>
+                </div>
+                <div class="card-body">
+                   <p class="card-type">[ CUSTOMIZAÇÃO / RITUAL ]</p>
+                   <p class="card-description">Escolha temas, mude o fundo da sua ficha e adicione insígnias de maestria.</p>
+                 </div>
+               </div>
+             </div>
+           </div>
+
+           <!-- Card 5 (Inimigos) -->
+           <div class="feature-card-wrapper">
+             <div class="yugioh-card card-monster">
+               <div class="card-inner">
+                 <div class="card-header">
+                   <h3 class="card-name">Bestiário</h3>
+                   <div class="card-attribute">👿</div>
+                 </div>
+                 <div class="card-level">
+                   <span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span>
+                 </div>
+                 <div class="card-image-container">
+                  <div class="card-art-bg">
+                    <img src="assets/feature-cards/5.png" class="card-art-img" alt="Bestiário Épico">
+                  </div>
+                </div>
+                 <div class="card-body">
+                   <p class="card-type">[ INIMIGO / EFEITO ]</p>
+                   <p class="card-description">Crie fichas de vilões, gerencie encontros mortais e controle iniciativas em tempo real.</p>
+                 </div>
+               </div>
+             </div>
+           </div>
+
+           <!-- Card 6 (Perfil) -->
+           <div class="feature-card-wrapper">
+             <div class="yugioh-card card-monster">
+               <div class="card-inner">
+                 <div class="card-header">
+                   <h3 class="card-name">Identidade</h3>
+                   <div class="card-attribute">👤</div>
+                 </div>
+                 <div class="card-level">
+                   <span class="star">★</span><span class="star">★</span><span class="star">★</span>
+                 </div>
+                 <div class="card-image-container">
+                  <div class="card-art-bg">
+                    <img src="assets/feature-cards/6.png" class="card-art-img" alt="Identidade RPG">
+                  </div>
+                </div>
+                 <div class="card-body">
+                   <p class="card-type">[ PERFIL / EQUIPAMENTO ]</p>
+                   <p class="card-description">Personalize seu avatar, escolha seu estilo de jogo e mostre suas conquistas ao mundo.</p>
+                 </div>
+               </div>
+             </div>
+           </div>
+         </div>
+      </div>
+    </section>
+
+    <!-- Info Section 1 -->
+    <section class="info-section">
+        <div class="container info-grid">
+            <div class="info-content">
+                <h2 class="title-cinzel">Feito de Jogador para Jogador</h2>
+                <p>Sabemos como é difícil gerenciar dezenas de papéis durante uma sessão intensa. O Elara RPG foi desenhado para ser intuitivo, rápido e, acima de tudo, bonito.</p>
+                <ul class="info-list">
+                    <li>✨ Interface Mobile-First</li>
+                    <li>🎲 Dados integrados (Em breve)</li>
+                    <li>🌑 Modo Escuro nativo</li>
+                </ul>
+            </div>
+            <div class="info-image">
+                <div class="image-placeholder shadow-glow">
+                    <img src="https://images.unsplash.com/photo-1544652478-6653e09f18a2?q=80&w=800&auto=format&fit=crop" alt="RPG Gameplay">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing Section -->
+    <section id="pricing" class="pricing-section">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="title-cinzel">Planos de Aventura</h2>
+                <p>Escolha o nível de poder ideal para sua jornada.</p>
+            </div>
+            
+            <div class="pricing-grid">
+                <!-- Free Plan -->
+                <div class="pricing-card" onclick="selectPlan(this, 'free')">
+                    <h3 class="plan-name">Aventureiro</h3>
+                    <div class="plan-price">Grátis</div>
+                    <ul class="plan-features">
+                        <li>Apenas 1 Ficha de Personagem</li>
+                        <li class="disabled">Troca de Foto de Perfil</li>
+                        <li class="disabled">Troca de Banner de Perfil</li>
+                        <li class="disabled">Temas de Perfil Exclusivos</li>
+                        <li class="disabled">Conquistas e Insígnias</li>
+                        <li class="disabled">Molduras de Avatar</li>
+                        <li>Acesso à Comunidade</li>
+                    </ul>
+                    <a href="register.html" class="btn-secondary">Começar Grátis</a>
+                </div>
+
+                <!-- Basic Plan -->
+                <div class="pricing-card" onclick="selectPlan(this, 'basic')">
+                    <div class="pricing-badge">Mais Popular</div>
+                    <h3 class="plan-name">Herói</h3>
+                    <div class="plan-price">R$ 19,90<span>/mês</span></div>
+                    <ul class="plan-features">
+                        <li>Apenas 5 Fichas de Personagem</li>
+                        <li>Troca de Foto de Perfil</li>
+                        <li>Troca de Banner de Perfil</li>
+                        <li class="disabled">Temas de Perfil (Básicos)</li>
+                        <li>Sistema de Conquistas</li>
+                        <li class="disabled">Molduras de Avatar</li>
+                        <li>Acesso Prioritário</li>
+                    </ul>
+                    <a href="payment.html?plan=basic" class="btn-primary">Tornar-se Herói</a>
+                </div>
+
+                <!-- Premium Plan -->
+                <div class="pricing-card" onclick="selectPlan(this, 'premium')">
+                    <h3 class="plan-name">Lenda</h3>
+                    <div class="plan-price">R$ 49,90<span>/mês</span></div>
+                    <ul class="plan-features">
+                        <li>Fichas Ilimitadas</li>
+                        <li>Troca de Foto e Banner</li>
+                        <li>Todos os Temas de Perfil</li>
+                        <li>Conquistas e Insígnias Raras</li>
+                        <li>Molduras de Avatar Exclusivas</li>
+                        <li>Personalização Total de Perfil</li>
+                        <li>Suporte VIP 24h</li>
+                    </ul>
+                    <a href="payment.html?plan=premium" class="btn-secondary">Tornar-se Lenda</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section">
+        <div class="container">
+            <div class="cta-card shadow-glow">
+                <h2 class="title-cinzel">Pronto para rolar os dados?</h2>
+                <p>Junte-se a milhares de aventureiros e comece sua jornada hoje mesmo.</p>
+                <a href="register.html" class="btn-primary btn-large">Criar Minha Conta</a>
+            </div>
+        </div>
+    </section>
+  </main>
+
+  <footer class="main-footer">
+    <div class="container footer-grid">
+        <div class="footer-brand">
+            <h2 class="title-cinzel">ELARA RPG</h2>
+            <p>Sua jornada, sua história, seu legado.</p>
+        </div>
+      <div class="footer-mobile">
+
+        <div class="footer-links">
+            <h4>Links Rápidos</h4>
+          <div class="social-icons">
+            <a href="login.html">Login</a>
+            <a href="register.html">Cadastro</a>
+            <a href="dashboard.html">Dashboard</a>
+          </div>
+        </div>
+        <div class="footer-social">
+            <h4>Comunidade</h4>
+            <div class="social-icons">
+                <span><a href="https://discord.gg/hvNhjajc" target="_blank">Discord</a></span>
+                <span><a href="https://www.instagram.com/elara_rpg/" target="_blank">Instagram</a></span>
+                <span><a href="help.html">Ajuda</a></span>
+            </div>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+        <p>&copy; 2026 ELARA RPG. Todos os direitos reservados.</p>
+    </div>
+  </footer>
+
+  <script type="module" src="js/start.js"></script>
+  <script type="module" src="js/index-gate.js"></script>
+  <script type="module" src="js/header.js"></script>
+  <script type="module">
+    window.selectPlan = (element, planId) => {
+        // Remove 'selected' class from all cards
+        document.querySelectorAll('.pricing-card').forEach(card => {
+            card.classList.remove('selected');
+        });
+        
+        // Add 'selected' class to the clicked card
+        element.classList.add('selected');
+    };
+
+    // Slider Logic
+    document.addEventListener('DOMContentLoaded', () => {
+      // Initialize first plan as selected (optional, or let user click)
+      const basicPlan = document.querySelector('.pricing-card:nth-child(2)');
+      if (basicPlan) selectPlan(basicPlan, 'basic');
+
+      const track = document.getElementById('slider-track');
+      const slides = document.querySelectorAll('.slide');
+      const dotsContainer = document.getElementById('slider-dots');
+      
+      if (!track || slides.length === 0) return;
+
+      let currentSlide = 0;
+      
+      // Create dots
+      slides.forEach((_, index) => {
+        const dot = document.createElement('div');
+        dot.classList.add('dot');
+        if (index === 0) dot.classList.add('active');
+        dot.addEventListener('click', () => goToSlide(index));
+        dotsContainer.appendChild(dot);
+      });
+
+      const dots = document.querySelectorAll('.dot');
+
+      function goToSlide(index) {
+        currentSlide = index;
+        track.style.transform = `translateX(-${currentSlide * 100}%)`;
+        
+        dots.forEach(d => d.classList.remove('active'));
+        if (dots[currentSlide]) {
+            dots[currentSlide].classList.add('active');
+        }
+      }
+
+      function nextSlide() {
+        currentSlide = (currentSlide + 1) % slides.length;
+        goToSlide(currentSlide);
+      }
+
+      document.getElementById('slider-prev')?.addEventListener('click', () => {
+        currentSlide = (currentSlide - 1 + slides.length) % slides.length;
+        goToSlide(currentSlide);
+      });
+      
+      document.getElementById('slider-next')?.addEventListener('click', nextSlide);
+
+      setInterval(nextSlide, 9000);
+    });
+  </script>
+</body>
+</html>

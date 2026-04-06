@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Posts - ELARA RPG</title>
+    <link rel="icon" href="/assets/icons/LogoElara.png" type="image/png" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;800;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+    <link rel="stylesheet" href="css/variables.css" />
+    <link rel="stylesheet" href="css/header.css" />
+    <link rel="stylesheet" href="css/posts.css" />
+
+    <script type="module" src="js/firebase-init.js"></script>
+  </head>
+  <body class="posts-page">
+    <main class="posts-shell">
+      <aside class="posts-left">
+        <div class="posts-left-card">
+          <div class="posts-left-title">Navegação</div>
+          <a class="posts-left-link" href="posts.html">Feed</a>
+          <a class="posts-left-link" href="index.html?view=landing">Início</a>
+          <a class="posts-left-link" href="dashboard.html">Fichas</a>
+          <a class="posts-left-link" href="community.html">Comunidade</a>
+        </div>
+
+        <div id="admin-panel-link" class="posts-left-card" style="display:none;">
+          <div class="posts-left-title">Admin</div>
+          <button id="btn-open-reports" class="posts-left-btn" type="button">Denúncias</button>
+        </div>
+      </aside>
+
+      <section class="posts-center">
+        <div class="stories-row">
+          <div class="stories-title">Stories</div>
+          <div id="stories-list" class="stories-list"></div>
+          <button id="btn-add-story" class="stories-add" type="button">+</button>
+        </div>
+
+        <div class="composer">
+          <div class="composer-header">
+            <div class="composer-title">Criar Postagem</div>
+            <div class="composer-tabs">
+              <button class="composer-tab active" data-type="text" type="button">Texto</button>
+              <button class="composer-tab" data-type="sheet" type="button">Ficha</button>
+            </div>
+          </div>
+
+          <div class="composer-body">
+            <textarea id="composer-text" class="composer-text" placeholder="O que você quer compartilhar?" rows="3"></textarea>
+
+            <div id="composer-sheet-row" class="composer-row" style="display:none;">
+              <div class="composer-sheet-selector-wrapper">
+                <select id="composer-sheet-select" class="composer-input">
+                  <option value="">Carregando suas fichas...</option>
+                </select>
+                <div id="composer-sheet-preview" class="composer-sheet-preview" style="display:none;">
+                  <img id="composer-sheet-preview-img" src="" alt="Preview da Ficha">
+                  <span id="composer-sheet-preview-title"></span>
+                </div>
+              </div>
+            </div>
+
+            <div class="composer-actions">
+              <button id="btn-post" class="btn-post" type="button">Postar</button>
+              <button id="btn-clear" class="btn-post btn-post-secondary" type="button">Limpar</button>
+            </div>
+          </div>
+        </div>
+
+        <div id="feed-list" class="feed-list"></div>
+        <div id="feed-empty" class="feed-empty" style="display:none;">Nenhuma postagem ainda.</div>
+      </section>
+
+      <aside class="posts-right">
+        <div class="posts-right-card">
+          <div class="posts-right-title">Dica</div>
+          <div class="posts-right-text">Clique no topo de uma postagem para abrir a página com ela e os comentários.</div>
+        </div>
+      </aside>
+    </main>
+
+    <div id="story-modal" class="modal" style="display:none;">
+      <div class="modal-card modal-story">
+        <div class="modal-story-header">
+          <button id="btn-story-close" class="modal-close" type="button">×</button>
+          <div id="story-meta" class="modal-story-meta"></div>
+        </div>
+        <div id="story-stage" class="modal-story-stage"></div>
+        <div class="modal-story-actions">
+          <button id="btn-story-prev" class="btn-post btn-post-secondary" type="button">Voltar</button>
+          <button id="btn-story-next" class="btn-post" type="button">Avançar</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="reports-modal" class="modal" style="display:none;">
+      <div class="modal-card">
+        <div class="modal-title">Denúncias</div>
+        <div id="reports-list" class="reports-list"></div>
+        <div class="modal-actions">
+          <button id="btn-reports-close" class="btn-post btn-post-secondary" type="button">Fechar</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="create-story-modal" class="modal" style="display:none;">
+      <div class="modal-card">
+        <div class="modal-title" style="display:flex; align-items:center; justify-content:space-between; gap:10px;">
+          <span>Criar Story</span>
+          <button id="btn-create-story-close" class="modal-close" type="button">×</button>
+        </div>
+
+        <div class="story-form">
+          <div class="story-form-row">
+            <div class="story-form-label">Duração</div>
+            <div class="story-chips" role="radiogroup" aria-label="Duração do story">
+              <label class="story-chip-opt">
+                <input type="radio" name="story-duration" value="24h" checked />
+                <span>24h</span>
+              </label>
+              <label class="story-chip-opt">
+                <input type="radio" name="story-duration" value="7d" />
+                <span>7 dias</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="story-form-row">
+            <div class="story-form-label">Tipo</div>
+            <div class="story-chips" role="radiogroup" aria-label="Tipo do story">
+              <label class="story-chip-opt">
+                <input type="radio" name="story-type" value="image" checked />
+                <span>Imagem</span>
+              </label>
+              <label class="story-chip-opt">
+                <input type="radio" name="story-type" value="gif" />
+                <span>GIF</span>
+              </label>
+              <label class="story-chip-opt">
+                <input type="radio" name="story-type" value="text" />
+                <span>Texto</span>
+              </label>
+              <label class="story-chip-opt">
+                <input type="radio" name="story-type" value="session" />
+                <span>Sessão</span>
+              </label>
+            </div>
+          </div>
+
+          <div id="story-field-media" class="story-form-row">
+            <div class="story-form-label">URL da mídia</div>
+            <input id="story-media-url" class="composer-input" type="url" placeholder="Cole o link da imagem/GIF..." />
+          </div>
+
+          <div id="story-field-text" class="story-form-row" style="display:none;">
+            <div class="story-form-label">Texto</div>
+            <textarea id="story-text" class="composer-text" rows="4" placeholder="Escreva seu story..."></textarea>
+          </div>
+
+          <div id="story-field-session" class="story-form-row" style="display:none;">
+            <div class="story-form-label">Sessão</div>
+            <div class="story-session-grid">
+              <input id="story-session-title" class="composer-input" type="text" placeholder="Título (ex: Mesa aberta)" />
+              <input id="story-session-url" class="composer-input" type="text" placeholder="Link da sala (ex: guild.html?join=ID)" />
+            </div>
+          </div>
+
+          <div id="story-error" class="story-error" style="display:none;"></div>
+
+          <div class="modal-actions">
+            <button id="btn-create-story-cancel" class="btn-post btn-post-secondary" type="button">Cancelar</button>
+            <button id="btn-create-story-submit" class="btn-post" type="button">Postar Story</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="repost-modal" class="modal" style="display:none;">
+      <div class="modal-card">
+        <div class="modal-title" style="display:flex; align-items:center; justify-content:space-between; gap:10px;">
+          <span>Repostar</span>
+          <button id="btn-repost-close" class="modal-close" type="button">×</button>
+        </div>
+
+        <div class="repost-preview">
+          <div class="repost-preview-head">
+            <img id="repost-preview-avatar" alt="" src="assets/default-avatar.png">
+            <div class="repost-preview-meta">
+              <div id="repost-preview-name" class="repost-preview-name"></div>
+              <div id="repost-preview-snippet" class="repost-preview-snippet"></div>
+            </div>
+          </div>
+          <div id="repost-preview-media" class="repost-preview-media" style="display:none;"></div>
+        </div>
+
+        <textarea id="repost-comment" class="composer-text" rows="3" placeholder="Adicionar comentário (opcional)..."></textarea>
+
+        <div class="modal-actions">
+          <button id="btn-repost-cancel" class="btn-post btn-post-secondary" type="button">Cancelar</button>
+          <button id="btn-repost-submit" class="btn-post" type="button">Repostar</button>
+        </div>
+      </div>
+    </div>
+
+    <script type="module" src="js/posts.js"></script>
+    <script type="module" src="js/header.js"></script>
+  </body>
+</html>

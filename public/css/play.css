@@ -1,0 +1,429 @@
+/* Play Page Styles */
+.play-page {
+    background: #0a0a0b;
+}
+
+.play-container {
+    max-width: 1200px;
+    margin: 6rem auto 4rem;
+}
+
+.play-header {
+    text-align: center;
+    margin-bottom: 4rem;
+}
+
+.play-header h1 {
+    font-size: 2.5rem;
+    color: var(--dashboard-accent);
+}
+
+.play-header p {
+    color: var(--dashboard-text-muted);
+    font-size: 1.1rem;
+}
+
+.game-modes-carousel-container {
+    width: 100%;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow: hidden;
+}
+
+.game-modes-carousel {
+    display: flex;
+    align-items: center;
+    gap: 3.5rem;
+    padding: 3rem 50vw; /* Padding lateral para centralizar cards */
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    width: 100%;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    perspective: 1200px;
+    scroll-behavior: smooth;
+}
+
+.game-modes-carousel::-webkit-scrollbar {
+    display: none;
+}
+
+.game-mode-card {
+    min-width: 320px;
+    max-width: 320px;
+    flex-shrink: 0;
+    background: #121214;
+    border-radius: 20px;
+    overflow: hidden;
+    position: relative;
+    border: 1px solid var(--dashboard-border);
+    transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1), 
+                opacity 0.6s ease, 
+                border-color 0.6s ease, 
+                box-shadow 0.6s ease,
+                filter 0.6s ease;
+    scroll-snap-align: center;
+    opacity: 0.4;
+    transform: scale(0.85) rotateY(15deg);
+    filter: grayscale(1) blur(1px);
+    z-index: 1;
+    cursor: pointer;
+}
+
+/* Active/Focused Card */
+.game-mode-card.active {
+    opacity: 1;
+    transform: scale(1.15) rotateY(0deg);
+    border-color: var(--dashboard-accent);
+    box-shadow: 0 15px 50px rgba(201, 168, 76, 0.4);
+    filter: grayscale(0) blur(0);
+    z-index: 10;
+    border-bottom: 6px solid var(--dashboard-accent);
+}
+
+.card-bg {
+    min-width: 100px;
+    height: 200px;
+    background-size: cover;
+    background-position: center;
+}
+
+.card-content {
+    padding: 2rem;
+    text-align: center;
+    background: linear-gradient(to top, #0a0a0c, #121214);
+}
+
+.card-content h3 {
+    font-family: 'Cinzel', serif;
+    font-size: 1.8rem;
+    margin-bottom: 0.8rem;
+    color: #fff;
+}
+
+.card-content p {
+    color: #aaa;
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+    min-height: 60px;
+    font-size: 0.95rem;
+}
+
+.btn-play-mode {
+    width: 100%;
+    padding: 1rem;
+    border-radius: 10px;
+    text-decoration: none;
+    display: block;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: all 0.3s;
+    opacity: 0;
+    transform: translateY(10px);
+    pointer-events: none;
+}
+
+.game-mode-card.active .btn-play-mode {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: all;
+}
+
+/* Carousel Navigation */
+.carousel-nav {
+    display: flex;
+    gap: 2rem;
+    margin-top: 2rem;
+    z-index: 20;
+}
+
+.nav-arrow {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid #2a2a2e;
+    color: #fff;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-size: 1.2rem;
+}
+
+.nav-arrow:hover {
+    background: var(--dashboard-accent);
+    border-color: var(--dashboard-accent);
+    transform: scale(1.1);
+}
+
+.card-badge {
+    position: absolute;
+    top: 9px;
+    right: 0.5rem;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #fff;
+}
+
+.card-badge.solo {
+    background: linear-gradient(45deg, #3B82F6, #2563EB);
+}
+
+.card-badge.coop {
+    background: linear-gradient(45deg, #10B981, #059669);
+}
+
+.card-content h3 {
+    font-family: 'Cinzel', serif;
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.card-content p {
+    color: var(--dashboard-text-muted);
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+    min-height: 50px;
+}
+
+.card-content .btn-primary {
+    width: 100%;
+}
+
+/* Session Timer Display */
+.session-timer-display {
+    position: fixed;
+    top: 60px; /* Abaixo do header */
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0,0,0,0.8);
+    backdrop-filter: blur(5px);
+    color: #ffd700;
+    padding: 8px 20px;
+    border-radius: 0 0 12px 12px;
+    border: 1px solid rgba(255, 215, 0, 0.2);
+    font-family: 'Cinzel', serif;
+    font-size: 1rem;
+    z-index: 999;
+    display: none; /* Começa oculto */
+    align-items: center;
+    gap: 10px;
+}
+
+/* Mobile Adjustments for Small Screens (Samsung S8+, etc.) */
+@media (max-width: 480px) {
+    .play-container {
+        margin: 10rem auto 1rem;
+        padding: 0 10px;
+    }
+
+    .play-header {
+        margin-bottom: 1rem;
+        padding: 0 15px;
+    }
+
+    .play-header h1 {
+        font-size: 1.4rem;
+        margin-bottom: 0.2rem;
+        letter-spacing: -1px;
+    }
+
+    .play-header p {
+        font-size: 0.8rem;
+        line-height: 1.2;
+        max-width: 280px;
+        margin: 0 auto;
+    }
+
+    .game-modes-carousel {
+        gap: 0.8rem;
+        padding: 1rem 50vw; /* Mantém centralizado mas com menos respiro vertical */
+    }
+
+    .game-mode-card {
+        min-width: 210px; /* Card ainda menor para caber vizinhos na tela */
+        max-width: 210px;
+        transform: scale(0.8) rotateY(8deg); /* Escala menor e rotação sutil */
+    }
+
+    .game-mode-card.active {
+        transform: scale(1.0) rotateY(0deg); /* Sem escala extra para não abafar os lados */
+        box-shadow: 0 10px 30px rgba(201, 168, 76, 0.5);
+    }
+
+    .card-bg {
+        height: 120px; /* Banner ainda menor */
+    }
+
+    .card-content {
+        padding: 1rem;
+    }
+
+    .card-content h3 {
+        font-size: 1.2rem;
+        margin-bottom: 0.3rem;
+        letter-spacing: -1px; /* Letras mais "justas" */
+        line-height: 1.1;
+    }
+
+    .card-content p {
+        font-size: 0.75rem;
+        line-height: 1.2;
+        min-height: auto;
+        margin-bottom: 0.8rem;
+    }
+
+    .btn-play-mode {
+        padding: 0.6rem;
+        font-size: 0.8rem;
+        letter-spacing: 0.5px;
+    }
+
+    .card-badge {
+        font-size: 0.6rem;
+        padding: 3px 8px;
+        top: 4px;
+        right: 4px;
+    }
+
+    .carousel-nav {
+        margin-top: 0.8rem;
+        gap: 1.2rem;
+    }
+
+    .nav-arrow {
+        width: 36px;
+        height: 36px;
+        font-size: 0.9rem;
+    }
+}
+
+/* Disabled State for Game Modes */
+.game-mode-card.disabled {
+    opacity: 0.5;
+    pointer-events: none;
+    border-color: #444;
+}
+
+.game-mode-card.disabled .card-bg {
+    filter: grayscale(1);
+}
+
+.countdown-timer {
+    background: var(--dashboard-accent);
+    color: #fff;
+    text-align: center;
+    padding: 10px;
+    border-radius: 8px;
+    margin-top: 1rem;
+    font-weight: 700;
+}
+
+/* Active Sessions Styles */
+.active-sessions-container {
+    margin-top: 6rem;
+    padding: 2rem;
+    background: rgba(18, 18, 20, 0.5);
+    border-radius: 30px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.sessions-header {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.sessions-header h2 {
+    font-size: 2rem;
+    color: var(--dashboard-accent);
+}
+
+.active-sessions-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 1.5rem;
+}
+
+.session-card {
+    background: #1a1a1c;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    transition: all 0.3s;
+}
+
+.session-card:hover {
+    border-color: var(--dashboard-accent);
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+
+.session-info-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.session-type-badge {
+    padding: 4px 12px;
+    background: rgba(59, 130, 246, 0.2);
+    color: #3b82f6;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.session-card h4 {
+    font-family: 'Cinzel', serif;
+    font-size: 1.2rem;
+    color: #fff;
+    margin: 0.5rem 0;
+}
+
+.session-details {
+    display: flex;
+    gap: 15px;
+    color: #888;
+    font-size: 0.85rem;
+}
+
+.session-players-count {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.btn-join-session-card {
+    width: 100%;
+    margin-top: 1rem;
+    padding: 0.8rem;
+    border-radius: 12px;
+}
+
+.session-loading {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 3rem;
+    color: #555;
+}
+
+.session-loading i {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+}
+
+/* Footer adjust */
+.dashboard-footer {
+    margin-top: 6rem;
+}

@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A Torre - ELARA RPG</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/header.css">
+    <link rel="stylesheet" href="css/gamification.css">
+    <link rel="stylesheet" href="css/tower.css">
+</head>
+<body>
+    <header id="main-header"></header>
+
+    <main class="tower-container">
+        <!-- Initial Selection Screen -->
+        <div id="selection-screen" class="selection-screen">
+            <h1 class="title-cinzel">A Torre dos Desafios</h1>
+            <p>Selecione seu campeão para iniciar a subida</p>
+            
+            <div class="selection-grid">
+                <div class="character-selection">
+                    <div style="display: flex;flex-direction: column; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                        <h3>Seus Personagens</h3>
+                        <button id="show-create-basic-btn" class="btn-primary" style="font-size: 0.8rem; padding: 5px 12px;">+ Criar Básica</button>
+                    </div>
+                    <div id="character-list" class="character-list">
+                        <!-- JS insere fichas aqui -->
+                    </div>
+
+                    <!-- Basic Character Creation Form (Initially Hidden) -->
+                    <div id="basic-create-form" class="basic-create-form" style="display: none; margin-top: 1.5rem; padding: 1.5rem; background: rgba(255,255,255,0.05); border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);">
+                        <h4 style="margin-bottom: 1rem; font-family: 'Cinzel', serif;">Nova Ficha da Torre</h4>
+                        <div class="form-group" style="margin-bottom: 1rem;">
+                            <label style="display: block; font-size: 0.8rem; color: #aaa; margin-bottom: 5px;">Nome do Personagem</label>
+                            <input type="text" id="basic-char-name" class="form-input" placeholder="Ex: Arthur Pendragon" style="width: 100%; background: #1a1a1e; border: 1px solid #333; color: white; padding: 8px; border-radius: 5px;">
+                        </div>
+                        <div class="form-group" style="margin-bottom: 1rem;">
+                            <label style="display: block; font-size: 0.8rem; color: #aaa; margin-bottom: 5px;">URL da Foto (Avatar)</label>
+                            <input type="text" id="basic-char-avatar" class="form-input" placeholder="https://link-da-imagem.png" style="width: 100%; background: #1a1a1e; border: 1px solid #333; color: white; padding: 8px; border-radius: 5px;">
+                            A imagem pode ser qualquer link de imagem, como no Pinterest só copiar o URL da imagem e colar aqui. 
+                        </div>
+                        <div style="display: flex; gap: 10px;">
+                            <button id="confirm-basic-create" class="btn-primary" style="flex: 1;">Criar e Selecionar</button>
+                            <button id="cancel-basic-create" class="btn-secondary" style="flex: 1;">Cancelar</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="tower-info-card">
+                    <h3>Regras da Torre</h3>
+                    <ul>
+                        <li><i class="fas fa-arrow-up"></i> Cada andar derrotado concede +5 XP.</li>
+                        <li><i class="fas fa-dice-d20"></i> Combate 100% automático e aleatório.</li>
+                        <li><i class="fas fa-skull"></i> A dificuldade aumenta a cada 5 andares.</li>
+                        <li><i class="fas fa-crown"></i> Andar 50: O Desafio Supremo contra The First.</li>
+                    </ul>
+                    <div class="selection-actions" style="display: flex; flex-direction: column; gap: 10px; margin-top: 20px;">
+                        <button id="start-tower-btn" class="btn-primary btn-large" disabled>Começar Desafio</button>
+                        <button id="reset-tower-btn" class="btn-secondary" style="display: none; background: #441111; color: #ff4444; border-color: #662222;">Zerar Progresso desta Ficha</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Skill Selection Screen (Initially Hidden) -->
+        <div id="skill-selection-screen" class="skill-selection-screen" style="display: none;">
+            <h1 class="title-cinzel">Habilidades da Torre</h1>
+            <p id="skill-selection-msg">Escolha 4 habilidades para sua jornada</p>
+            <div id="skills-grid" class="skills-grid">
+                <!-- JS insere habilidades aqui -->
+            </div>
+            <div class="selection-footer">
+                <button id="confirm-skills-btn" class="btn-primary btn-large" disabled>Confirmar Habilidades</button>
+                
+                <!-- Skill Kit Display -->
+                <div id="selected-skills-kit" class="selected-skills-kit">
+                    <div class="kit-slot" data-index="0"><span>+</span></div>
+                    <div class="kit-slot" data-index="1"><span>+</span></div>
+                    <div class="kit-slot" data-index="2"><span>+</span></div>
+                    <div class="kit-slot" data-index="3"><span>+</span></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Upgrade Screen (Initially Hidden) -->
+        <div id="upgrade-screen" class="upgrade-screen" style="display: none;">
+            <h1 class="title-cinzel">Vitória!</h1>
+            <p>Escolha uma habilidade para aumentar o dano em +1</p>
+            <div id="upgrade-grid" class="upgrade-grid">
+                <!-- JS insere opções aqui -->
+            </div>
+        </div>
+
+        <!-- Battle Arena (Initially Hidden) -->
+        <div id="battle-arena" class="battle-arena" style="display: none;">
+            <div class="tower-header">
+                <div class="action-buttons">
+                    <div class="buttons">
+                <button id="next-floor-btn" class="btn-primary btn-large" style="display: block;">Subir</button>
+                <button id="save-exit-btn" class="btn-primary" style="display: none; background: #2e7d32; border-color: #1b5e20;">Salvar e Sair (Andar 10+)</button>
+                <button id="exit-tower-btn" class="btn-secondary">Abandonar Torre</button></div>
+            </div>
+                <div class="floor-counter">Andar <span id="floor-number">1</span></div>
+                <div class="turn-counter">Round <span id="round-number">1</span></div>
+            </div>
+
+            <div class="clash-container" id="clash-overlay">
+                <div class="clash-side player-clash"></div>
+                <div class="clash-vs">VS</div>
+                <div class="clash-side enemy-clash"></div>
+            </div>
+
+            <div class="arena">
+                <!-- Player Side -->
+
+                
+                <div class="combatant player-side">
+                    <div class="combatant-card">
+                        <button id="edit-tower-char-btn" class="edit-char-btn" title="Editar Personagem">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <div id="player-avatar" class="combatant-avatar"></div>
+                        <div class="combatant-info">
+                            <h2 id="player-name">Seu Personagem</h2>
+                            <div class="health-bar-container">
+                                <div id="player-health-bar" class="health-bar"></div>
+                            </div>
+                            <p id="player-health-text">20 / 20</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Skill Controls -->
+                    <div id="player-actions" class="player-actions">
+                        <h3>Suas Ações</h3>
+                        <div id="skill-buttons" class="skill-buttons">
+                            <!-- JS insere botões de skill aqui -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- VS Separator -->
+                <div class="vs-badge">VS</div>
+
+                <!-- Enemy Side -->
+                <div class="combatant enemy-side">
+                    <div class="combatant-card">
+                        <div id="enemy-avatar" class="combatant-avatar"></div>
+                        <div class="combatant-info">
+                            <h2 id="enemy-name">Inimigo</h2>
+                            <div class="health-bar-container">
+                                <div id="enemy-health-bar" class="health-bar"></div>
+                            </div>
+                            <p id="enemy-health-text">15 / 15</p>
+                            <div id="enemy-stars" class="enemy-stars"></div>
+                            <div id="enemy-status" class="enemy-status"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="combat-log-container">
+                <h3>Histórico de Combate</h3>
+                <div id="combat-log" class="combat-log"></div>
+            </div>
+
+
+        </div>
+    </main>
+
+    <!-- Edit Character Modal -->
+    <div id="edit-tower-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content" style="max-width: 400px; padding: 2rem; background: #121214; border: 1px solid #333; border-radius: 15px;">
+            <h2 class="title-cinzel" style="margin-bottom: 1.5rem; text-align: center;">Editar Campeão</h2>
+            <div class="form-group" style="margin-bottom: 1.2rem;">
+                <label style="display: block; font-size: 0.8rem; color: #aaa; margin-bottom: 5px;">Novo Nome</label>
+                <input type="text" id="edit-tower-name" class="form-input" style="width: 100%; background: #1a1a1e; border: 1px solid #333; color: white; padding: 10px; border-radius: 8px;">
+            </div>
+            <div class="form-group" style="margin-bottom: 1.5rem;">
+                <label style="display: block; font-size: 0.8rem; color: #aaa; margin-bottom: 5px;">Nova URL da Foto</label>
+                <input type="text" id="edit-tower-avatar" class="form-input" style="width: 100%; background: #1a1a1e; border: 1px solid #333; color: white; padding: 10px; border-radius: 8px;">
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <button id="save-tower-edit" class="btn-primary" style="flex: 1; padding: 10px;">Salvar</button>
+                <button id="close-tower-edit" class="btn-secondary" style="flex: 1; padding: 10px;">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Game Over Modal -->
+    <div id="game-over-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content game-over-content">
+            <button class="modal-close-x" onclick="closeModal('game-over-modal')">&times;</button>
+            <h2 class="title-cinzel">Fim da Jornada</h2>
+            <div class="game-over-body">
+                <p id="game-over-msg">Você caiu no andar 1. O progresso desta ficha foi resetado.</p>
+                <div class="game-over-stats">
+                    <!-- JS pode inserir stats aqui -->
+                </div>
+            </div>
+            <div class="game-over-actions">
+                <button id="retry-tower-btn" class="btn-primary">Tentar Novamente</button>
+                <button id="exit-to-play-btn" class="btn-secondary">Sair</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="js/firebase-init.js"></script>
+    <script type="module" src="js/header.js"></script>
+    <script type="module" src="js/tower.js"></script>
+</body>
+</html>

@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pagamento Pix - ELARA RPG</title>
+    <link rel="icon" href="/assets/icons/LogoElara.png" type="image/png">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/dashboard-ui.css">
+    <link rel="stylesheet" href="css/index.css">
+    <link rel="stylesheet" href="css/payment.css">
+    
+    <script src="js/theme.js"></script>
+    <script type="module" src="js/firebase-init.js"></script>
+    <script type="module" src="js/payment-handler.js"></script>
+</head>
+<body class="payment-page">
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="navbar-container">
+            <a href="index.html" class="brand">
+                <img class="brand-logo-img" src="/assets/icons/LogoElara.png" alt="ELARA RPG">
+                <span class="logo-text">ELARA RPG</span>
+            </a>
+            <div class="user-menu">
+                <a href="index.html#pricing" class="btn-logout">Cancelar</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container">
+        <!-- Success View (Hidden) -->
+        <div id="success-view" class="payment-success">
+            <div class="success-icon">✓</div>
+            <h1 class="success-title">Pagamento em análise</h1>
+            <p style="font-size: 1.2rem; margin-bottom: 2rem;">Recebemos sua solicitação. Assim que o Pix for confirmado, seu plano será ativado automaticamente.</p>
+            <a href="dashboard.html" class="btn-primary btn-large">Ir para o Dashboard</a>
+        </div>
+
+        <!-- Checkout View -->
+        <div id="checkout-view" class="payment-container">
+            <!-- Left: Order Summary -->
+            <aside class="order-summary">
+                <h2 class="summary-title">Resumo do Pedido</h2>
+                <div class="plan-details">
+                    <div class="plan-info-row">
+                        <span>Plano Escolhido:</span>
+                        <span id="plan-name">Plano Herói</span>
+                    </div>
+                    <div class="plan-info-row">
+                        <span>Ciclo de Cobrança:</span>
+                        <span>Mensal</span>
+                    </div>
+                    <div class="plan-info-row">
+                        <span>Valor:</span>
+                        <span id="plan-price">R$ 19,90</span>
+                    </div>
+                </div>
+                
+                <div class="total-row">
+                    <span>Total a Pagar:</span>
+                    <span id="total-price">R$ 19,90</span>
+                </div>
+                
+                <p style="color: var(--text-muted); font-size: 0.8rem; margin-top: 2rem;">
+                    * A assinatura será renovada automaticamente a cada mês até que seja cancelada.
+                </p>
+            </aside>
+
+            <!-- Right: Pix Payment -->
+            <section class="pix-payment-card">
+                <div class="pix-header">
+                    <div class="pix-logo">PIX</div>
+                    <h2 class="pix-title">Pagamento via Pix</h2>
+                </div>
+
+                <div class="payment-timer">
+                    <span class="timer-icon">🕒</span>
+                    <span>O código expira em: </span>
+                    <span id="timer-countdown">15:00</span>
+                </div>
+
+                <div class="qr-code-wrapper">
+                    <div class="qr-code-placeholder">
+                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=00020126360014BR.GOV.BCB.PIX0114+551199999999952040000530398654049.905802BR5913ELARA RPG6009SAO PAULO62070503***6304ABCD" alt="Pix QR Code">
+                    </div>
+                </div>
+
+                <div class="pix-copy-paste">
+                    <span class="pix-label">Pix Copia e Cola</span>
+                    <div class="copy-input-group">
+                        <input type="text" id="pix-code" value="00020126360014BR.GOV.BCB.PIX0114+551199999999952040000530398654049.905802BR5913ELARA RPG6009SAO PAULO62070503***6304ABCD" readonly>
+                        <button id="copy-btn" class="btn-copy">Copiar</button>
+                    </div>
+                </div>
+
+                <div class="payment-instructions">
+                    <ol>
+                        <li>Abra o app do seu banco ou carteira digital.</li>
+                        <li>Escolha a opção de pagar via Pix (QR Code ou Copia e Cola).</li>
+                        <li>Escaneie o código ou cole a chave acima.</li>
+                        <li>Confirme os dados e o valor.</li>
+                        <li>Após o pagamento, toque em “Já realizei o pagamento” para enviar para análise.</li>
+                    </ol>
+                </div>
+
+                <button id="confirm-btn" class="btn-primary btn-confirm-payment">Já realizei o pagamento</button>
+            </section>
+        </div>
+    </main>
+
+    <footer class="footer-bottom" style="background: transparent; border-top: none;">
+        <p>&copy; 2026 ELARA RPG - Pagamento Seguro via Pix</p>
+    </footer>
+</body>
+</html>

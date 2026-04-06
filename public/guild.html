@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Saguão da Guilda - ELARA RPG</title>
+    <link rel="icon" href="/assets/icons/LogoElara.png" type="image/png">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Inter:wght@400;500;600;800&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/header.css">
+    <link rel="stylesheet" href="css/multiplayer-lobby.css">
+</head>
+<style>
+
+    .navbar {
+        position:unset;
+        display: none;
+        top: -68px;
+        transition: top 0.3s ease-in-out;
+        cursor: pointer;
+        z-index: 1000;
+        border-bottom: 2px solid var(--dashboard-accent);
+    }
+    .navbar.active {
+        top: 0;
+    }
+    .header-toggle-arrow {
+        position: absolute;
+        bottom: -20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: var(--dashboard-accent);
+        width: 40px;
+        height: 20px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        border-radius: 0 0 10px 10px;
+        color: white;
+        font-size: 0.8rem;
+        transition: transform 0.3s ease;
+    }
+    .navbar.active .header-toggle-arrow i {
+        transform: rotate(180deg);
+    }
+    #btn-copy-id{
+        cursor: pointer;
+        border: none;
+        border-radius: 4px;
+        padding: 0.5rem 1rem;
+    }
+    .btn-primary {
+        cursor: pointer;
+        border: none;
+        border-radius: 6px;
+        background-color: var(--dashboard-accent);
+        color: white;
+        padding: 0.5rem 1.5rem;
+    }
+    .btn-primary:hover {
+        background-color: var(--accent-gold);
+        color: rgb(0, 0, 0);
+    }
+    .btn-secondary {
+        cursor: pointer;
+        border: none;
+        border-radius: 6px;
+        padding: 0.5rem 1.5rem;
+    }
+    .btn-secondary:hover {
+        background-color: var(--accent-gold);
+        color: rgb(0, 0, 0);
+    }
+</style>
+<body class="lobby-page">
+    <header id="main-header"></header>
+
+    <div id="entry-overlay" class="entry-overlay">
+        <div class="entry-card animate-fade-in">
+            <h1 class="title-cinzel">Sessão de Guilda</h1>
+            <p>Selecione como deseja entrar na aventura</p>
+            
+            <div class="entry-actions">
+                <button id="btn-create-session" class="btn-primary btn-small">Criar Nova Sessão</button>
+                <button id="btn-continue-session" class="btn-secondary" style="display: none;">Continuar Sessão Anterior</button>
+                <div class="entry-divider"><span>OU</span></div>
+                <div class="join-code-group">
+                    <!-- Input para o Código da Sala sem auto preenchimento -->
+                    <input type="text" style="display:none" name="username" autocomplete="username">
+                    <input type="password" style="display:none" name="password" autocomplete="new-password">
+                    <input type="text" id="join-code-input" name="guild_join_code" autocomplete="one-time-code" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="Código da Sala (UID)" class="form-input" inputmode="text">
+                    <input type="password" id="join-password-input" name="guild_join_password" autocomplete="new-password" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="Senha (Opcional)" class="form-input">   
+                    <button id="btn-join-session" class="btn-primary" style="width: 100%; margin-top: 10px;">Entrar com Código</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <main id="lobby-main" class="lobby-container" style="display: none;">
+        <div class="lobby-header">
+            <div class="session-info">
+                <h2 id="display-session-name" class="title-cinzel" style="margin: 0;">Sessão da Guilda</h2>
+                <span id="display-session-id" style="font-size: 0.8rem; color: var(--accent-gold);">ID: ---</span>
+            </div>
+            <div class="lobby-top-actions" style="display: flex; gap: 6px;">
+                <button id="btn-return-session" class="btn-primary btn-small" style="display: none;"><i class="fas fa-play"></i> Voltar à Sessão</button>
+                <button id="btn-copy-id" class="btn-secondary btn-small"><i class="fas fa-copy"></i> Copiar ID</button>
+                <button id="btn-save-session" class="btn-secondary btn-small" style="display: none; background: #16a34a; color: white;"><i class="fas fa-save"></i> Salvar Sessão</button>
+                <button id="btn-exit-lobby" class="btn-logout btn-small"><i class="fas fa-sign-out-alt"></i> Sair</button>
+            </div>
+        </div>
+
+        <div class="lobby-content">
+            <div class="table-viewport">
+                <div class="poker-table">
+                    <!-- Master Seat -->
+                    <div class="seat seat-master" id="seat-master">
+                        <div class="seat-avatar" title="Mestre"><i class="fas fa-crown"></i></div>
+                        <div class="seat-name">Aguardando Mestre</div>
+                    </div>
+
+
+
+                    <!-- Player Seats -->
+                    <div class="seat seat-1" data-index="0" id="seat-0">
+                        <div class="seat-avatar"><i class="fas fa-plus"></i></div>
+                        <div class="seat-name">Vazio</div>
+                        <div class="ready-badge"><i class="fas fa-check"></i></div>
+                    </div>
+                    <div class="seat seat-2" data-index="1" id="seat-1">
+                        <div class="seat-avatar"><i class="fas fa-plus"></i></div>
+                        <div class="seat-name">Vazio</div>
+                        <div class="ready-badge"><i class="fas fa-check"></i></div>
+                    </div>
+                    <div class="seat seat-3" data-index="2" id="seat-2">
+                        <div class="seat-avatar"><i class="fas fa-plus"></i></div>
+                        <div class="seat-name">Vazio</div>
+                        <div class="ready-badge"><i class="fas fa-check"></i></div>
+                    </div>
+                    <div class="seat seat-4" data-index="3" id="seat-3">
+                        <div class="seat-avatar"><i class="fas fa-plus"></i></div>
+                        <div class="seat-name">Vazio</div>
+                        <div class="ready-badge"><i class="fas fa-check"></i></div>
+                    </div>
+
+                    <div class="table-center" id="table-center">
+                        <div class="map-placeholder">
+                            <i class="fas fa-map-marked-alt fa-3x"></i>
+                            <p>Escolha um Mapa</p>
+                        </div>
+                        <img id="current-map-img" class="map-preview" src="" alt="Mapa Atual">
+                        <button id="btn-choose-map" class="btn-primary btn-small" style="display: none; position: absolute; bottom: 20px;">Trocar Mapa</button>
+                    </div>
+                </div>
+            </div>
+
+            <aside class="chat-sidebar">
+                <div class="chat-header">
+                    <button type="button" id="btn-toggle-chat" class="chat-toggle-btn" aria-label="Alternar chat">
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <h3 class="title-cinzel" style="margin: 0;">Chat da Sessão</h3>
+                </div>
+                <div id="chat-messages" class="chat-messages">
+                    <!-- Mensagens aqui -->
+                </div>
+                <div class="chat-input-area">
+                    <input type="text" id="chat-input" placeholder="Digite sua mensagem..." class="form-input">
+                    <button id="btn-send-chat" class="btn-primary" style="padding: 0.5rem 1.5rem;"><i class="fas fa-paper-plane"></i></button>
+                </div>
+            </aside>
+        </div>
+
+        <div id="lobby-controls-bar" class="lobby-controls-bar">
+            <div id="lobby-audio-slot" class="lobby-controls-slot"></div>
+            <div id="master-controls" class="master-controls" style="display: none;">
+                <div class="control-group">
+                    <button id="btn-settings" class="btn-secondary" title="Configurações da Sala"><i class="fas fa-cog"></i></button>
+                    <button id="btn-add-enemy" class="btn-secondary" title="Adicionar Inimigos"><i class="fas fa-skull"></i></button>
+                </div>
+                <button id="btn-start-game" class="btn-primary btn-play" disabled>JOGAR</button>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal: Seleção de Ficha -->
+    <div id="sheet-selection-modal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 600px;">
+            <button class="modal-x">&times;</button>
+            <h2 class="title-cinzel">Escolha sua Ficha</h2>
+            <div class="modal-body">
+                <div id="sheets-grid" class="sheets-grid" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; margin-top: 1.5rem;">
+                    <!-- Fichas carregadas aqui -->
+                </div>
+            </div>
+            <button class="btn-secondary modal-close" style="margin-top: 1.5rem; width: 100%;">Cancelar</button>
+        </div>
+    </div>
+
+    <!-- Modal: Configurações do Mestre -->
+    <div id="master-settings-modal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 500px;">
+            <button class="modal-x">&times;</button>
+            <h2 class="title-cinzel">Configurações da Sessão</h2>
+            
+            <div class="form-group" style="margin-top: 1.5rem;">
+                <label>Tipo de RPG (Fundo do Saguão)</label>
+                <select id="select-bg-type" class="form-input">
+                    <option value="classic">Fantasia Clássica</option>
+                    <option value="dark">Sombrio / Horror</option>
+                    <option value="cyber">Cyberpunk / Futurista</option>
+                    <option value="tavern">Taberna Relaxante</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Privacidade</label>
+                <select id="select-privacy" class="form-input">
+                    <option value="public">Pública (Aparece na lista)</option>
+                    <option value="private">Privada (Apenas com código)</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Senha da Sala (Opcional)</label>
+                <input type="text" id="input-room-password" placeholder="Deixe vazio para sem senha" class="form-input">
+            </div>
+
+            <div style="display: flex; gap: 10px; margin-top: 2rem;">
+                <button id="btn-save-settings" class="btn-primary" style="flex: 1;">Salvar</button>
+                <button class="btn-secondary modal-close" style="flex: 1;">Fechar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Seleção de Mapa -->
+    <div id="map-selection-modal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 800px;">
+            <button class="modal-x">&times;</button>
+            <h2 class="title-cinzel">Selecionar Mapa</h2>
+            
+            <div class="modal-body">
+                <div class="map-tabs" style="display: flex; gap: 10px; margin-top: 1rem;">
+                    <button class="map-tab-btn active" data-tab="site">Galeria do Site</button>
+                    <button class="map-tab-btn" data-tab="community">Comunidade</button>
+                    <button class="map-tab-btn" data-tab="link">Link Externo</button>
+                </div>
+
+                <div id="map-site-content" class="map-tab-content active" style="margin-top: 1rem;">
+                    <div class="map-grid" id="site-maps-grid">
+                        <!-- Mapas do site aqui -->
+                    </div>
+                </div>
+
+                <div id="map-community-content" class="map-tab-content" style="display: none; margin-top: 1rem;">
+                    <div class="map-grid" id="community-maps-grid">
+                        <!-- Mapas da comunidade aqui -->
+                    </div>
+                </div>
+
+                <div id="map-link-content" class="map-tab-content" style="display: none; margin-top: 1rem;">
+                    <div class="form-group">
+                        <label>URL da Imagem do Mapa</label>
+                        <input type="text" id="input-map-url" placeholder="https://exemplo.com/mapa.jpg" class="form-input">
+                        <button id="btn-apply-map-link" class="btn-primary" style="margin-top: 10px; width: 100%;">Aplicar Link</button>
+                    </div>
+                </div>
+            </div>
+
+            <button class="btn-secondary modal-close" style="margin-top: 1.5rem; width: 100%;">Cancelar</button>
+        </div>
+    </div>
+
+    <!-- Modal: Adicionar Inimigos -->
+    <div id="enemy-selection-modal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 800px;">
+            <button class="modal-x">&times;</button>
+            <h2 class="title-cinzel">Bestiário da Sessão</h2>
+            <p>Selecione os inimigos que participarão desta aventura</p>
+            
+            <div class="modal-body">
+                <div class="search-bar-container" style="margin: 1rem 0;">
+                    <input type="text" id="enemy-search" placeholder="Buscar no bestiário..." class="form-input">
+                </div>
+
+                <div id="enemies-selection-grid" class="enemies-grid">
+                    <!-- Inimigos carregados aqui -->
+                </div>
+
+                <div class="selected-enemies-bar" style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.1);">
+                    <h3>Inimigos Selecionados: <span id="selected-enemies-count">0</span></h3>
+                    <div id="selected-enemies-list" style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 0.5rem;"></div>
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 10px; margin-top: 2rem;">
+                <button id="btn-confirm-enemies" class="btn-primary" style="flex: 1;">Confirmar Inimigos</button>
+                <button class="btn-secondary modal-close" style="flex: 1;">Fechar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Visualizar/Editar Ficha -->
+    <div id="character-sheet-modal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 95%; height: 95vh; padding: 1rem; background: #0a0a0e;">
+            <button class="modal-x" style="top: 10px; right: 20px;">&times;</button>
+            <div class="modal-header" style="margin-bottom: 0.5rem; padding-bottom: 0.5rem;">
+                <h2 class="title-cinzel" id="sheet-modal-title" style="font-size: 1.2rem;">Ficha de Personagem</h2>
+                <div id="sheet-save-status" style="font-size: 0.8rem; color: #888;">Pronto</div>
+            </div>
+            <div class="modal-body" style="padding: 0; overflow: hidden; height: calc(100% - 60px);">
+                <iframe id="sheet-iframe" src="" style="width: 100%; height: 100%; border: none; border-radius: 8px;"></iframe>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="js/firebase-init.js"></script>
+    <script type="module" src="js/header.js"></script>
+    <script type="module" src="js/multiplayer-lobby.js"></script>
+    <script>
+        // Função para inicializar o toggle do header quando ele estiver pronto
+        function initHeaderToggle() {
+            // Monitoramos cliques no nível do documento e verificamos o alvo
+            document.addEventListener('click', (e) => {
+                const navbar = document.querySelector('.navbar');
+                if (!navbar) return;
+
+                // Garante que a seta exista
+                let arrow = navbar.querySelector('.header-toggle-arrow');
+                if (!arrow) {
+                    arrow = document.createElement('div');
+                    arrow.className = 'header-toggle-arrow';
+                    arrow.innerHTML = '<i class="fas fa-chevron-down"></i>';
+                    navbar.appendChild(arrow);
+                }
+
+                // Se clicou na área do topo (30px) ou na própria navbar (incluindo a seta)
+                if (e.clientY < 30 || navbar.contains(e.target)) {
+                    // Evita fechar se clicar em um link
+                    if (e.target.tagName === 'A') return;
+
+                    navbar.classList.toggle('active');
+                    if (navbar.classList.contains('active')) {
+                        navbar.style.top = '0';
+                    } else {
+                        navbar.style.top = '-55px';
+                    }
+                }
+            });
+        }
+
+        // Aguarda um pouco para o header.js terminar de injetar
+        setTimeout(initHeaderToggle, 500);
+    </script>
+</body>
+</html>

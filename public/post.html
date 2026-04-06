@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Postagem - ELARA RPG</title>
+    <link rel="icon" href="/assets/icons/LogoElara.png" type="image/png" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;800;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+    <link rel="stylesheet" href="css/variables.css" />
+    <link rel="stylesheet" href="css/header.css" />
+    <link rel="stylesheet" href="css/post.css" />
+
+    <script type="module" src="js/firebase-init.js"></script>
+  </head>
+  <body class="posts-page">
+    <main class="post-shell">
+      <div class="post-top">
+        <button id="btn-back" class="post-back" type="button">← Voltar</button>
+      </div>
+
+      <div id="post-container" class="post-container"></div>
+
+      <div class="comments-card">
+        <div class="comments-title">Comentários</div>
+        <div class="comment-composer">
+          <textarea id="comment-text" rows="2" placeholder="Escreva um comentário..."></textarea>
+          <div class="comment-actions">
+            <button id="btn-send-comment" class="btn-post" type="button">Enviar</button>
+          </div>
+        </div>
+        <div id="comments-list" class="comments-list"></div>
+      </div>
+    </main>
+
+    <script type="module" src="js/post.js"></script>
+    <script type="module" src="js/header.js"></script>
+  </body>
+</html>
+

@@ -1,0 +1,911 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sessão de RPG - ELARA</title>
+    <link rel="icon" href="/assets/icons/LogoElara.png" type="image/png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/header.css">
+    <link rel="stylesheet" href="css/gamification.css">
+    <link rel="stylesheet" href="css/session.css">
+</head>
+<body class="session-body">
+    <!-- Overlay de Carregamento -->
+    <div id="session-loading-overlay" class="session-loading-overlay">
+        <div class="loading-content" style="align-items: center; display: flex; flex-direction: column;">
+            <div class="spinner"></div>
+            <p>Preparando a mesa...</p>
+        </div>
+    </div>
+
+    <!-- Top Menu Fixo -->
+    <nav class="top-menu-bar">
+        <div class="top-menu-logo">
+            <img src="/assets/icons/LogoElara.png" alt="ELARA RPG">
+            <span>ELARA RPG</span>
+        </div>
+        <div class="top-menu-actions">
+            <div id="group-kill-counter" class="kill-counter" title="Inimigos Eliminados">
+                <i class="fas fa-skull"></i> <span id="kill-count-value">0</span>
+            </div>
+            <button id="btn-toggle-grid" class="btn-icon" title="Alternar Grid"><i class="fas fa-th"></i></button>
+            <button class="btn-icon master-only" onclick="window.gameSession.clearFootprints()" title="Limpar Rastros"><i class="fas fa-eraser"></i></button>
+            <button id="btn-toggle-fullscreen" class="btn-icon" title="Tela Cheia"><i class="fas fa-expand"></i></button>
+            <button id="btn-exit-session" class="btn-danger-small" title="Sair"><i class="fas fa-sign-out-alt"></i> Sair</button>
+        </div>
+    </nav>
+
+    <!-- Header colapsável para info da sessão -->
+    <header id="main-header" class="session-header">
+        <div class="header-content">
+            <!-- HUD de Jogadores (Barras de Vida) -->
+            <div id="players-hud" class="players-hud">
+                <!-- Preenchido via JS -->
+            </div>
+            
+            <!-- Controle de Combate e Voltar -->
+            <div class="combat-controls">
+                <button id="btn-return-lobby" class="btn-combat" style="background: var(--dark-bg); border: 1px solid var(--accent-gold);"><i class="fas fa-door-open"></i> VOLTAR AO SAGUÃO</button>
+                <button id="btn-start-combat" class="btn-combat master-only"><i class="fas fa-swords"></i> INICIAR COMBATE</button>
+                <button id="btn-roll-initiative" class="btn-combat" style="display: none;"><i class="fas fa-dice-d20"></i> ROLAR INICIATIVA</button>
+                <button id="btn-open-rules" class="btn-combat"><i class="fas fa-book"></i> REGRAS</button>
+                <button id="btn-roll-enemies" class="btn-combat master-only" style="display: none;"><i class="fas fa-dragon"></i> INICIATIVA INIMIGOS</button>
+                <button id="btn-next-turn" class="btn-combat master-only" style="display: none;"><i class="fas fa-step-forward"></i> PRÓXIMO TURNO</button>
+                <button id="btn-end-combat" class="btn-danger-small master-only" style="display: none;"><i class="fas fa-stop"></i> ENCERRAR</button>
+            </div>
+        </div>
+        <div class="header-toggle-arrow">
+            <i class="fas fa-chevron-up"></i>
+        </div>
+    </header>
+
+    <!-- Turn Tracker (Visível apenas durante combate) -->
+    <div id="turn-tracker" class="turn-tracker" style="display: none;">
+        <div class="turn-tracker-content" id="turn-list">
+            <!-- Items de turno injetados via JS -->
+        </div>
+    </div>
+
+    <!-- Toolbar do Mestre -->
+    <div id="gm-toolbar" class="gm-toolbar master-only">
+        <button class="gm-tool-btn gm-map-tool" data-tool="pointer" title="Ponteiro"><i class="fas fa-mouse-pointer"></i></button>
+        <button class="gm-tool-btn gm-map-tool" data-tool="hand" title="Mover Mapa"><i class="fas fa-hand-paper"></i></button>
+        <button class="gm-tool-btn" data-tool="kit" title="Kit do Mestre"><i class="fas fa-toolbox"></i></button>
+        <button class="gm-tool-btn gm-map-tool" data-tool="floor" title="Piso"><i class="fas fa-th-large"></i></button>
+        <button class="gm-tool-btn" data-tool="delete-mode" title="Modo Deletar"><i class="fas fa-trash"></i></button>
+        <button class="gm-tool-btn" data-tool="editor" title="Editor do Mapa"><i class="fas fa-layer-group"></i></button>
+        <button class="gm-tool-btn" data-tool="enemy-create" title="Criar Inimigo"><i class="fas fa-plus"></i></button>
+        <button class="gm-tool-btn" data-tool="bestiary" title="Inimigos"><i class="fas fa-dragon"></i></button>
+        <button class="gm-tool-btn" data-tool="sheets" title="Fichas"><i class="fas fa-file-alt"></i></button>
+        <button class="gm-tool-btn" data-tool="players" title="Aventureiros"><i class="fas fa-users"></i></button>
+        <button class="gm-tool-btn" data-tool="measure" title="Régua"><i class="fas fa-ruler-combined"></i></button>
+        <button class="gm-tool-btn gm-map-tool" data-tool="draw" title="Desenhar"><i class="fas fa-paint-brush"></i></button>
+        <button class="gm-tool-btn gm-map-tool" data-tool="text" title="Texto"><i class="fas fa-font"></i></button>
+        <button class="gm-tool-btn gm-map-tool" data-tool="path" title="Caminho e Alfinetes"><i class="fas fa-route"></i></button>
+        <button class="gm-tool-btn gm-map-tool" data-tool="fog" title="Neblina"><i class="fas fa-cloud"></i></button>
+        <button class="gm-tool-btn gm-map-tool" data-tool="vision" title="Visão"><i class="fas fa-eye"></i></button>
+        <button class="gm-tool-btn" data-tool="ping" title="Ping"><i class="fas fa-bullseye"></i></button>
+    </div>
+
+    <main class="game-container">
+        <!-- Barra Lateral Esquerda: Bestiário (Mestre) ou Dados (Jogador) -->
+        <aside id="sidebar-left" class="sidebar sidebar-left collapsed" style="display: none;">
+            <div class="sidebar-content" id="sidebar-left-content">
+                <!-- Conteúdo Mestre: Bestiário -->
+                <div id="master-bestiary" class="master-only">
+                    <div class="sidebar-header">
+                        <h3>Bestiário</h3>
+                        <button id="btn-add-custom-enemy" class="btn-small-plus" title="Criar Inimigo">+</button>
+                    </div>
+                    <input type="text" id="enemy-search" placeholder="Buscar monstro..." class="sidebar-search">
+                    <div id="bestiary-list" class="bestiary-list">
+                        <!-- Monstros aqui -->
+                    </div>
+                </div>
+                <!-- Conteúdo Jogador: Dados -->
+                <div id="player-dice" class="player-only">
+                    <div class="sidebar-header">
+                        <h3>Rolar Dados</h3>
+                    </div>
+                    <div class="dice-grid">
+                            <div class="dice-box" data-dice="4">
+                                <div class="dice-icon d4"><i class="fas fa-dice-d6"></i></div>
+                                <span>D4</span>
+                                <button class="btn-roll-dice">ROLAR</button>
+                            </div>
+                            <div class="dice-box" data-dice="6">
+                                <div class="dice-icon d6"><i class="fas fa-dice-d6"></i></div>
+                                <span>D6</span>
+                                <button class="btn-roll-dice">ROLAR</button>
+                            </div>
+                            <div class="dice-box" data-dice="8">
+                                <div class="dice-icon d8"><i class="fas fa-dice-d6"></i></div>
+                                <span>D8</span>
+                                <button class="btn-roll-dice">ROLAR</button>
+                            </div>
+                            <div class="dice-box" data-dice="10">
+                                <div class="dice-icon d10"><i class="fas fa-dice-d6"></i></div>
+                                <span>D10</span>
+                                <button class="btn-roll-dice">ROLAR</button>
+                            </div>
+                            <div class="dice-box" data-dice="12">
+                                <div class="dice-icon d12"><i class="fas fa-dice-d6"></i></div>
+                                <span>D12</span>
+                                <button class="btn-roll-dice">ROLAR</button>
+                            </div>
+                            <div class="dice-box" data-dice="20">
+                                <div class="dice-icon d20"><i class="fas fa-dice-d20"></i></div>
+                                <span>D20</span>
+                                <button class="btn-roll-dice">ROLAR</button>
+                            </div>
+                            <div class="dice-box" data-dice="100">
+                                <div class="dice-icon d100"><i class="fas fa-percent"></i></div>
+                                <span>D100</span>
+                                <button class="btn-roll-dice">ROLAR</button>
+                            </div>
+                        </div>
+                    <div id="last-dice-rolls" class="last-rolls">
+                        <!-- Histórico de rolagens local -->
+                    </div>
+                </div>
+
+                <!-- Cards dos Jogadores (Comum para Mestre e Jogadores) -->
+                <div class="sidebar-player-cards minimized" id="sidebar-player-cards">
+                    <div class="sidebar-header">
+                        <h3>Aventureiros</h3>
+                        <button id="btn-expand-players" class="btn-small-plus" title="Ver Jogadores">+</button>
+                    </div>
+                    <div id="player-cards-list" class="player-cards-list">
+                        <!-- Cards de jogadores injetados via JS -->
+                    </div>
+                </div>
+            </div>
+            <div class="sidebar-toggle-btn" id="toggle-bestiary">
+                <i class="fas fa-dragon master-only"></i>
+                <i class="fas fa-dice player-only"></i>
+                <span class="master-only">BESTIÁRIO</span>
+                <span class="player-only">DADOS</span>
+            </div>
+        </aside>
+
+        <!-- Área Central: Mapa -->
+        <section class="map-area">
+            <div id="map-container" class="map-container">
+                <div id="floor-layer" class="floor-layer"></div>
+                <div id="map-grid" class="map-grid"></div>
+                <div id="measure-layer" class="measure-layer"></div>
+                <img id="session-map" src="assets/Mapa.png" alt="Mapa de Jogo">
+                <div id="floor-tiles-layer" class="floor-tiles-layer"></div>
+                <div id="map-objects-layer" class="map-objects-layer"></div>
+                <div id="assets-layer" class="assets-layer"></div>
+                <div id="tokens-layer" class="tokens-layer">
+                    <!-- Tokens de monstros e jogadores aqui -->
+                </div>
+                <canvas id="draw-layer" class="draw-layer" width="2000" height="2000"></canvas>
+                <canvas id="fog-layer" class="fog-layer" width="2000" height="2000"></canvas>
+                <div id="delete-marquee" class="delete-marquee"></div>
+            </div>
+
+            <div id="delete-bar" class="delete-bar"></div>
+
+            <div id="floor-tool-menu" class="floor-tool-menu"></div>
+            <div id="floor-tile-popover" class="floor-tile-popover"></div>
+            <div id="object-popover" class="object-popover"></div>
+            <div id="objects-hover-preview" class="objects-hover-preview"></div>
+
+            <div id="map-zoom-control" class="map-zoom-control">
+                <button id="btn-zoom-in" class="map-zoom-btn" type="button">+</button>
+                <input id="range-map-zoom" class="map-zoom-range" type="range" min="0.2" max="3" step="0.05" value="0.5">
+                <button id="btn-zoom-out" class="map-zoom-btn" type="button">−</button>
+                <div id="map-zoom-label" class="map-zoom-label">50%</div>
+            </div>
+
+            <div id="map-tools-panel" class="map-tools-panel master-only" style="display: none;">
+                <div class="map-tools-panel-header">
+                    <div id="map-tools-panel-title" class="map-tools-panel-title">Ferramentas do Mapa</div>
+                </div>
+                <div class="map-tools-panel-body">
+                    <div id="panel-draw" class="map-tools-panel-section" style="display: none;">
+                        <div class="map-tools-row">
+                            <label>Modo</label>
+                            <select id="draw-mode">
+                                <option value="free">Mão livre</option>
+                                <option value="pen">Pen-tool</option>
+                                <option value="line">Linha</option>
+                                <option value="rect">Retângulo</option>
+                                <option value="circle">Círculo</option>
+                            </select>
+                        </div>
+                        <div class="map-tools-row">
+                            <label>Cor</label>
+                            <input id="draw-color" type="color" value="#ffd700">
+                        </div>
+                        <div class="map-tools-row">
+                            <label>Tamanho</label>
+                            <input id="draw-size" type="range" min="1" max="80" step="1" value="8" >
+                        </div>
+                        <div class="map-tools-row">
+                            <label>Opacidade</label>
+                            <input id="draw-opacity" type="range" min="0.05" max="1" step="0.05" value="0.8">
+                        </div>
+                        <div class="map-tools-row map-tools-actions">
+                            <button id="draw-undo" class="btn-secondary" type="button">Desfazer</button>
+                            <button id="draw-clear" class="btn-danger-small" type="button">Limpar</button>
+                        </div>
+                    </div>
+
+                    <div id="panel-text" class="map-tools-panel-section" style="display: none;">
+                        <div class="map-tools-row">
+                            <label>Texto</label>
+                            <input id="text-value" type="text" placeholder="Clique no mapa para colocar">
+                        </div>
+                        <div class="map-tools-row">
+                            <label>Tamanho</label>
+                            <input id="text-size" type="range" min="10" max="72" step="1" value="22">
+                        </div>
+                        <div class="map-tools-row">
+                            <label>Cor</label>
+                            <input id="text-color" type="color" value="#ffffff">
+                        </div>
+                        <div class="map-tools-row">
+                            <label>Background</label>
+                            <input id="text-bg" type="color" value="#000000">
+                        </div>
+                    </div>
+
+                    <div id="panel-path" class="map-tools-panel-section" style="display: none;">
+                        <div class="map-tools-row map-tools-actions">
+                            <button id="path-set-a" class="btn-secondary" type="button">Alfinete A</button>
+                            <button id="path-set-b" class="btn-secondary" type="button">Alfinete B</button>
+                        </div>
+                        <div class="map-tools-row">
+                            <label>Cor</label>
+                            <input id="path-color" type="color" value="#00ff88">
+                        </div>
+                        <div class="map-tools-row map-tools-actions">
+                            <button id="path-paint" class="btn-primary" type="button">Pintar caminho</button>
+                            <button id="path-clear" class="btn-danger-small" type="button">Limpar</button>
+                        </div>
+                    </div>
+
+                    <div id="panel-fog" class="map-tools-panel-section" style="display: none;">
+                        <div class="map-tools-row map-tools-actions">
+                            <button id="fog-cover" class="btn-danger-small" type="button">Ocultar mapa</button>
+                            <button id="fog-clear" class="btn-secondary" type="button">Revelar tudo</button>
+                        </div>
+                        <div class="map-tools-row">
+                            <label>Tamanho</label>
+                            <input id="fog-size" type="range" min="20" max="260" step="5" value="90">
+                        </div>
+                        <div class="map-tools-row">
+                            <label>Opacidade</label>
+                            <input id="fog-opacity" type="range" min="0.05" max="1" step="0.05" value="0.85">
+                        </div>
+                        <div class="map-tools-row">
+                            <label>Degradê</label>
+                            <input id="fog-soft" type="range" min="0" max="1" step="0.05" value="0.7">
+                        </div>
+                    </div>
+
+                    <div id="panel-vision" class="map-tools-panel-section" style="display: none;">
+                        <div class="map-tools-row">
+                            <label>Ativar</label>
+                            <input id="vision-enabled" type="checkbox">
+                        </div>
+                        <div class="map-tools-row">
+                            <label>Distância</label>
+                            <input id="vision-radius" type="range" min="50" max="800" step="10" value="220">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="map-context-menu" class="map-context-menu"></div>
+            
+            <!-- Sidebar Inferior: Habilidades (Apenas Jogadores) -->
+            <div id="sidebar-bottom" class="sidebar-bottom collapsed player-only">
+                <div class="sidebar-bottom-toggle" id="toggle-abilities">
+                    <span><i class="fas fa-bolt"></i> MINHAS HABILIDADES & STATUS</span>
+                    <button id="btn-open-full-sheet" class="btn-open-sheet">
+                        <i class="fas fa-file-alt"></i> FICHA COMPLETA
+                    </button>
+                    <i class="fas fa-chevron-up"></i>
+                </div>
+                <div class="sidebar-bottom-content">
+                    <div class="quick-stats-panel" id="quick-stats-panel">
+                        <div class="quick-stat-group">
+                            <label>Vida (HP)</label>
+                            <div class="hp-input-group">
+                                <input type="number" id="quick-hp-current" value="0">
+                                <span>/</span>
+                                <input type="number" id="quick-hp-max" value="0">
+                            </div>
+                        </div>
+                        <div class="quick-stat-group">
+                            <label>CA</label>
+                            <input type="number" id="quick-ac" value="10">
+                        </div>
+                        <div class="quick-attributes-grid">
+                            <div class="attr-box-mini"><span>FOR</span> <input type="number" id="quick-str" value="10"></div>
+                            <div class="attr-box-mini"><span>DES</span> <input type="number" id="quick-dex" value="10"></div>
+                            <div class="attr-box-mini"><span>CON</span> <input type="number" id="quick-con" value="10"></div>
+                            <div class="attr-box-mini"><span>INT</span> <input type="number" id="quick-int" value="10"></div>
+                            <div class="attr-box-mini"><span>SAB</span> <input type="number" id="quick-wis" value="10"></div>
+                            <div class="attr-box-mini"><span>CAR</span> <input type="number" id="quick-cha" value="10"></div>
+                        </div>
+                        <div class="quick-stat-group">
+                            <label>Cor do Rastro</label>
+                            <input type="color" id="quick-trail-color" value="#ffd700" style="width: 100%; height: 30px; cursor: pointer;">
+                        </div>
+                        <button id="btn-save-quick-stats" class="btn-confirm-small">SALVAR STATUS</button>
+                    </div>
+                    <div class="abilities-container" id="player-abilities-list">
+                        <!-- Cards de habilidades estilo Yu-Gi-Oh aqui -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Barra Lateral Direita: Kit do Mestre ou Chat Privado (Jogador) -->
+        <aside id="sidebar-right" class="sidebar sidebar-right collapsed" style="display: none;">
+            <div class="sidebar-toggle-btn" id="toggle-master-kit">
+                <i class="fas fa-toolbox master-only"></i>
+                <i class="fas fa-comments player-only"></i>
+                <span class="master-only">KIT MESTRE</span>
+                <span class="player-only">CHAT PRIVADO</span>
+            </div>
+            <div class="sidebar-content">
+                <!-- Conteúdo Mestre -->
+                <div id="master-kit-content" class="master-only">
+                    <div class="master-kit-tabs">
+                        <button class="kit-tab active" data-tab="sounds"><i class="fas fa-music"></i></button>
+                        <button class="kit-tab" data-tab="images"><i class="fas fa-image"></i></button>
+                        <button class="kit-tab" data-tab="characters"><i class="fas fa-user"></i></button>
+                        <button class="kit-tab" data-tab="objects"><i class="fas fa-book"></i></button>
+                        <button class="kit-tab" data-tab="npcs"><i class="fas fa-users"></i></button>
+                        <button class="kit-tab" data-tab="dice"><i class="fas fa-dice"></i></button>
+                        <button class="kit-tab" data-tab="control"><i class="fas fa-gamepad"></i></button>
+                        <button class="kit-tab" data-tab="map"><i class="fas fa-layer-group"></i></button>
+                        <button class="kit-tab" data-tab="token"><i class="fas fa-sliders-h"></i></button>
+                    </div>
+
+                    <!-- Aba de Sons -->
+                    <div id="kit-sounds" class="kit-tab-panel active">
+                        <h4>Músicas</h4>
+                        <div id="music-list" class="kit-list"></div>
+                        <h4 style="margin-top: 1rem;">Efeitos Sonoros</h4>
+                        <div class="sound-effects-grid">
+                            <button class="sfx-btn" data-sfx="thunder" title="Chuva com Raio"><i class="fas fa-bolt"></i></button>
+                            <button class="sfx-btn" data-sfx="explosion" title="Explosão"><i class="fas fa-bomb"></i></button>
+                            <button class="sfx-btn" data-sfx="suspense" title="Suspense"><i class="fas fa-ghost"></i></button>
+                            <button class="sfx-btn" data-sfx="wind" title="Vento Soprando"><i class="fas fa-wind"></i></button>
+                            <button class="sfx-btn" data-sfx="footsteps" title="Passos Chegando"><i class="fas fa-walking"></i></button>
+                            <button class="sfx-btn" data-sfx="slash" title="Corte/Espada"><i class="fas fa-khanda"></i></button>
+                            <button class="sfx-btn" data-sfx="fire" title="Fogo/Explosão"><i class="fas fa-fire"></i></button>
+                            <button class="sfx-btn" data-sfx="magic" title="Magia"><i class="fas fa-magic"></i></button>
+                        </div>
+                    </div>
+
+                    <!-- Aba de Imagens -->
+                    <div id="kit-images" class="kit-tab-panel">
+                        <div class="sidebar-header">
+                            <h3>Galeria de Imagens</h3>
+                            <button id="btn-add-kit-image" class="btn-small-plus">+</button>
+                        </div>
+                        <div id="kit-images-grid" class="kit-grid"></div>
+                    </div>
+
+                    <div id="kit-characters" class="kit-tab-panel">
+                        <div class="sidebar-header">
+                            <h3>Personagens</h3>
+                        </div>
+                        <input type="text" id="kit-character-search" placeholder="Buscar personagem..." class="sidebar-search">
+                        <div class="kit-size-row">
+                            <span>Tamanho</span>
+                            <input id="kit-character-size" type="range" min="160" max="320" step="20" value="220">
+                            <div id="kit-character-size-value">220</div>
+                        </div>
+                        <div id="kit-characters-grid" class="kit-character-grid"></div>
+                    </div>
+
+                    <div id="kit-objects" class="kit-tab-panel">
+                        <div class="sidebar-header">
+                            <h3>Livro de Objetos</h3>
+                        </div>
+                        <input type="text" id="objects-search" placeholder="Buscar objeto..." class="sidebar-search">
+                        <div id="objects-book" class="objects-book"></div>
+                    </div>
+
+                    <!-- Aba de NPCs -->
+                    <div id="kit-npcs" class="kit-tab-panel">
+                        <div class="sidebar-header">
+                            <h3>NPCs Rápidos</h3>
+                            <button id="btn-create-npc" class="btn-small-plus">+</button>
+                        </div>
+                        <div id="npcs-list" class="kit-list"></div>
+                    </div>
+
+                    <div id="kit-token" class="kit-tab-panel">
+                        <div class="sidebar-header">
+                            <h3>Propriedades do Token</h3>
+                        </div>
+                        <div id="gm-token-panel" class="gm-token-panel"></div>
+                    </div>
+
+                    <!-- Aba de Dados do Mestre -->
+                    <div id="kit-dice" class="kit-tab-panel">
+                        <div class="sidebar-header">
+                            <h3>Rolar Dados</h3>
+                        </div>
+                        <div class="master-dice-grid">
+                            <div class="dice-box-mini" onclick="window.gameSession.rollDice(4)">
+                                <i class="fas fa-dice-d6"></i><span>D4</span>
+                            </div>
+                            <div class="dice-box-mini" onclick="window.gameSession.rollDice(6)">
+                                <i class="fas fa-dice-d6"></i><span>D6</span>
+                            </div>
+                            <div class="dice-box-mini" onclick="window.gameSession.rollDice(8)">
+                                <i class="fas fa-dice-d6"></i><span>D8</span>
+                            </div>
+                            <div class="dice-box-mini" onclick="window.gameSession.rollDice(10)">
+                                <i class="fas fa-dice-d6"></i><span>D10</span>
+                            </div>
+                            <div class="dice-box-mini" onclick="window.gameSession.rollDice(12)">
+                                <i class="fas fa-dice-d6"></i><span>D12</span>
+                            </div>
+                            <div class="dice-box-mini" onclick="window.gameSession.rollDice(20)">
+                                <i class="fas fa-dice-d20"></i><span>D20</span>
+                            </div>
+                            <div class="dice-box-mini" onclick="window.gameSession.rollDice(100)">
+                                <i class="fas fa-percent"></i><span>D100</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Aba de Controle de Jogadores -->
+                    <div id="kit-control" class="kit-tab-panel">
+                        <div class="sidebar-header">
+                            <h3>Ações dos Jogadores</h3>
+                        </div>
+                        <div class="control-actions-list">
+                            <div class="control-item">
+                                <span>Abrir Ficha</span>
+                                <label class="switch">
+                                    <input type="checkbox" id="toggle-allow-sheets" checked>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            <div class="control-item">
+                                <span>Usar Dados</span>
+                                <label class="switch">
+                                    <input type="checkbox" id="toggle-allow-dice" checked>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            <div class="control-item">
+                                <span>Colocar Personagem</span>
+                                <label class="switch">
+                                    <input type="checkbox" id="toggle-allow-tokens" checked>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            <div class="control-item">
+                                <span>Usar Habilidades</span>
+                                <label class="switch">
+                                    <input type="checkbox" id="toggle-allow-abilities" checked>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            <div class="control-item">
+                                <span>Usar Chat</span>
+                                <label class="switch">
+                                    <input type="checkbox" id="toggle-allow-chat" checked>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="kit-map" class="kit-tab-panel">
+                        <div class="sidebar-header">
+                            <h3>Editor do Mapa</h3>
+                        </div>
+                        <div class="control-actions-list">
+                            <div class="control-item">
+                                <span>Chão</span>
+                                <label class="switch">
+                                    <input type="checkbox" id="toggle-floor-visible" checked>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            <div class="control-item">
+                                <span>Imagens</span>
+                                <label class="switch">
+                                    <input type="checkbox" id="toggle-assets-visible" checked>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            <div class="control-item">
+                                <span>Brilho</span>
+                                <input type="range" id="range-map-brightness" min="0.4" max="1.4" step="0.05" value="1" style="width: 140px;">
+                            </div>
+                            <div class="control-item" style="flex-direction: column;">
+                                <span>Opacidade do chão</span>
+                                <input type="range" id="range-floor-opacity" min="0" max="1" step="0.05" value="1" style="width: 140px;">
+                            </div>
+                            <div class="control-item">
+                                <span>Estilo</span>
+                                <select id="select-floor-preset" class="sidebar-search" style="height: 34px; padding: 0 10px;">
+                                    <option value="classic_hatching">Classic Hatching</option>
+                                    <option value="old_school_module">Old School Module</option>
+                                    <option value="ancient_map">Ancient Map</option>
+                                    <option value="gray_hatching">Gray Hatching</option>
+                                    <option value="simple_walls">Simple Walls</option>
+                                    <option value="classic_gray">Classic Gray</option>
+                                    <option value="black_and_white">Black and White</option>
+                                    <option value="fog_of_war">Fog of War</option>
+                                </select>
+                            </div>
+                            <div class="control-item">
+                                <span>Centralizar</span>
+                                <button id="btn-map-center" class="btn-secondary btn-small" type="button" style="padding: 8px 10px;"><i class="fas fa-crosshairs"></i></button>
+                            </div>
+                            <div class="control-item" style="display: none;">
+                                <span>Reset Zoom</span>
+                                <button id="btn-map-reset" class="btn-secondary btn-small" type="button" style="padding: 8px 10px;"><i class="fas fa-search-minus"></i></button>
+                            </div>
+                        </div>
+
+                        <div id="floor-tile-inspector" class="floor-tile-inspector" style="margin-top: 12px;"></div>
+                    </div>
+                </div>
+
+                <!-- Chat Integrado na Sidebar Direita -->
+                <div class="sidebar-chat">
+                    <div class="chat-header-actions">
+                        <div class="chat-header" id="chat-type-label">CHAT DA SESSÃO</div>
+                        <button id="btn-open-large-chat" class="btn-icon-small" title="Expandir Chat"><i class="fas fa-expand-alt"></i></button>
+                    </div>
+                    <div id="chat-messages" class="chat-messages"></div>
+                    
+                    <!-- Chat Privado Jogadores (Mestre não vê) -->
+                    <div id="player-private-chat" class="player-only">
+                        <div class="chat-header private">CHAT PRIVADO JOGADORES</div>
+                        <div id="private-messages" class="chat-messages private"></div>
+                    </div>
+
+                    <div class="chat-input-wrapper">
+                        <div class="chat-toggles player-only" style="margin-bottom: 5px;">
+                            <label><input type="radio" name="chat-target" value="public" checked> Todos</label>
+                            <label><input type="radio" name="chat-target" value="private"> Privado</label>
+                        </div>
+                        <div style="display: flex; gap: 5px;">
+                            <input type="text" id="chat-input" placeholder="Digite sua mensagem..." class="sidebar-search">
+                            <button id="btn-send-chat"><i class="fas fa-paper-plane"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+    </main>
+
+    <!-- Modal de Visualização de Imagem (Para todos) -->
+    <div id="image-viewer-modal" class="modal-overlay">
+        <div class="modal-content image-viewer-content">
+            <button class="modal-x" onclick="document.getElementById('image-viewer-modal').style.display='none'">&times;</button>
+            <img id="viewer-img" src="" alt="Imagem do Mestre">
+            <h3 id="viewer-title"></h3>
+        </div>
+    </div>
+
+    <!-- Modal da Ficha Completa -->
+    <div id="sheet-modal" class="modal-overlay" style="display: none;">
+        <div class="sheet-modal-content">
+            <button class="modal-x" onclick="document.getElementById('sheet-modal').style.display='none'">&times;</button>
+            <iframe id="sheet-iframe" src="" class="sheet-iframe"></iframe>
+        </div>
+    </div>
+
+    <div id="floor-picker-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content" style="max-width: 920px; width: 92vw; overflow: auto;    border-radius: 5px;">
+            <button class="modal-x" id="btn-close-floor-picker">&times;</button>
+            <h2 style="margin: 0 0 10px;">Escolher Piso</h2>
+             <div class="bottom-buttons" style="z-index: 999;padding: 10px 30px 10px 30px;background-color: #121214;backdrop-filter: blur(10px);position: sticky;width: -webkit-fill-available;top: 715px;">
+                    <div style="display:flex; gap: 10px; margin-top: 10px;">
+                        <button id="btn-floor-add-builtin" type="button" class="btn-primary" style="padding: 10px; flex:1;">Confirmar pisos</button>
+                    </div>
+                    <div style="font-size: 0.78rem; opacity: 0.75; margin-top: 8px;">
+                        Depois de confirmar, use o mapa para posicionar e ajuste rotação/tamanho clicando no piso.
+                    </div>
+                 </div>
+                <div style=" position: relative; top: -78px;">
+            <div>
+                    <div style="font-weight: 900; margin-bottom: 8px;">Adicionar piso</div>
+                    <div style="display: grid; gap: 10px;">
+                        <input id="floor-picker-url" type="text" class="sidebar-search" placeholder="Link da imagem (se tiver CORS, dá pra recortar)">
+                        <div style="display:flex; gap: 10px; align-items:center;">
+                            <input id="floor-picker-file" type="file" accept="image/*" style="flex:1;">
+                            <button id="btn-floor-load" type="button" class="btn-secondary" style="padding: 10px;">Carregar</button>
+                        </div>
+                        <div id="floor-crop-wrap" class="floor-crop-wrap" style="display:none;">
+                            <canvas id="floor-crop-canvas" class="floor-crop-canvas" width="720" height="360"></canvas>
+                            <div style="display:flex; gap: 10px; margin-top: 10px; align-items:center;">
+                                <input id="floor-picker-name" type="text" class="sidebar-search" placeholder="Nome do piso (opcional)" style="flex:1;">
+                                <button id="btn-floor-use-link" type="button" class="btn-secondary" style="padding: 10px; display: none;">Usar link</button>
+                                <button id="btn-floor-use-full" type="button" class="btn-secondary" style="padding: 10px;">Usar inteira</button>
+                                <button id="btn-floor-crop-save" type="button" class="btn-primary" style="padding: 10px;">Recortar e salvar</button>
+                            </div>
+                            <div id="floor-picker-cors-hint" style="display:none; font-size: 0.78rem; opacity: 0.75; margin-top: 8px;">
+                                Este link bloqueia recorte por CORS. Use <b>Usar link</b> ou faça upload do arquivo.
+                            </div>
+                            <div style="font-size: 0.78rem; opacity: 0.75; margin-top: 8px;">
+                                Arraste no canvas para selecionar a área do recorte.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            <div>
+                
+                    <div style="font-weight: 900; margin-bottom: 8px;">Pisos salvos</div>
+                    <div id="floor-picker-textures" class="floor-picker-textures"></div>
+
+                    <div style="font-weight: 900; margin: 14px 0 8px;">Tipos de pisos (pasta)</div>
+                    <div id="floor-builtin-grid" class="floor-picker-textures floor-pasta-pisos"></div>
+                    </div>
+                </div>
+               
+            </div>
+        </div>
+    </div>
+
+    <!-- Overlay de Rolagem de Dados (Estilo Torre) -->
+    <div id="dice-roll-overlay" class="dice-roll-overlay" style="display: none;">
+        <div class="dice-roll-content">
+            <div id="dice-roller-name" class="dice-roller-name">Jogador</div>
+            <div class="dice-roll-visual">
+                <i id="dice-icon-large" class="fas fa-dice-d20"></i>
+                <div id="dice-result-large" class="dice-result-large">20</div>
+            </div>
+            <div id="dice-type-label" class="dice-type-label">Rolou um D20</div>
+        </div>
+    </div>
+
+    <!-- Modal do Chat Expandido -->
+    <div id="large-chat-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content large-chat-content">
+            <div class="large-chat-header">
+                <h2>Chat da Sessão</h2>
+                <button class="modal-x" onclick="document.getElementById('large-chat-modal').style.display='none'">&times;</button>
+            </div>
+            <div class="large-chat-body">
+                <div class="large-chat-main">
+                    <h3>Chat Público</h3>
+                    <div id="large-chat-messages" class="chat-messages large"></div>
+                    <div class="chat-input-wrapper large">
+                        <div class="chat-toggles player-only">
+                            <label><input type="radio" name="chat-target-large" value="public" checked> Todos</label>
+                            <label><input type="radio" name="chat-target-large" value="private"> Privado</label>
+                        </div>
+                        <div style="display: flex; gap: 10px;">
+                            <input type="text" id="large-chat-input" placeholder="Digite sua mensagem..." class="sidebar-search">
+                            <button id="btn-send-large-chat" class="btn-confirm">ENVIAR</button>
+                        </div>
+                    </div>
+                </div>
+                <div id="large-private-section" class="large-chat-private player-only">
+                    <h3>Chat Privado</h3>
+                    <div id="large-private-messages" class="chat-messages large private"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Detalhes do Token (Inimigo/Jogador para o Mestre) -->
+    <div id="token-details-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content token-details-content">
+            <div class="modal-header">
+                <h2 id="token-modal-title">Detalhes do Token</h2>
+                <button class="modal-x" onclick="document.getElementById('token-details-modal').style.display='none'">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="token-modal-flex">
+                    <img id="token-modal-img" src="" alt="Avatar">
+                    <div class="token-modal-inputs">
+                        <div class="input-group">
+                            <label>Vida Atual (HP)</label>
+                            <input type="number" id="token-hp-current">
+                        </div>
+                        <div class="input-group">
+                            <label>Vida Máxima</label>
+                            <input type="number" id="token-hp-max">
+                        </div>
+                        <div class="input-group">
+                            <label>Classe de Armadura (CA)</label>
+                            <input type="number" id="token-ac">
+                        </div>
+                        <div class="input-group master-only">
+                            <label>Ataque (ATK)</label>
+                            <input type="number" id="token-atk">
+                        </div>
+                        <div class="input-group master-only">
+                            <label>Defesa (DEF)</label>
+                            <input type="number" id="token-def">
+                        </div>
+                        <button id="btn-save-token-stats" class="btn-confirm">SALVAR ALTERAÇÕES</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Overlay de Seleção de Alvo -->
+    <div id="targeting-overlay" class="targeting-overlay" style="display: none;">
+        <div class="targeting-message">
+            <i class="fas fa-crosshairs"></i>
+            <span id="targeting-text">Selecione um alvo no campo de batalha...</span>
+            <div class="targeting-actions">
+                <button id="btn-confirm-attack" class="btn-confirm-small" style="display: none; background: #2ecc71; color: #fff;">Confirmar Ataque</button>
+                <button id="btn-cancel-targeting" class="btn-danger-small">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Criação de Inimigo Customizado -->
+    <div id="enemy-create-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content token-details-content" style="max-width: 450px;">
+            <div class="modal-header">
+                <h2>Novo Inimigo</h2>
+                <button class="modal-x" onclick="document.getElementById('enemy-create-modal').style.display='none'">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="input-group">
+                    <label>Nome do Inimigo</label>
+                    <input type="text" id="enemy-new-name" placeholder="Ex: Orc Furioso">
+                </div>
+                <div class="input-group">
+                    <label>Link da Imagem</label>
+                    <input type="text" id="enemy-new-image" placeholder="https://...">
+                </div>
+                <div class="enemy-create-grid">
+                    <div class="input-group">
+                        <label>Vida (HP)</label>
+                        <input type="number" id="enemy-new-hp" value="20">
+                    </div>
+                    <div class="input-group">
+                        <label>Estrelas (1-5)</label>
+                        <input type="number" id="enemy-new-level" value="1" min="1" max="5">
+                    </div>
+                    <div class="input-group">
+                        <label>Ataque (ATK)</label>
+                        <input type="number" id="enemy-new-atk" value="5">
+                    </div>
+                    <div class="input-group">
+                        <label>Defesa (DEF)</label>
+                        <input type="number" id="enemy-new-def" value="5">
+                    </div>
+                </div>
+                <div class="enemy-create-actions">
+                    <button id="btn-confirm-enemy-create" class="btn-confirm btn-enemy-secondary">
+                        <i class="fas fa-save"></i>
+                        <span>Criar</span>
+                    </button>
+                    <button id="btn-confirm-enemy-create-place" class="btn-confirm btn-enemy-primary">
+                        <i class="fas fa-location-crosshairs"></i>
+                        <span>Criar e Posicionar</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Fichas (Mestre) -->
+    <div id="gm-sheets-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content token-details-content" style="max-width: 520px;">
+            <div class="modal-header">
+                <h2>Fichas dos Aventureiros</h2>
+                <button class="modal-x" onclick="document.getElementById('gm-sheets-modal').style.display='none'">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="gm-sheets-list" class="gm-sheets-list"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Aventureiros (Mestre) -->
+    <div id="gm-players-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content token-details-content" style="max-width: 520px;">
+            <div class="modal-header">
+                <h2>Aventureiros</h2>
+                <button class="modal-x" onclick="document.getElementById('gm-players-modal').style.display='none'">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="gm-players-list" class="gm-sheets-list"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Inimigos (Mestre) -->
+    <div id="gm-enemies-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content token-details-content" style="max-width: 520px;">
+            <div class="modal-header">
+                <h2>Inimigos</h2>
+                <button class="modal-x" onclick="document.getElementById('gm-enemies-modal').style.display='none'">&times;</button>
+            </div>
+            <div class="modal-body">
+                <input type="text" id="gm-enemy-search" placeholder="Buscar inimigo..." class="sidebar-search">
+                <div id="gm-bestiary-list" class="bestiary-list" style="margin-top: 10px;"></div>
+                <div class="gm-enemy-actions">
+                    <button id="gm-btn-spawn-enemy" class="btn-confirm btn-enemy-primary" disabled>SELECIONE UM INIMIGO</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Criação de NPC Rápido -->
+    <div id="npc-create-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content token-details-content" style="max-width: 400px;">
+            <div class="modal-header">
+                <h2>Novo NPC Rápido</h2>
+                <button class="modal-x" onclick="document.getElementById('npc-create-modal').style.display='none'">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="input-group">
+                    <label>Link da Imagem</label>
+                    <input type="text" id="npc-new-image" placeholder="https://exemplo.com/foto.jpg">
+                </div>
+                <div class="input-group">
+                    <label>Vida Inicial (HP)</label>
+                    <input type="number" id="npc-new-hp" value="10">
+                </div>
+                <p style="font-size: 0.75rem; color: #888; margin-top: 10px;">
+                    * Nome e Profissão serão gerados aleatoriamente.
+                </p>
+                <button id="btn-confirm-npc-create" class="btn-confirm" style="margin-top: 15px;">CRIAR NPC</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tela de Stand-by (Inatividade) -->
+    <div id="standby-overlay" class="standby-overlay">
+        <div class="standby-glow"></div>
+        <div class="standby-dragon">
+            <i class="fas fa-dragon"></i>
+        </div>
+    </div>
+
+    <div id="rules-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content rules-modal-content">
+            <button class="modal-x" id="btn-close-rules" style="top: 10px; right: 20px;">&times;</button>
+            <div class="modal-header">
+                <h2 class="title-cinzel">Regras</h2>
+            </div>
+            <div class="modal-body rules-modal-body">
+                <div class="rules-topbar">
+                    <input id="rules-search" class="rules-search" type="text" placeholder="Buscar no manual..." autocomplete="off">
+                    <button id="rules-clear-search" class="rules-clear" type="button">Limpar</button>
+                </div>
+                <div class="rules-shell">
+                    <div class="rules-nav">
+                        <div id="rules-toc" class="rules-toc"></div>
+                    </div>
+                    <div class="rules-main">
+                        <div id="rules-results" class="rules-results" style="display: none;"></div>
+                        <div id="rules-content" class="rules-content"></div>
+                        <div class="rules-attribution">
+                            <div>Manual livre e original para uso na mesa.</div>
+                            <div>Se a campanha usar outro sistema, este manual serve como base e referência rápida.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase e Scripts -->
+    <script type="module" src="js/firebase-init.js"></script>
+    <script type="module" src="js/session.js"></script>
+    <!-- <script type="module" src="js/header.js"></script> -->
+</body>
+</html>

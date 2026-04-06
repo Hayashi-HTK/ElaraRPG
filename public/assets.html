@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="/assets/icons/LogoElara.png" type="image/png">
+  <title>Assets - ELARA</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/header.css">
+  <link rel="stylesheet" href="css/assets.css">
+</head>
+<body>
+  <main class="assets-page">
+    <div class="assets-card">
+      <div class="assets-head">
+        <div>
+          <h1 class="assets-title">Biblioteca de Assets</h1>
+          <p class="assets-subtitle">O que tem aqui é o que aparece no Kit do Mestre dentro da sessão.</p>
+        </div>
+        <div class="assets-actions">
+          <a class="assets-link" href="session.html" title="Abrir Sessão"><i class="fas fa-map"></i> Sessão</a>
+          <a class="assets-link" href="play.html" title="Ir para Jogar"><i class="fas fa-dice-d20"></i> Jogar</a>
+        </div>
+      </div>
+
+      <div class="assets-sections">
+        <section class="assets-section">
+          <h2 class="assets-section-title">Personagens</h2>
+          <div id="assets-characters-grid" class="assets-items-grid"></div>
+          <div id="assets-characters-empty" class="assets-empty" style="display:none;">Sem personagens disponíveis.</div>
+        </section>
+
+        <section class="assets-section">
+          <h2 class="assets-section-title">Pisos</h2>
+          <div id="assets-floors-grid" class="assets-items-grid"></div>
+          <div id="assets-floors-empty" class="assets-empty" style="display:none;">Sem pisos disponíveis.</div>
+        </section>
+
+        <section class="assets-section">
+          <h2 class="assets-section-title">Livro de Objetos</h2>
+          <div id="assets-objects-root" class="assets-objects-root"></div>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <div id="assets-toast" class="assets-toast" style="display:none;">Link copiado.</div>
+
+  <script type="module" src="js/assets-page.js"></script>
+  <script type="module" src="js/header.js"></script>
+</body>
+</html>

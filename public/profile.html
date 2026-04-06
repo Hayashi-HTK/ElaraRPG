@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Perfil - RPG Ficha</title>
+  <link rel="icon" href="/assets/icons/LogoElara.png" type="image/png">
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  
+  <!-- Styles -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/dashboard-ui.css">
+  <link rel="stylesheet" href="css/gamification.css">
+  <link rel="stylesheet" href="css/header.css">
+  <link rel="stylesheet" href="css/profile.css">
+  
+  <!-- Scripts -->
+  <script type="module" src="js/firebase-init.js"></script>
+</head>
+<body>
+
+  <div class="profile-bg-layers" id="profile-bg-layers"></div>
+
+  <main class="profile-page">
+    <div class="profile-shell">
+      <div class="profile-hero">
+        <div id="banner-adjust-container" class="profile-banner">
+          <img id="banner-img" src="" alt="Banner Preview">
+          <div id="banner-placeholder" class="profile-banner-placeholder">Clique para adicionar um banner</div>
+          <div class="profile-hero-overlay"></div>
+          <div id="banner-controls" >
+            <button type="button" id="btn-banner-up" class="btn-secondary" style="padding: 6px 10px; font-size: 0.75rem; background: rgba(0,0,0,0.6);"><i class="fas fa-arrow-up"></i></button>
+            <button type="button" id="btn-banner-down" class="btn-secondary" style="padding: 6px 10px; font-size: 0.75rem; background: rgba(0,0,0,0.6);"><i class="fas fa-arrow-down"></i></button>
+          </div>
+          <div id="banner-hint" style="position: absolute; top: 10px; left: 10px; background: rgba(0,0,0,0.6); color: white; padding: 4px 8px; border-radius: 8px; font-size: 0.75rem; pointer-events: none; display: none; z-index: 2;">
+            Arraste para ajustar a posição vertical
+          </div>
+        </div>
+      </div>
+
+      <div class="profile-identity">
+        <div class="profile-avatar-wrap" id="avatar-container">
+          <div id="avatar-frame-border" class="frame-glow"></div>
+          <div id="avatar-border" class="frame-border"></div>
+          <img id="avatar-img" src="" class="profile-avatar-large" alt="Avatar">
+          <div id="avatar-placeholder" class="profile-avatar-placeholder">👤</div>
+        </div>
+
+        <div class="profile-identity-main">
+          <div class="profile-name-row">
+            <h1 class="profile-display-name" id="display-name-sidebar">-</h1>
+            <span id="badge-premium-status" class="badge-premium" style="display:none; position: static;">PREMIUM</span>
+            <span id="badge-title-status" class="profile-popup-title" style="display:none;">JOGADOR</span>
+            <button id="btn-toggle-profile-edit" type="button" class="btn-secondary profile-edit-toggle">Editar</button>
+          </div>
+          <div class="profile-subline">
+            <span class="profile-meta-chip"><i class="fas fa-user-tag"></i> <span id="nickname-display">-</span></span>
+            <span class="profile-meta-chip"><i class="fas fa-hat-wizard"></i> <span id="role-display">Jogador</span></span>
+            <span class="profile-meta-chip"><i class="fas fa-star"></i> Nível <span id="level-display">1</span></span>
+            <span id="created-at-chip" class="profile-meta-chip" style="display:none;"><i class="fas fa-calendar-alt"></i> Entrou em <span id="created-at-display">-</span></span>
+          </div>
+          <div class="profile-subline" id="plan-row">
+            <button id="current-plan-chip" type="button" class="profile-meta-chip plan-chip"><i class="fas fa-gem"></i> Plano: <span id="plan-display">Aventureiro</span></button>
+            <a id="plan-upgrade-link" class="plan-upgrade-link" href="index.html?view=landing#pricing" style="display:none;">Upgrade</a>
+            <span id="plan-days-left" class="profile-muted" style="display:none;"></span>
+          </div>
+          <div class="profile-subline">
+            <span class="profile-muted" id="email-display">-</span>
+            <span class="profile-muted" id="uid-display" style="display:none;">-</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="profile-tabs" role="tablist">
+        <button class="profile-tab-btn active" type="button" data-tab="custom">Personalizar</button>
+        <button class="profile-tab-btn" type="button" data-tab="personal">Dados Pessoais</button>
+        <button class="profile-tab-btn" type="button" data-tab="social">Social & Torre</button>
+      </div>
+
+      <div class="profile-body">
+        <section id="profile-visitor" class="profile-visitor" style="display:none;">
+          <div class="profile-visitor-grid">
+            <div class="profile-visitor-left">
+              <div class="profile-card">
+                <h3 class="profile-card-title">Recortes de Fundo</h3>
+                <div id="visitor-bg-grid" class="profile-visitor-gridlist"></div>
+                <div id="visitor-bg-empty" class="profile-empty">Sem recortes de fundo.</div>
+              </div>
+
+              <div class="profile-card">
+                <h3 class="profile-card-title">Amizades</h3>
+                <div id="visitor-friends-grid" class="profile-visitor-gridlist"></div>
+                <div id="visitor-friends-empty" class="profile-empty">Sem amizades ainda.</div>
+              </div>
+
+              <div class="profile-card">
+                <h3 class="profile-card-title">Fichas</h3>
+                <div id="visitor-sheets-list" class="profile-visitor-list"></div>
+                <div id="visitor-sheets-empty" class="profile-empty">Nenhuma ficha.</div>
+              </div>
+
+              <div class="profile-card">
+                <h3 class="profile-card-title">Conquistas</h3>
+                <div class="profile-visitor-stats">
+                  <div class="profile-stat"><span class="profile-stat-label">Sessões</span><span id="visitor-sessions-count" class="profile-stat-value">0</span></div>
+                  <div class="profile-stat"><span class="profile-stat-label">Tempo</span><span id="visitor-sessions-time" class="profile-stat-value">0h</span></div>
+                  <div class="profile-stat"><span class="profile-stat-label">Torre (Recorde)</span><span id="visitor-tower-record" class="profile-stat-value">0</span></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="profile-visitor-right">
+              <div class="profile-card">
+                <h3 class="profile-card-title">Biografia</h3>
+                <div id="visitor-bio" class="profile-bio-readonly"></div>
+              </div>
+
+              <div class="profile-card">
+                <h3 class="profile-card-title">Postagens & Repostagens</h3>
+                <div id="visitor-posts-list" class="profile-visitor-posts"></div>
+                <div id="visitor-posts-empty" class="profile-empty">Sem postagens ainda.</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <form id="profile-form">
+          <input type="hidden" id="avatar_url">
+          <input type="hidden" id="banner_url">
+          <input type="hidden" id="banner_pos_y" value="0">
+          <input type="hidden" id="bg_layers_json" value="[]">
+
+          <section class="profile-panel active" data-panel="custom">
+            <div class="profile-grid-2">
+              <div class="profile-card">
+                <h3 class="profile-card-title">Biografia</h3>
+                <div id="bio-display-container">
+                  <p id="bio-text" class="profile-muted" style="margin: 0; line-height: 1.7;">-</p>
+                  <div class="profile-actions-row">
+                    <button id="edit-bio-btn" type="button" class="btn-secondary">Editar</button>
+                  </div>
+                </div>
+                <div id="bio-edit-container" style="display:none;">
+                  <textarea id="bio-input" class="form-textarea" placeholder="Conte sua história..."></textarea>
+                  <div class="profile-actions-row">
+                    <button id="cancel-bio-btn" type="button" class="btn-secondary">Cancelar</button>
+                    <button id="save-bio-btn" type="button" class="btn-primary">Salvar Bio</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="profile-card">
+                <h3 class="profile-card-title">Molduras</h3>
+                <div class="frame-selector-wrapper">
+                  <div class="frame-selector-header">
+                    <div class="current-frame-preview" id="current-frame-preview">
+                      <div id="preview-glow" class="frame-glow" style="display: none;"></div>
+                      <div id="preview-border" class="frame-border"></div>
+                      <button type="button" id="btn-toggle-frames" class="btn-toggle-frames" title="Ver todas as molduras">
+                        <i class="fas fa-plus"></i>
+                      </button>
+                    </div>
+                    <div id="frame-selector-status" class="frame-selector-status"></div>
+                  </div>
+                  <div id="frame-options-container" class="frame-options-container"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="profile-grid-2" style="margin-top: 16px;">
+              <div class="profile-card">
+                <h3 class="profile-card-title">Recortes de Fundo</h3>
+                <p class="profile-muted" style="margin-top: 0;">Imagens atrás do container do perfil.</p>
+                
+                <div class="form-group" style="margin-bottom: 12px;">
+                  <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                    <label for="bg_opacity_slider" style="font-size: 0.85rem; color: rgba(255,255,255,0.8);">Opacidade Global</label>
+                    <span id="bg_opacity_val" style="font-size: 0.85rem; color: rgba(255,255,255,0.6);">20%</span>
+                  </div>
+                  <input type="range" id="bg_opacity_slider" min="0" max="100" value="20" style="width: 100%; cursor: pointer;">
+                </div>
+                
+                <div class="form-group" style="margin-bottom: 16px;">
+                  <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                    <label for="bg_blur_slider" style="font-size: 0.85rem; color: rgba(255,255,255,0.8);">Desfoque Global</label>
+                    <span id="bg_blur_val" style="font-size: 0.85rem; color: rgba(255,255,255,0.6);">0px</span>
+                  </div>
+                  <input type="range" id="bg_blur_slider" min="0" max="20" value="0" style="width: 100%; cursor: pointer;">
+                </div>
+
+                <div class="profile-thumb-grid" id="bg-layers-list"></div>
+                <div class="profile-actions-row">
+                  <button type="button" id="btn-add-bg-layer" class="btn-secondary">Adicionar Imagem</button>
+                </div>
+              </div>
+
+              <div class="profile-card profile-mobile-hide">
+                <h3 class="profile-card-title">Recentes</h3>
+                <div id="recent-avatars-container" style="display:none; margin-bottom: 14px;">
+                  <div class="profile-muted" style="font-weight: 900; margin-bottom: 8px;">Avatares</div>
+                  <div id="recent-avatars-list" class="profile-thumb-grid"></div>
+                </div>
+                <div id="recent-banners-container" style="display:none;">
+                  <div class="profile-muted" style="font-weight: 900; margin-bottom: 8px;">Banners</div>
+                  <div id="recent-banners-list" class="profile-thumb-grid"></div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="profile-panel" data-panel="personal">
+            <div class="profile-grid-2">
+              <div class="profile-card">
+                <h3 class="profile-card-title">Identidade</h3>
+                <div class="form-grid">
+                  <div class="form-group">
+                    <label for="full_name">Nome</label>
+                    <input type="text" id="full_name" class="form-input" placeholder="Seu nome">
+                  </div>
+                  <div class="form-group">
+                    <label for="nickname">Nickname</label>
+                    <input type="text" id="nickname" class="form-input" placeholder="Seu apelido">
+                  </div>
+                  <div class="form-group">
+                    <label for="player_role">Você é</label>
+                    <select id="player_role" class="form-input">
+                      <option value="Jogador">Jogador</option>
+                      <option value="Mestre">Mestre</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label for="play_style">Classe/Estilo</label>
+                    <select id="play_style" class="form-input">
+                      <option value="">Selecione...</option>
+                      <option value="Mago">Mago</option>
+                      <option value="Tanque">Tanque</option>
+                      <option value="Suporte">Suporte</option>
+                      <option value="Assassino">Assassino</option>
+                      <option value="Guerreiro">Guerreiro</option>
+                      <option value="Investigador">Investigador</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <div class="profile-card">
+                <h3 class="profile-card-title">Contato</h3>
+                <div class="form-grid">
+                  <div class="form-group">
+                    <label for="birth_date">Data de nascimento</label>
+                    <input type="date" id="birth_date" class="form-input">
+                  </div>
+                  <div class="form-group">
+                    <label>Email</label>
+                    <input type="text" id="email-readonly" class="form-input" readonly>
+                  </div>
+                  <div class="form-group">
+                    <label>UID</label>
+                    <input type="text" id="uid-readonly" class="form-input" readonly>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="profile-panel" data-panel="social">
+            <div class="profile-grid-2">
+              <div class="profile-card">
+                <h3 class="profile-card-title">Resumo</h3>
+                <div class="profile-list">
+                  <div class="profile-list-item"><span>Fichas</span> <strong id="profile-sheets-count">0</strong></div>
+                  <div class="profile-list-item"><span>Fichas Torre</span> <strong id="profile-tower-sheets-count">0</strong></div>
+                  <div class="profile-list-item"><span>Amigos</span> <strong id="profile-friends-count">0</strong></div>
+                  <div class="profile-list-item"><span>Seguidores</span> <strong id="profile-followers-count">0</strong></div>
+                  <div class="profile-list-item"><span>Recorde Torre</span> <strong id="tower-record-display">0</strong></div>
+                </div>
+              </div>
+
+              <div class="profile-card">
+                <h3 class="profile-card-title">Configurações</h3>
+                <div class="profile-actions-row" style="justify-content: flex-start;">
+                  <a href="tower.html" class="btn-secondary">Ir para Torre</a>
+                  <a href="dashboard.html" class="btn-secondary">Ir para Fichas</a>
+                </div>
+              </div>
+            </div>
+
+            <div class="profile-grid-2" style="margin-top: 16px;">
+              <div class="profile-card profile-mobile-hide">
+                <h3 class="profile-card-title">Suas Fichas</h3>
+                <div id="profile-sheets-list" class="profile-list"></div>
+              </div>
+              <div class="profile-card profile-mobile-hide">
+                <h3 class="profile-card-title">Progresso na Torre</h3>
+                <div id="profile-tower-list" class="profile-list"></div>
+              </div>
+            </div>
+          </section>
+
+          <div class="profile-save-footer">
+            <div class="profile-actions-row profile-save-row">
+              <button type="submit" class="btn-primary" style="min-width: 220px;">Salvar Alterações</button>
+            </div>
+            <p id="message" style="text-align: right; margin-top: 10px; font-size: 0.95rem;"></p>
+          </div>
+        </form>
+      </div>
+    </div>
+  </main>
+
+  <div id="visitor-bg-modal" class="modal" style="display:none;">
+    <div class="modal-card">
+      <div class="modal-title" style="display:flex; align-items:center; justify-content:space-between; gap:10px;">
+        <span>Recorte de Fundo</span>
+        <button id="btn-visitor-bg-close" class="modal-close" type="button">×</button>
+      </div>
+      <div id="visitor-bg-modal-media" class="visitor-bg-modal-media"></div>
+      <a id="visitor-bg-modal-link" class="btn-secondary2" href="#" target="_blank" rel="noopener">Abrir origem</a>
+    </div>
+  </div>
+
+  <script type="module" src="js/profile.js"></script>
+  <script type="module" src="js/header.js"></script>
+</body>
+</html>

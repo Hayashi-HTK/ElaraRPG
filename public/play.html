@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jogar - ELARA RPG</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/header.css">
+    <link rel="stylesheet" href="css/gamification.css">
+    <link rel="stylesheet" href="css/play.css">
+</head>
+<body class="play-page">
+    <!-- Header Placeholder (Injected by header.js) -->
+    <header id="main-header" class="dashboard-header-nav"></header>
+
+    <main class="main-container play-container">
+        <div class="play-header">
+            <h1 class="title-cinzel">Escolha seu Destino</h1>
+            <p>Deslize para os lados e selecione o desafio que guiará sua jornada.</p>
+        </div>
+
+        <div class="game-modes-carousel-container">
+            <div class="game-modes-carousel" id="game-modes-carousel">
+                <!-- Modo 1: A Torre -->
+                <div class="game-mode-card" id="mode-tower">
+                    <div class="card-bg" style="background-image: url('assets/Jogar/Torre.png');"></div>
+                    <div class="card-content">
+                        <span class="card-badge solo">Solo</span>
+                        <h3>A Torre</h3>
+                        <p>Suba andares, derrote hordas e enfrente o desafio final sozinho.</p>
+                        <a href="tower.html" class="btn-primary btn-play-mode">Entrar na Torre</a>
+                    </div>
+                </div>
+
+                <!-- Modo 2: Guilda Simples -->
+                <div class="game-mode-card" id="mode-guild">
+                    <div class="card-bg" style="background-image: url('assets/Jogar/Guilda3.png');"></div>
+                    <div class="card-content">
+                        <span class="card-badge coop">Cooperativo</span>
+                        <h3>Guilda Simples</h3>
+                        <p>Junte-se a 3 amigos e um Mestre para uma aventura clássica.</p>
+                        <a href="guild.html" class="btn-primary btn-play-mode">Formar Guilda</a>
+                    </div>
+                </div>
+
+                <!-- Modo 3: Sessão Livre -->
+                <div class="game-mode-card" id="mode-free">
+                    <div class="card-bg" style="background-image: url('assets/Jogar/GuildaLivre.png');"></div>
+                    <div class="card-content">
+                        <span class="card-badge coop">Cooperativo</span>
+                        <h3>Sessão Livre</h3>
+                        <p>Aventura sem limites com sua guilda e espectadores convidados.</p>
+                        <a href="free-session.html" class="btn-primary btn-play-mode">Iniciar Sessão</a>
+                    </div>
+                </div>
+
+                <!-- Modo 4: História -->
+                <div class="game-mode-card" id="mode-story">
+                    <div class="card-bg" style="background-image: url('assets/Jogar/História.png');"></div>
+                    <div class="card-content">
+                        <span class="card-badge solo">Solo</span>
+                        <h3>Modo História</h3>
+                        <p>Viva narrativas épicas, ganhe fichas douradas e insígnias elementais.</p>
+                        <a href="story.html" class="btn-primary btn-play-mode">Ver Histórias</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Carousel Navigation -->
+            <div class="carousel-nav">
+                <button class="nav-arrow" id="prev-mode"><i class="fas fa-chevron-left"></i></button>
+                <button class="nav-arrow" id="next-mode"><i class="fas fa-chevron-right"></i></button>
+            </div>
+        </div>
+
+        <!-- Active Sessions Sidebar/Section -->
+        <div class="active-sessions-container">
+            <div class="sessions-header">
+                <h2 class="title-cinzel"><i class="fas fa-users"></i> Sessões Ativas</h2>
+                <p>Mesas públicas aguardando aventureiros</p>
+            </div>
+            
+            <div id="active-sessions-list" class="active-sessions-list">
+                <!-- Sessoes publicas carregadas aqui -->
+                <div class="session-loading">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <p>Buscando tavernas abertas...</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Scripts -->
+    <script type="module" src="js/firebase-init.js"></script>
+    <script type="module" src="js/header.js"></script>
+    <script type="module" src="js/play-sessions.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const carousel = document.getElementById('game-modes-carousel');
+            const cards = carousel.querySelectorAll('.game-mode-card');
+            const prevBtn = document.getElementById('prev-mode');
+            const nextBtn = document.getElementById('next-mode');
+
+            // Set up Intersection Observer for active card detection
+            const observerOptions = {
+                root: carousel,
+                rootMargin: '0px -45% 0px -48%', // Tight center detection
+                threshold: 0
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        cards.forEach(c => c.classList.remove('active'));
+                        entry.target.classList.add('active');
+                    }
+                });
+            }, observerOptions);
+
+            cards.forEach(card => {
+                observer.observe(card);
+                
+                // Allow clicking a card to center it
+                card.onclick = () => {
+                    card.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+                };
+            });
+
+            // Arrow Navigation
+            prevBtn.onclick = () => {
+                const active = carousel.querySelector('.game-mode-card.active');
+                const prev = active?.previousElementSibling;
+                if (prev) {
+                    prev.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+                }
+            };
+
+            nextBtn.onclick = () => {
+                const active = carousel.querySelector('.game-mode-card.active');
+                const next = active?.nextElementSibling;
+                if (next) {
+                    next.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+                }
+            };
+
+            // Initial focus on the first or second card
+            setTimeout(() => {
+                if (cards.length > 0) {
+                    cards[0].scrollIntoView({ behavior: 'auto', block: 'nearest', inline: 'center' });
+                }
+            }, 100);
+        });
+    </script>
+</body>
+</html>

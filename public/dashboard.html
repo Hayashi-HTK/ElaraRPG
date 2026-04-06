@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard - RPG Ficha</title>
+    <link rel="icon" href="/assets/icons/LogoElara.png" type="image/png">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Inter:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="css/variables.css" />
+    <link rel="stylesheet" href="css/dashboard-ui.css" />
+    <link rel="stylesheet" href="css/gamification.css" />
+    <link rel="stylesheet" href="css/header.css" />
+
+    <!-- Scripts -->
+    <script type="module" src="js/firebase-init.js"></script>
+  </head>
+  <body>
+    <!-- Main Content -->
+    <main class="main-container">
+      <!-- Welcome Section -->
+      <div class="dashboard-header">
+        <div>
+          <h2 id="welcome-message">Bem-vindo, Viajante</h2>
+          <p style="color: var(--dashboard-text-muted); margin-top: 0.5rem">
+            Gerencie suas aventuras e personagens.
+          </p>
+        </div>
+
+        <button id="new-sheet-btn" class="btn-primary">+ Nova Ficha</button>
+      </div>
+
+      <!-- Stats Overview -->
+      <div
+        class="grid-container"
+        style="grid-template-columns: repeat(3, 1fr); margin-bottom: 0rem">
+        <div class="card-dark" style="text-align: center">
+          <div class="stat-value" id="total-sheets">0</div>
+          <div class="stat-label">Personagens</div>
+        </div>
+        <div class="card-dark" style="text-align: center">
+          <div class="stat-value" id="total-campaigns">0</div>
+          <div class="stat-label">Campanhas Ativas</div>
+        </div>
+        <div class="card-dark" style="text-align: center">
+          <div class="stat-value" id="last-activity">-</div>
+          <div class="stat-label">Última Aventura</div>
+        </div>
+      </div>
+
+      <div id="sessions-history-section" style="display: none; margin: 2rem 0 3rem;">
+        <h3
+          style="
+            font-family: &quot;Cinzel&quot;, serif;
+            color: var(--dashboard-text);
+            margin-bottom: 1rem;
+            border-bottom: 1px solid var(--dashboard-border);
+            padding-bottom: 0.5rem;
+          "
+        >
+          Histórico de Sessões
+        </h3>
+        <div class="card-dark" style="grid-column: 1 / -1;">
+          <div id="sessions-history-list" class="sessions-history-list"></div>
+          <div class="sessions-history-actions">
+            <button id="btn-clear-session-history" class="btn-secondary" style="padding: 0.6rem 1rem;">Limpar</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Favorite Sheets Grid -->
+      <div id="favorites-section" style="display: none; margin-bottom: 3rem;">
+        <h3
+          style="
+            font-family: &quot;Cinzel&quot;, serif;
+            color: #ffd700;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid rgba(255, 215, 0, 0.3);
+            padding-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+          "
+        >
+          <i class="fas fa-crown"></i> Campeões Favoritos
+        </h3>
+        <div id="favorites-list" class="grid-container favorite-container">
+          <!-- Favoritos inseridos aqui -->
+        </div>
+      </div>
+
+      <!-- Sheets Grid -->
+      <h3
+        style="
+          font-family: &quot;Cinzel&quot;, serif;
+          color: var(--dashboard-text);
+          margin-bottom: 0rem;
+          border-bottom: 1px solid var(--dashboard-border);
+          padding-bottom: 0rem;
+        "
+      >
+        Seus Personagens
+      </h3>
+
+      <div class="sheets-filters">
+        <div class="filter-group">
+          <label for="sheet-system-filter">Tipo de RPG</label>
+          <select id="sheet-system-filter" class="filter-select">
+            <option value="all" selected>Todos</option>
+            <option value="favorites">Favoritos</option>
+            <option value="Elara">Padrão do Site</option>
+            <option value="D&D 5e">D&D 5e</option>
+            <option value="shared">Compartilhadas</option>
+          </select>
+        </div>
+      </div>
+
+      <div id="sheets-list" class="grid-container">
+        <!-- Loading State -->
+        <div
+          class="card-dark"
+          style="grid-column: 1 / -1; text-align: center; padding: 4rem"
+        >
+          <div style="color: var(--dashboard-text-muted)">
+            Carregando grimório...
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Modal de Detalhes da Ficha (Estilo Inimigo) -->
+    <div id="sheet-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content selection-modal-content sheet-detail-modal">
+            <div class="modal-header">
+                <h2 id="modal-sheet-name" class="title-cinzel">Nome do Personagem</h2>
+                <button class="modal-close-btn" id="close-sheet-modal">&times;</button>
+            </div>
+            
+            <div class="modal-body-grid">
+                <div class="modal-image-container">
+                    <img id="modal-sheet-image" src="" alt="Personagem">
+                    <div class="modal-sheet-tags">
+                        <span id="modal-sheet-class" class="badge-tag">Classe</span>
+                        <span id="modal-sheet-race" class="badge-tag">Raça</span>
+                    </div>
+                </div>
+                
+                <div class="modal-info-container">
+                    <div class="info-section">
+                        <h4>Atributos</h4>
+                        <div id="modal-sheet-attributes" class="attributes-mini-grid">
+                            <!-- JS insere atributos aqui -->
+                        </div>
+                    </div>
+                    
+                    <div class="info-section">
+                        <h4>Status Vitais</h4>
+                        <div class="vitals-mini-grid">
+                            <div class="vital-item">
+                                <span class="label">Vida</span>
+                                <span id="modal-sheet-hp" class="value">0/0</span>
+                            </div>
+                            <div class="vital-item">
+                                <span class="label">CA</span>
+                                <span id="modal-sheet-ac" class="value">0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="modal-footer-actions">
+                <button id="modal-fav-btn" class="btn-fav"><i class="far fa-star"></i> Favoritar</button>
+                <button id="modal-open-btn" class="btn-primary">Abrir Ficha</button>
+                <button id="modal-delete-btn" class="btn-logout">Excluir</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="new-sheet-modal" class="modal-overlay" style="display: none;">
+      <div class="modal-content selection-modal-content sheet-create-modal">
+        <div class="modal-header">
+          <h2 class="title-cinzel">Criar Ficha</h2>
+          <button class="modal-close-btn" id="close-new-sheet-modal">&times;</button>
+        </div>
+        <div class="modal-body-grid" style="grid-template-columns: 1fr; gap: 14px;">
+          <div class="sheet-type-grid" id="sheet-type-grid"></div>
+          <div style="font-size: 0.85rem; opacity: 0.75;text-align: center;">
+            Somente a ficha Padrão do Site e D&D estão disponíveis agora. As outras serão liberadas futuramente.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script type="module" src="js/dashboard.js"></script>
+    <script type="module" src="js/header.js"></script>
+  </body>
+</html>

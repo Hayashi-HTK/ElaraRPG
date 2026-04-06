@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comunidade - ELARA RPG</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="icon" href="/assets/icons/LogoElara.png" type="image/png">
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/dashboard-ui.css">
+    <link rel="stylesheet" href="css/header.css">
+    <link rel="stylesheet" href="css/gamification.css">
+    <link rel="stylesheet" href="css/community.css">
+
+    <!-- Scripts -->
+    <script type="module" src="js/firebase-init.js"></script>
+</head>
+<body class="community-page">
+
+    <div class="community-header-search" id="community-search-container">
+        <div class="search-bar-container">
+            <button id="mobile-search-toggle" class="mobile-search-btn" title="Pesquisar">🔍</button>
+            <input type="text" id="player-search-input" placeholder="Pesquisar players pelo @nickname..." autocomplete="off">
+            <div id="search-results" class="search-results-dropdown"></div>
+        </div>
+    </div>
+
+    <div class="community-container">
+        <aside class="community-sidebar" id="community-sidebar">
+            <button id="sidebar-toggle" class="sidebar-toggle-btn" title="Expandir/Recolher">
+                <span class="toggle-icon">❮</span>
+            </button>
+            <div class="sidebar-header">
+                <h2>Comunidade</h2>
+                <div class="online-counter">
+                    <span class="status-dot online"></span>
+                    <span id="friends-online-count">0</span> Amigos Online
+                </div>
+            </div>
+
+            <div class="sidebar-tabs">
+                <button class="sidebar-tab active" data-tab="friends">
+                    <i class="fas fa-user-friends"></i>
+                    <span>Amigos</span>
+                </button>
+                <button class="sidebar-tab" data-tab="groups">
+                    <i class="fas fa-users"></i>
+                    <span>Grupos</span>
+                </button>
+                <button class="sidebar-tab" data-tab="requests">
+                    <i class="fas fa-user-plus"></i>
+                    <span>Solicitações</span>
+                    <span id="requests-badge" class="badge-count" style="display: none;">0</span>
+                </button>
+                <button class="sidebar-tab" data-tab="message-requests">
+                    <i class="fas fa-comment-dots"></i>
+                    <span>Mensagens</span>
+                    <span id="msg-requests-badge" class="badge-count" style="display: none;">0</span>
+                </button>
+            </div>
+
+            <div class="sidebar-content">
+                <!-- Seção de Amigos -->
+                <div id="friends-list-section" class="tab-section active">
+                    <div id="no-friends-msg" style="padding: 2rem; text-align: center; color: var(--dashboard-text-muted); display: none;">
+                        Você ainda não tem amigos. Adicione alguém no Bestiário!
+                    </div>
+                    <div class="friend-category">
+                        <h3>Online — <span id="online-total">0</span></h3>
+                        <div id="friends-online-list" class="friends-list">
+                            <!-- JS insere amigos online aqui -->
+                        </div>
+                    </div>
+                    <div class="friend-category">
+                        <h3>Offline — <span id="offline-total">0</span></h3>
+                        <div id="friends-offline-list" class="friends-list">
+                            <!-- JS insere amigos offline aqui -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Seção de Grupos -->
+                <div id="groups-list-section" class="tab-section">
+                    <button id="create-group-btn" class="btn-primary">+ Criar Novo Grupo</button>
+                    <div id="groups-list" class="groups-list">
+                    </div>
+                </div>
+
+                <!-- Seção de Solicitações -->
+                <div id="requests-list-section" class="tab-section">
+                    <div class="friend-category">
+                        <h3>Solicitações Recebidas</h3>
+                        <div id="friend-requests-list" class="friends-list">
+                        </div>
+                    </div>
+                    <div class="friend-category" style="margin-top: 2rem;">
+                        <h3>Solicitações Enviadas</h3>
+                        <div id="sent-requests-list" class="friends-list">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Seção de Solicitações de Mensagem -->
+                <div id="message-requests-list-section" class="tab-section">
+                    <div class="friend-category">
+                        <h3>Conversas Recentes</h3>
+                        <div id="message-requests-list" class="friends-list">
+                            <!-- JS insere solicitações de mensagem aqui -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Área Central: Chat -->
+        <section class="chat-area" id="chat-container">
+            <div id="no-chat-selected" class="no-chat-placeholder">
+                <div class="placeholder-icon">💬</div>
+                <h2>Selecione uma conversa</h2>
+                <p>Escolha um amigo ou grupo para começar a conversar.</p>
+            </div>
+
+            <div id="active-chat" class="active-chat-wrapper" style="display: none;">
+                <header class="chat-header">
+                    <div class="chat-header-info">
+                        <div id="chat-header-avatar" class="chat-avatar"></div>
+                        <div>
+                            <h3 id="chat-header-name">Nome do Chat</h3>
+                            <span id="chat-header-status" class="chat-status"></span>
+                        </div>
+                    </div>
+                    <div class="chat-header-actions">
+                        <button type="button" id="chat-members-btn" title="Gerenciar Membros" style="display: none; cursor: pointer; z-index: 100;">
+                            <i class="fas fa-user-plus"></i>
+                        </button>
+                        <button type="button" id="chat-settings-btn" title="Configurações do Chat" style="cursor: pointer; z-index: 100;">
+                            <i class="fas fa-cog"></i>
+                        </button>
+                    </div>
+                </header>
+
+                <div id="chat-messages" class="chat-messages-container">
+                    <!-- Mensagens inseridas aqui -->
+                </div>
+
+                <div id="message-request-actions" class="message-request-banner" style="display: none;">
+                    <p>Esta pessoa não está na sua lista de amigos. Aceitar conversa?</p>
+                    <div class="banner-btns">
+                        <button id="accept-msg-btn" class="btn-primary">Aceitar</button>
+                        <button id="block-msg-btn" class="btn-secondary">Recusar</button>
+                    </div>
+                </div>
+
+                <form id="chat-input-form" class="chat-input-area">
+                    <button type="button" id="chat-attach-btn" title="Anexar" display="none;">📎</button>
+                    <input type="text" id="chat-input" placeholder="Digite sua mensagem..." autocomplete="off">
+                    <button type="submit" id="chat-send-btn">Enviar</button>
+                </form>
+            </div>
+        </section>
+    </div>
+
+    <!-- Mobile Navigation Bottom -->
+    <div id="mobile-nav-overlay" class="mobile-nav-overlay"></div>
+    <nav class="mobile-community-nav" id="mobile-nav">
+        <button class="mobile-nav-btn active" data-tab="friends">
+            <img src="assets/icons/friends.png" alt="Amigos">
+            <span>Amigos</span>
+        </button>
+        <button class="mobile-nav-btn" data-tab="groups">
+            <img src="assets/icons/group.png" alt="Grupos">
+            <span>Grupos</span>
+        </button>
+        <button class="mobile-nav-btn" data-tab="requests">
+            <img src="assets/icons/notification.png" alt="Notificações">
+            <span>Alertas</span>
+            <span id="mobile-requests-badge" class="badge-count" style="display: none;">0</span>
+        </button>
+        <button class="mobile-nav-btn" data-tab="chat-list">
+            <i class="fas fa-comments" style="font-size: 24px;"></i>
+            <span>Chat</span>
+        </button>
+    </nav>
+
+    <!-- Modais -->
+    <div id="community-modals">
+        <!-- Modal Criar Grupo -->
+        <div id="modal-create-group" class="modal-overlay">
+            <div class="modal-content form-modal-content">
+                <button class="modal-close-btn">&times;</button>
+                <h2>Criar Novo Grupo</h2>
+                <form id="create-group-form">
+                    <div class="form-group">
+                        <label for="group-name">Nome do Grupo</label>
+                        <input type="text" id="group-name" class="form-input" required placeholder="Ex: Campanha de D&D">
+                    </div>
+                    <div class="form-group">
+                        <label for="group-image">URL da Imagem do Grupo</label>
+                        <input type="url" id="group-image" class="form-input" placeholder="https://...">
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn-secondary modal-cancel">Cancelar</button>
+                        <button type="submit" class="btn-primary">Criar Grupo</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Modal Configurações de Chat -->
+        <div id="modal-chat-settings" class="modal-overlay">
+            <div class="modal-content form-modal-content">
+                <button class="modal-close-btn">&times;</button>
+                <h2>Configurações da Conversa</h2>
+                
+                <div class="settings-tabs" id="chat-settings-tabs">
+                    <button class="settings-tab-btn active" data-target="settings-visual">Visual</button>
+                    <button class="settings-tab-btn" data-target="settings-admin" id="admin-tab-btn" style="display: none;">Gerenciar Grupo</button>
+                </div>
+
+                <div id="settings-visual" class="settings-section visible">
+                    <h3>Fundo da Conversa</h3>
+                    <div class="form-group">
+                        <label>URL da Imagem de Fundo</label>
+                        <input type="url" id="chat-bg-url" class="form-input" placeholder="https://...">
+                    </div>
+                    <div class="form-group">
+                        <label>Escurecer Fundo (Opacidade)</label>
+                        <input type="range" id="chat-bg-opacity" min="0" max="1" step="0.1" value="0.5">
+                    </div>
+                    <div class="form-actions">
+                        <button id="save-chat-bg" class="btn-primary">Aplicar Visual</button>
+                    </div>
+                </div>
+
+                <div id="settings-admin" class="settings-section">
+                    <h3>Administração do Grupo</h3>
+                    <div class="form-group">
+                        <label>Renomear Grupo</label>
+                        <input type="text" id="edit-group-name" class="form-input" placeholder="Novo nome do grupo">
+                        <button id="save-group-name" class="btn-secondary" style="margin-top: 5px;">Salvar Nome</button>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Promover Novo Administrador</label>
+                        <select id="promote-admin-select" class="form-input">
+                            <option value="">Selecione um membro...</option>
+                        </select>
+                        <button id="confirm-promote-admin" class="btn-secondary" style="margin-top: 5px;">Tornar Admin</button>
+                    </div>
+
+                    <div class="form-divider"></div>
+                    
+                    <div class="form-actions" style="justify-content: flex-start;">
+                        <button id="delete-group-btn" class="btn-logout">Excluir Grupo Permanentemente</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal Gerenciar Membros do Grupo -->
+        <div id="modal-manage-members" class="modal-overlay">
+            <div class="modal-content form-modal-content">
+                <button class="modal-close-btn">&times;</button>
+                <h2>Gerenciar Membros</h2>
+                
+                <div class="settings-tabs" id="member-settings-tabs">
+                    <button class="settings-tab-btn active" data-target="members-add">Adicionar</button>
+                    <button class="settings-tab-btn" data-target="members-remove">Remover</button>
+                </div>
+
+                <div id="members-add" class="settings-section visible">
+                    <h3>Convidar Amigos</h3>
+                    <div id="available-friends-to-add" class="friends-list" style="max-height: 300px; overflow-y: auto;">
+                        <!-- Lista de amigos que não estão no grupo -->
+                    </div>
+                </div>
+
+                <div id="members-remove" class="settings-section">
+                    <h3>Remover do Grupo</h3>
+                    <div id="current-group-members" class="friends-list" style="max-height: 300px; overflow-y: auto;">
+                        <!-- Lista de membros atuais (exceto o próprio usuário se for admin) -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Container para Modal de Perfil Social -->
+    <div id="profile-modal-container"></div>
+
+    <!-- Menu de Contexto (Botão Direito Amigos) -->
+    <div id="friend-context-menu" class="context-menu" >
+        <ul>
+            <li id="ctx-view-profile">Ver Perfil</li>
+            <li id="ctx-add-friend">Adicionar</li>
+            <li id="ctx-send-message">Mandar Mensagem</li>
+            <li id="ctx-block-user" class="danger">Bloquear</li>
+            <li id="ctx-unfriend" class="danger">Desfazer Amizade</li>
+        </ul>
+    </div>
+
+    <script type="module" src="js/header.js"></script>
+    <script type="module" src="js/community.js"></script>
+</body>
+</html>

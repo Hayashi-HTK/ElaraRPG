@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ajuda e Guia - ELARA RPG</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="icon" href="/assets/icons/LogoElara.png" type="image/png">
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/dashboard-ui.css">
+    <link rel="stylesheet" href="css/header.css">
+    <link rel="stylesheet" href="css/gamification.css">
+    <link rel="stylesheet" href="css/help.css">
+</head>
+<body class="help-page">
+    <main class="main-container help-container">
+        <header class="help-header">
+            <h1 class="title-cinzel">Guia do Aventureiro</h1>
+            <p>Tudo o que você precisa saber para dominar o ELARA RPG.</p>
+        </header>
+
+        <nav class="help-nav">
+            <a href="#fichas" class="help-nav-link">Fichas e Atributos</a>
+            <a href="#combate" class="help-nav-link">Combate e Dados</a>
+            <a href="#inimigos" class="help-nav-link">Bestiário</a>
+            <a href="#xp-niveis" class="help-nav-link">XP e Níveis</a>
+            <a href="#perfil" class="help-nav-link">Perfil e Imagens</a>
+        </nav>
+
+        <section id="fichas" class="help-section">
+            <h2 class="section-title"><i class="fas fa-file-alt"></i> Fichas e Atributos</h2>
+            <div class="help-card">
+                <h3>Criação de Personagem</h3>
+                <p>Nossas fichas agora utilizam o sistema <strong>D&D 5e</strong>. Ao criar uma nova ficha, você deve escolher entre os modelos disponíveis para garantir compatibilidade com as novas mecânicas de jogo.</p>
+                <ul>
+                    <li><strong>Distribuição de Pontos:</strong> Ao criar seu herói, você recebe pontos para distribuir entre os 6 atributos principais (Força, Destreza, Constituição, Inteligência, Sabedoria e Carisma).</li>
+                    <li><strong>Bônus de Atributo:</strong> Valores acima de 10 concedem bônus positivos (ex: 12=+1, 14=+2), enquanto valores abaixo de 10 concedem penalidades (ex: 8=-1).</li>
+                    <li><strong>Proficiência:</strong> Seu bônus de proficiência aumenta conforme seu nível e é somado às perícias e ataques em que você é treinado.</li>
+                </ul>
+            </div>
+            <div class="help-card" style="margin-top: 1rem;">
+                <h3>Estilos de Luta</h3>
+                <p>O ELARA RPG introduziu estilos de luta únicos que definem como seu personagem se comporta em batalha:</p>
+                <div class="xp-grid" style="grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));">
+                    <div class="xp-method">
+                        <i class="fas fa-sword"></i>
+                        <h4>Guerreiro</h4>
+                        <span>Foco em Força e Defesa</span>
+                    </div>
+                    <div class="xp-method">
+                        <i class="fas fa-magic"></i>
+                        <h4>Mago</h4>
+                        <span>Foco em Inteligência e Mana</span>
+                    </div>
+                    <div class="xp-method">
+                        <i class="fas fa-bullseye"></i>
+                        <h4>Arqueiro</h4>
+                        <span>Foco em Destreza e Críticos</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="combate" class="help-section">
+            <h2 class="section-title"><i class="fas fa-dice-d20"></i> Combate e Dados</h2>
+            <div class="help-card">
+                <h3>Como funciona o Dado de D&D?</h3>
+                <p>O combate no ELARA RPG é baseado em rolagens de dados virtuais. Existem dois momentos principais:</p>
+                <ul>
+                    <li><strong>Teste de Acerto (d20):</strong> Quando você ataca, gira um dado de 20 lados (d20). O resultado somado aos seus bônus deve ser igual ou maior que a <strong>Defesa (CA)</strong> do inimigo para acertar.</li>
+                    <li><strong>Rolagem de Dano (d10):</strong> Se você acertar o golpe, gira um dado de 10 lados (d10) para definir o dano causado. O valor tirado é somado ao dano base da sua habilidade.</li>
+                    <li><strong>Cura (Dado Verde):</strong> Habilidades de cura também usam o d10, mas o dado aparece na cor <strong>verde</strong> para facilitar a identificação visual.</li>
+                </ul>
+                <p class="highlight"><strong>Crítico:</strong> Tirar um 20 natural no d20 garante um acerto crítico, causando dano dobrado!</p>
+            </div>
+        </section>
+
+        <section id="inimigos" class="help-section">
+            <h2 class="section-title"><i class="fas fa-dragon"></i> Bestiário e Inimigos</h2>
+            <div class="help-card">
+                <h3>Criando Ameaças</h3>
+                <p>No Bestiário, você pode criar criaturas para suas campanhas ou ver o que outros jogadores criaram.</p>
+                <ul>
+                    <li><strong>Classes de Inimigos:</strong> Defina se ele é um <em>Minion</em>, <em>Elite</em> ou um <em>Boss</em>. Isso ajuda a organizar o nível de perigo.</li>
+                    <li><strong>Estrelas (Nível de Perigo):</strong> As estrelas representam a dificuldade do encontro. 1 estrela para inimigos fracos e 5 estrelas para desafios lendários.</li>
+                    <li><strong>Tipos de Vida:</strong>
+                        <ul>
+                            <li><em>Vida Normal:</em> Para inimigos comuns que morrem ao chegar a 0.</li>
+                            <li><em>Vida por Fases:</em> Ideal para Bosses. Quando uma barra acaba, o inimigo pode mudar de forma ou ganhar novos poderes!</li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </section>
+
+        <section id="xp-niveis" class="help-section">
+            <h2 class="section-title"><i class="fas fa-chart-line"></i> Sistema de XP</h2>
+            <div class="help-card">
+                <h3>Como Evoluir</h3>
+                <p>Sua atividade no site recompensa você com experiência (XP) que define seu <strong>Elo</strong> visual.</p>
+                <div class="xp-grid">
+                    <div class="xp-method">
+                        <i class="fas fa-sign-in-alt"></i>
+                        <h4>Login Diário</h4>
+                        <span>+100 XP</span>
+                    </div>
+                    <div class="xp-method">
+                        <i class="fas fa-clock"></i>
+                        <h4>Sessão Ativa</h4>
+                        <span>+10 XP / 5 min</span>
+                    </div>
+                    <div class="xp-method">
+                        <i class="fas fa-plus-circle"></i>
+                        <h4>Criações</h4>
+                        <span>Ganha XP ao criar fichas e inimigos.</span>
+                    </div>
+                </div>
+                <div class="elo-list">
+                    <h4>Elos e Níveis:</h4>
+                    <p>Madeira (Lv 1) → Ferro (Lv 5) → Bronze (Lv 10) → Prata (Lv 20) → <strong>Ouro (Lv 30)</strong> → Platina (Lv 40).</p>
+                    <p class="highlight"><strong>Aviso:</strong> Para desafiar a Entidade Suprema <em>The First</em>, você precisa ter alcançado o Elo Ouro!</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="perfil" class="help-section">
+            <h2 class="section-title"><i class="fas fa-user-edit"></i> Perfil e Imagens</h2>
+            <div class="help-card">
+                <h3>Personalização com Pinterest</h3>
+                <p>Você pode usar qualquer imagem da internet para seu perfil ou banner. O Pinterest é o melhor lugar para achar artes incríveis!</p>
+                <ol>
+                    <li>Encontre a imagem que você gostou no Pinterest.</li>
+                    <li>Clique com o botão direito na imagem (ou segure apertado no celular).</li>
+                    <li>Escolha <strong>"Copiar endereço da imagem"</strong> (deve terminar em .jpg, .png ou .webp).</li>
+                    <li>Cole o link no campo "URL do Avatar" ou "URL do Banner" nas suas configurações de perfil.</li>
+                    <li>Salve as alterações e pronto!</li>
+                </ol>
+            </div>
+        </section>
+    </main>
+
+    <footer class="main-footer">
+        <div class="container footer-grid">
+            <div class="footer-brand">
+                <h2 class="title-cinzel">ELARA RPG</h2>
+                <p>Sua jornada, sua história, seu legado.</p>
+            </div>
+            <div class="footer-links">
+                <h4>Navegação</h4>
+                <a href="dashboard.html">Dashboard</a>
+                <a href="enemies.html">Bestiário</a>
+                <a href="community.html">Comunidade</a>
+                <a href="help.html">Ajuda</a>
+            </div>
+            <div class="footer-social">
+                <h4>Comunidade</h4>
+                <div class="social-icons">
+                    <a href="https://discord.gg/YZMatXv5hE" target="_blank">Discord</a>
+                    <a href="https://www.instagram.com/elara_rpg/" target="_blank">Instagram</a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 ELARA RPG. Todos os direitos reservados.</p>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script type="module" src="js/firebase-init.js"></script>
+    <script type="module" src="js/header.js"></script>
+</body>
+</html>

@@ -1,0 +1,79 @@
+/* Free Session Styles */
+.list-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #2a2a2e;
+    padding-bottom: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.list-header h3 {
+    margin: 0 !important;
+    border: none !important;
+    padding: 0 !important;
+}
+
+.count-badge {
+    background: var(--dashboard-accent);
+    color: #fff;
+    padding: 2px 10px;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    font-weight: bold;
+}
+
+.spectator-link-area {
+    margin-top: 2.5rem;
+    padding-top: 2rem;
+    border-top: 1px solid #2a2a2e;
+}
+
+.spectator-link-area h4 {
+    font-family: 'Cinzel', serif;
+    color: #ffd700;
+    margin-bottom: 0.5rem;
+}
+
+.spectator-link-area p {
+    font-size: 0.85rem;
+    color: var(--dashboard-text-muted);
+    margin-bottom: 1rem;
+}
+
+.copy-link-box {
+    display: flex;
+    gap: 10px;
+}
+
+.copy-link-box input {
+    flex: 1;
+    background: #0a0a0b;
+    border: 1px solid #2a2a2e;
+    color: #fff;
+    padding: 0.8rem;
+    border-radius: 8px;
+    font-size: 0.85rem;
+}
+
+.copy-link-box button {
+    background: #2a2a2e;
+    border: none;
+    color: #fff;
+    width: 45px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.copy-link-box button:hover {
+    background: var(--dashboard-accent);
+}
+
+.player-card.spectator {
+    opacity: 0.8;
+}
+
+.player-card.spectator .player-role {
+    color: #3B82F6;
+}

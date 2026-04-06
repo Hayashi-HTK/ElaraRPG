@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modo História - ELARA RPG</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/header.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/tower.css">
+    <link rel="stylesheet" href="css/story.css">
+</head>
+<body class="story-mode-page">
+    <!-- O header será injetado pelo header.js, mas no modo história 
+         queremos uma experiência imersiva sem header fixo no topo às vezes -->
+    <header id="main-header"></header>
+
+    <main id="game-container">
+        <!-- SELEÇÃO DE PERSONAGEM -->
+        <section id="story-selection" class="screen active"></section>
+
+        <!-- SISTEMA DE NARRATIVA (VISUAL NOVEL) -->
+        <section id="active-story" class="screen" style="display: none;">
+            <div id="visual-novel-layer" class="vn-container">
+                <div class="character-display">
+                    <img id="char-sprite" src="" alt="Protagonista">
+                </div>
+                
+                <div id="narrative-box" class="narrative-box">
+                    <div class="speaker-tag" id="speaker-name">Narrador</div>
+                    <div id="dialogue-text" class="dialogue-text"></div>
+                    <div id="dialogue-choices" class="dialogue-choices"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SISTEMA DE COMBATE -->
+        <section id="battle-screen" class="screen" style="display: none;"></section>
+
+        <!-- MENU DE PAUSA -->
+        <div id="pause-menu" class="modal-overlay" style="display: none;">
+            <div class="modal-content pause-content">
+                <h2 class="title-cinzel">Jogo Pausado</h2>
+                <div class="pause-actions">
+                    <button id="resume-btn" class="btn-primary">Continuar</button>
+                    <button id="save-progress-btn" class="btn-secondary">Salvar Progresso</button>
+                    <button id="back-home-btn" class="btn-secondary">Voltar ao Início</button>
+                    <button id="abandon-story-btn" class="btn-logout">Abandonar História</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Botão de Pause Flutuante (durante a história) -->
+        <button id="pause-trigger" class="pause-trigger" style="display: none;">
+            <i class="fas fa-pause"></i>
+        </button>
+    </main>
+
+    <!-- Overlay de Transição -->
+    <div id="transition-overlay" class="transition-overlay"></div>
+
+    <!-- Scripts do Sistema de História -->
+    <script type="module" src="js/firebase-init.js"></script>
+    <script type="module" src="js/header.js"></script>
+    <script type="module">
+        import { CharacterSelection } from './js/story-mode/CharacterSelection.js';
+        import { StoryEngine } from './js/story-mode/StoryEngine.js';
+        import { BattleSystem } from './js/story-mode/BattleSystem.js';
+        import { waitForAuth } from './js/firebase.js';
+
+        let charSelect, storyEngine, battleSystem;
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            const user = await waitForAuth();
+            const overlay = document.getElementById('transition-overlay');
+
+            function transition(callback) {
+                overlay.classList.add('active');
+                setTimeout(() => {
+                    callback();
+                    setTimeout(() => {
+                        overlay.classList.remove('active');
+                    }, 500);
+                }, 800);
+            }
+
+            // Check for existing session
+            const activeSession = JSON.parse(localStorage.getItem('elara_story_session'));
+
+            charSelect = new CharacterSelection((selectedChar) => {
+                // Remove qualquer fade-out que possa estar no body
+                document.body.classList.remove('fade-out');
+                document.body.style.opacity = '1';
+
+                // Inicializa o áudio IMEDIATAMENTE no clique para contornar bloqueio de autoplay
+                if (!storyEngine) {
+                    storyEngine = new StoryEngine(selectedChar);
+                    storyEngine.user = user;
+                    storyEngine.setupAudioSystem();
+                }
+
+                transition(() => {
+                    console.log("Iniciando transição para o personagem:", selectedChar);
+                    
+                    const selectionScreen = document.getElementById('story-selection');
+                    const storyScreen = document.getElementById('active-story');
+                    
+                    if (selectionScreen) selectionScreen.style.display = 'none';
+                    if (storyScreen) storyScreen.style.display = 'flex';
+                    
+                    try {
+                        battleSystem = new BattleSystem(selectedChar);
+                        storyEngine.character = selectedChar; // Atualiza se necessário
+                        storyEngine.setBattleSystem(battleSystem);
+
+                        if (activeSession && activeSession.charId === selectedChar.id) {
+                            console.log("Restaurando sessão ativa:", activeSession);
+                            if (activeSession.playerHp) battleSystem.playerHp = activeSession.playerHp;
+                            if (activeSession.playerMp) battleSystem.playerMp = activeSession.playerMp;
+                            storyEngine.start(activeSession.nodeId);
+                        } else {
+                            console.log("Iniciando nova história");
+                            storyEngine.start();
+                        }
+                    } catch (err) {
+                        console.error("Erro ao inicializar o motor de jogo:", err);
+                        alert("Houve um erro ao iniciar a história. Verifique o console.");
+                    }
+                });
+            });
+
+            charSelect.render();
+        });
+    </script>
+</body>
+</html>
