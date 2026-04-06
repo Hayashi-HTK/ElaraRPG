@@ -1,26 +1,11 @@
-const { ensureAdmin, verifyFirebaseIdToken } = require('../lib/firebaseAdmin')
-const { mpFetchJson } = require('../lib/mercadopago')
-const { applyCors } = require('../lib/cors')
+const { ensureAdmin, verifyFirebaseIdToken } = require('../../lib/firebaseAdmin')
+const { mpFetchJson } = require('../../lib/mercadopago')
+const { applyCors } = require('../../lib/cors')
 
 const normalizePlan = (raw) => {
   const p = String(raw || '').trim().toLowerCase()
   if (p === 'basic' || p === 'premium') return p
   return null
-}
-
-const applyPlanToProfile = async (db, uid, plan, userName, userEmail) => {
-  const expiresAt = new Date(Date.now() + (30 * 24 * 60 * 60 * 1000))
-  await db.doc(`profiles/${uid}`).set({
-    plan,
-    plan_type: plan,
-    plan_status: 'active',
-    plan_updated_at: db.constructor.FieldValue ? db.constructor.FieldValue.serverTimestamp() : undefined,
-    plan_started_at: db.constructor.FieldValue ? db.constructor.FieldValue.serverTimestamp() : undefined,
-    plan_user_name: userName || userEmail || 'Viajante',
-    plan_expires_at: expiresAt,
-    updated_at: db.constructor.FieldValue ? db.constructor.FieldValue.serverTimestamp() : undefined
-  }, { merge: true })
-  return expiresAt
 }
 
 module.exports = async (req, res) => {

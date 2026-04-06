@@ -1,5 +1,5 @@
-const { ensureAdmin } = require('../lib/firebaseAdmin')
-const { mpFetchJson } = require('../lib/mercadopago')
+const { ensureAdmin } = require('../../lib/firebaseAdmin')
+const { mpFetchJson } = require('../../lib/mercadopago')
 
 const normalizePlan = (raw) => {
   const p = String(raw || '').trim().toLowerCase()

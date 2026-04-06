@@ -1,6 +1,6 @@
-const { ensureAdmin, verifyFirebaseIdToken } = require('../lib/firebaseAdmin')
-const { mpFetchJson, getMpTokenKind } = require('../lib/mercadopago')
-const { applyCors } = require('../lib/cors')
+const { ensureAdmin, verifyFirebaseIdToken } = require('../../lib/firebaseAdmin')
+const { mpFetchJson, getMpTokenKind } = require('../../lib/mercadopago')
+const { applyCors } = require('../../lib/cors')
 
 const planMeta = (plan) => {
   const k = String(plan || '').trim().toLowerCase()
