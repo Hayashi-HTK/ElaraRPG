@@ -26,9 +26,11 @@ const guessBackendBaseFromHost = () => {
 const resolveApiBase = (backendBase) => {
     const b = String(backendBase || '').replace(/\/+$/, '')
     if (!b) return ''
-    if (b.endsWith('/api')) return b
-    if (b.includes('cloudfunctions.net')) return b
-    return `${b}/api`
+    const stripTail = (s) => s.replace(/\/(createPixPayment|checkPixPayment|mercadopagoWebhook)$/i, '')
+    const bb = stripTail(b)
+    if (bb.endsWith('/api')) return bb
+    if (bb.includes('cloudfunctions.net')) return bb
+    return `${bb}/api`
 }
 
 const postJson = async (url, body, idToken) => {
@@ -159,6 +161,17 @@ async function initPayment() {
                 '- `mp_backend_base_url` errado/desatualizado (Firestore `app_config/payment`).\n' +
                 '- backend em HTTP enquanto o site está em HTTPS.\n' +
                 '- domínio da Vercel ainda não fez deploy ou está bloqueando CORS (se você configurou `CORS_ALLOW_ORIGINS`).'
+            )
+            return
+        }
+        if (msg.toLowerCase().includes('http 404')) {
+            alert(
+                'Falha ao iniciar o pagamento: endpoint não encontrado (HTTP 404).\n\n' +
+                `URL tentada: ${createUrl}\n\n` +
+                'Isso quase sempre significa que `mp_backend_base_url` está apontando para a URL errada.\n' +
+                'Use um destes formatos:\n' +
+                '- Vercel: https://SEU_DOMINIO (sem /api)\n' +
+                '- Cloud Functions: https://us-central1-SEU_PROJETO.cloudfunctions.net (sem /createPixPayment)'
             )
             return
         }
