@@ -1,0 +1,150 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Funções auxiliares
+    function signedIn() {
+      return request.auth != null;
+    }
+    
+    function isOwner(userId) {
+      return signedIn() && request.auth.uid == userId;
+    }
+
+    // Perfis de Usuário
+    match /profiles/{userId} {
+      allow read: if signedIn();
+      function planKeys() {
+        return [
+          'plan','plan_type','plan_status','plan_user_name',
+          'plan_started_at','plan_updated_at','plan_expires_at',
+          'plan_cancel_at','plan_canceled_at'
+        ];
+      }
+
+      allow create: if isOwner(userId)
+        && (!request.resource.data.keys().hasAny(planKeys())
+          || (request.resource.data.plan == 'free' && request.resource.data.plan_type == 'free'));
+
+      allow update: if isAdmin()
+        || (isOwner(userId) && !request.resource.data.diff(resource.data).affectedKeys().hasAny(planKeys()));
+
+      allow delete: if isAdmin() || isOwner(userId);
+    }
+
+    match /profiles/{userId}/notifications/{notifId} {
+      allow read: if isOwner(userId);
+      allow create: if isOwner(userId) || (signedIn() && request.resource.data.read == false && request.resource.data.payload.sender_id == request.auth.uid);
+      allow update: if isOwner(userId) || (signedIn() && resource.data.read == false && request.resource.data.read == false && resource.data.payload.sender_id == request.auth.uid && request.resource.data.payload.sender_id == request.auth.uid);
+      allow delete: if isOwner(userId);
+    }
+
+    function isAdmin() {
+      return signedIn() && (
+        (get(/databases/$(database)/documents/profiles/$(request.auth.uid)).data.is_admin == true) ||
+        (request.auth.token.email == 'hayagames@outlook.com')
+      );
+    }
+
+    match /updates/{updateId} {
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
+    }
+
+    match /update_broadcasts/{broadcastId} {
+      allow read: if signedIn();
+      allow create, update, delete: if isAdmin();
+    }
+
+    match /app_config/{docId} {
+      allow read: if signedIn();
+      allow create, update, delete: if isAdmin();
+    }
+
+    match /plan_requests/{reqId} {
+      allow read: if isAdmin() || (signedIn() && resource.data.user_id == request.auth.uid);
+      allow create: if false;
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
+    }
+    match /sessions/{sessionId} {
+  allow read, write: if request.auth != null;
+  match /messages/{messageId} {
+    allow read, write: if request.auth != null;
+  }
+	}
+  
+
+    // Fichas de Personagem
+    match /sheets/{sheetId} {
+      allow read: if signedIn(); 
+      allow create: if signedIn() && request.resource.data.user_id == request.auth.uid;
+      allow update: if isAdmin()
+        || (signedIn() && resource.data.user_id == request.auth.uid
+            && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['rating_stars','rating_by','rating_session_id','rating_updated_at']))
+        || (signedIn()
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['rating_stars','rating_by','rating_session_id','rating_updated_at'])
+            && request.resource.data.rating_by == request.auth.uid
+            && request.resource.data.rating_stars is int
+            && request.resource.data.rating_stars >= 1
+            && request.resource.data.rating_stars <= 5
+            && get(/databases/$(database)/documents/sessions/$(request.resource.data.rating_session_id)).data.master_id == request.auth.uid);
+      allow delete: if isAdmin() || (signedIn() && resource.data.user_id == request.auth.uid);
+    }
+
+    // Colaboradores (Fichas compartilhadas)
+    match /collaborators/{docId} {
+      allow read, write: if signedIn();
+    }
+
+    // Progresso na Torre e Checkpoints
+    match /tower_sheets/{docId} {
+      allow read, write: if signedIn();
+    }
+    match /tower_checkpoints/{docId} {
+      allow read, write: if signedIn();
+    }
+
+    // Inimigos, Amizades e Chats
+        match /friendships/{document=**} {
+      allow read, write: if request.auth != null;
+    }
+    match /enemies/{docId} { allow read, write: if signedIn(); }
+    match /friends/{docId} { allow read, write: if signedIn(); }
+    match /chats/{chatId} { 
+      allow read, write: if signedIn(); 
+      match /messages/{msgId} {
+        allow read, write: if signedIn();
+      }
+    }
+
+    match /posts/{postId} {
+      allow read: if signedIn();
+      allow create: if signedIn() && request.resource.data.author_id == request.auth.uid;
+      allow update: if isAdmin()
+        || (signedIn() && resource.data.author_id == request.auth.uid)
+        || (signedIn() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['likes']))
+        || (signedIn() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['comments_count']));
+      allow delete: if isAdmin() || (signedIn() && resource.data.author_id == request.auth.uid);
+
+      match /comments/{commentId} {
+        allow read: if signedIn();
+        allow create: if signedIn() && request.resource.data.author_id == request.auth.uid;
+        allow update: if isAdmin() || (signedIn() && resource.data.author_id == request.auth.uid);
+        allow delete: if isAdmin() || (signedIn() && resource.data.author_id == request.auth.uid);
+      }
+    }
+
+    match /stories/{storyId} {
+      allow read: if signedIn();
+      allow create: if signedIn() && request.resource.data.author_id == request.auth.uid;
+      allow update, delete: if isAdmin() || (signedIn() && resource.data.author_id == request.auth.uid);
+    }
+
+    match /reports/{reportId} {
+      allow create: if signedIn() && request.resource.data.reported_by == request.auth.uid;
+      allow read, update, delete: if isAdmin();
+    }
+  }
+}
