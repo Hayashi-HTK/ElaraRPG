@@ -1,6 +1,5 @@
 {
   "hosting": {
-    "site": "elarafichas",
     "public": "public",
     "ignore": [
       "firebase.json",

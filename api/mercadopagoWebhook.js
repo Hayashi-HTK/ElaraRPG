@@ -1,5 +1,5 @@
-const { ensureAdmin } = require('./_firebaseAdmin')
-const { mpFetchJson } = require('./_mercadopago')
+const { ensureAdmin } = require('../lib/firebaseAdmin')
+const { mpFetchJson } = require('../lib/mercadopago')
 
 const normalizePlan = (raw) => {
   const p = String(raw || '').trim().toLowerCase()
@@ -68,4 +68,3 @@ module.exports = async (req, res) => {
 
   res.status(200).send('ok')
 }
-

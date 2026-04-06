@@ -1,5 +1,6 @@
-const { ensureAdmin, verifyFirebaseIdToken } = require('./_firebaseAdmin')
-const { mpFetchJson } = require('./_mercadopago')
+const { ensureAdmin, verifyFirebaseIdToken } = require('../lib/firebaseAdmin')
+const { mpFetchJson } = require('../lib/mercadopago')
+const { applyCors } = require('../lib/cors')
 
 const planMeta = (plan) => {
   const k = String(plan || '').trim().toLowerCase()
@@ -24,6 +25,8 @@ const readAmounts = async (db) => {
 }
 
 module.exports = async (req, res) => {
+  if (applyCors(req, res)) return
+
   if (req.method !== 'POST') {
     res.status(405).json({ error: 'method_not_allowed' })
     return
@@ -115,4 +118,3 @@ module.exports = async (req, res) => {
     })
   }
 }
-

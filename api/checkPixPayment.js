@@ -1,5 +1,6 @@
-const { ensureAdmin, verifyFirebaseIdToken } = require('./_firebaseAdmin')
-const { mpFetchJson } = require('./_mercadopago')
+const { ensureAdmin, verifyFirebaseIdToken } = require('../lib/firebaseAdmin')
+const { mpFetchJson } = require('../lib/mercadopago')
+const { applyCors } = require('../lib/cors')
 
 const normalizePlan = (raw) => {
   const p = String(raw || '').trim().toLowerCase()
@@ -23,6 +24,8 @@ const applyPlanToProfile = async (db, uid, plan, userName, userEmail) => {
 }
 
 module.exports = async (req, res) => {
+  if (applyCors(req, res)) return
+
   if (req.method !== 'POST') {
     res.status(405).json({ error: 'method_not_allowed' })
     return
@@ -110,4 +113,3 @@ module.exports = async (req, res) => {
     res.status(500).json({ error: 'mp_check_failed', message: err?.message || 'error' })
   }
 }
-

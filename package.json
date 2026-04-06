@@ -1,4 +1,12 @@
 {
+  "name": "elararpg",
+  "private": true,
+  "engines": {
+    "node": "20"
+  },
+  "scripts": {
+    "build": "node -e \"process.exit(0)\""
+  },
   "dependencies": {
     "firebase": "^12.10.0",
     "firebase-admin": "^12.7.0"

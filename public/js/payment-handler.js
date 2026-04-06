@@ -17,15 +17,26 @@ const readMpBackendBaseUrl = async () => {
     }
 }
 
+const guessBackendBaseFromHost = () => {
+    const host = String(window.location.hostname || '').toLowerCase()
+    if (host.endsWith('.web.app') || host.endsWith('.firebaseapp.com')) return ''
+    return window.location.origin
+}
+
 const postJson = async (url, body, idToken) => {
-    const res = await fetch(url, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${idToken}`
-        },
-        body: JSON.stringify(body || {})
-    })
+    let res
+    try {
+        res = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${idToken}`
+            },
+            body: JSON.stringify(body || {})
+        })
+    } catch (err) {
+        throw new Error(`Failed to fetch: ${url}`)
+    }
     const json = await res.json().catch(() => ({}))
     if (!res.ok) {
         const msg = json?.message || json?.error || `HTTP ${res.status}`
@@ -57,9 +68,13 @@ async function initPayment() {
     }
 
     const idToken = await user.getIdToken()
-    const backendBase = (await readMpBackendBaseUrl()).replace(/\/+$/, '')
+    const backendBase = ((await readMpBackendBaseUrl()) || guessBackendBaseFromHost()).replace(/\/+$/, '')
     if (!backendBase) {
         alert('Backend do Mercado Pago não configurado. O ADM precisa definir `mp_backend_base_url` em `app_config/payment`.')
+        return
+    }
+    if (window.location.protocol === 'https:' && backendBase.startsWith('http://')) {
+        alert('O backend está em HTTP, mas o site está em HTTPS. Troque `mp_backend_base_url` para https://...')
         return
     }
 
@@ -80,8 +95,9 @@ async function initPayment() {
     let qrCode = ''
     let qrBase64 = ''
 
+    const createUrl = `${backendBase}/api/createPixPayment`
     try {
-        const created = await postJson(`${backendBase}/api/createPixPayment`, { plan: planKey }, idToken)
+        const created = await postJson(createUrl, { plan: planKey }, idToken)
         requestId = String(created.request_id || '')
         paymentId = String(created.payment_id || '')
         qrCode = String(created.qr_code || '')
@@ -102,7 +118,23 @@ async function initPayment() {
             confirmBtn.textContent = 'Pagamento indisponível'
         }
         if (copyBtn) copyBtn.disabled = true
-        alert('Mercado Pago não está configurado no servidor (Cloud Functions).')
+        const msg = String(err?.message || err || 'Erro desconhecido')
+        if (msg.toLowerCase().includes('unauthorized')) {
+            window.location.href = 'login.html?redirect=payment.html&plan=' + planKey
+            return
+        }
+        if (msg.toLowerCase().includes('failed to fetch')) {
+            alert(
+                'Falha ao iniciar o pagamento: não foi possível acessar o backend.\n\n' +
+                `URL tentada: ${createUrl}\n\n` +
+                'Causas mais comuns:\n' +
+                '- `mp_backend_base_url` errado/desatualizado (Firestore `app_config/payment`).\n' +
+                '- backend em HTTP enquanto o site está em HTTPS.\n' +
+                '- domínio da Vercel ainda não fez deploy ou está bloqueando CORS (se você configurou `CORS_ALLOW_ORIGINS`).'
+            )
+            return
+        }
+        alert(`Falha ao iniciar o pagamento: ${msg}`)
         return
     }
 
