@@ -1,5 +1,5 @@
 const { ensureAdmin, verifyFirebaseIdToken } = require('../lib/firebaseAdmin')
-const { mpFetchJson } = require('../lib/mercadopago')
+const { mpFetchJson, getMpTokenKind } = require('../lib/mercadopago')
 const { applyCors } = require('../lib/cors')
 
 const planMeta = (plan) => {
@@ -55,6 +55,7 @@ module.exports = async (req, res) => {
 
     const origin = String(req.headers.origin || '').trim()
     const webhookUrl = process.env.MP_WEBHOOK_URL || ''
+    const expiresAt = new Date(Date.now() + (15 * 60 * 1000)).toISOString()
 
     const payment = await mpFetchJson('/v1/payments', {
       method: 'POST',
@@ -65,6 +66,7 @@ module.exports = async (req, res) => {
         transaction_amount: amount,
         description: `ELARA RPG - Plano ${meta.name}`,
         payment_method_id: 'pix',
+        date_of_expiration: expiresAt,
         payer: {
           email: user.email || `noemail_${user.uid}@example.com`
         },
@@ -109,7 +111,9 @@ module.exports = async (req, res) => {
       amount,
       qr_code: qrCode,
       qr_code_base64: qrBase64,
-      ticket_url: ticketUrl
+      ticket_url: ticketUrl,
+      expires_at: expiresAt,
+      mp_token_kind: getMpTokenKind()
     })
   } catch (err) {
     res.status(500).json({
