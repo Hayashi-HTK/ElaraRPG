@@ -23,6 +23,14 @@ const guessBackendBaseFromHost = () => {
     return window.location.origin
 }
 
+const resolveApiBase = (backendBase) => {
+    const b = String(backendBase || '').replace(/\/+$/, '')
+    if (!b) return ''
+    if (b.endsWith('/api')) return b
+    if (b.includes('cloudfunctions.net')) return b
+    return `${b}/api`
+}
+
 const postJson = async (url, body, idToken) => {
     let res
     try {
@@ -77,6 +85,11 @@ async function initPayment() {
         alert('O backend está em HTTP, mas o site está em HTTPS. Troque `mp_backend_base_url` para https://...')
         return
     }
+    const apiBase = resolveApiBase(backendBase)
+    if (!apiBase) {
+        alert('Backend do Mercado Pago não configurado corretamente.')
+        return
+    }
 
     // UI Elements
     const planNameEl = document.getElementById('plan-name');
@@ -96,7 +109,7 @@ async function initPayment() {
     let qrCode = ''
     let qrBase64 = ''
 
-    const createUrl = `${backendBase}/api/createPixPayment`
+    const createUrl = `${apiBase}/createPixPayment`
     try {
         const created = await postJson(createUrl, { plan: planKey }, idToken)
         requestId = String(created.request_id || '')
@@ -180,7 +193,7 @@ async function initPayment() {
     }
 
     const checkNow = async () => {
-        return await postJson(`${backendBase}/api/checkPixPayment`, { request_id: requestId, payment_id: paymentId }, idToken)
+        return await postJson(`${apiBase}/checkPixPayment`, { request_id: requestId, payment_id: paymentId }, idToken)
     }
 
     const showApproved = () => {

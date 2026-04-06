@@ -85,6 +85,9 @@ node_modules/
 # Local Firebase emulators
 ui-debug.log*
 
+# Firebase Functions local config (may contain secrets)
+.runtimeconfig.json
+
 # OS
 .DS_Store
 Thumbs.db
