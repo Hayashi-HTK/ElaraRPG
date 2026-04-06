@@ -139,6 +139,14 @@
     justify-content: center;
     color: #333;
     font-weight: 600;
+    overflow: hidden;
+}
+
+.qr-code-placeholder img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
 }
 
 .pix-copy-paste {

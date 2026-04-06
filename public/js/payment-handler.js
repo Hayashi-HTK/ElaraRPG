@@ -84,6 +84,7 @@ async function initPayment() {
     const totalPriceEl = document.getElementById('total-price');
     const pixInput = document.getElementById('pix-code');
     const qrImg = document.querySelector('.qr-code-placeholder img');
+    const ticketLink = document.getElementById('mp-ticket-link')
     const copyBtn = document.getElementById('copy-btn');
     const timerEl = document.getElementById('timer-countdown');
     const confirmBtn = document.getElementById('confirm-btn');
@@ -102,6 +103,20 @@ async function initPayment() {
         paymentId = String(created.payment_id || '')
         qrCode = String(created.qr_code || '')
         qrBase64 = String(created.qr_code_base64 || '')
+        const ticketUrl = String(created.ticket_url || '')
+
+        if (ticketLink) {
+            if (ticketUrl) {
+                ticketLink.href = ticketUrl
+                ticketLink.style.display = 'inline-block'
+            } else {
+                ticketLink.style.display = 'none'
+            }
+        }
+
+        if (!qrCode && !qrBase64) {
+            throw new Error('QR do Pix não foi gerado (verifique o backend/credenciais do Mercado Pago).')
+        }
 
         if (planNameEl) planNameEl.textContent = planMeta.name
         if (planPriceEl) planPriceEl.textContent = fmtBRL(created.amount)
