@@ -64,16 +64,6 @@ class MultiplayerLobby {
         // Seats
         this.seats = document.querySelectorAll('.seat');
 
-        this.lobbyAudio = null;
-        this.lobbyAudioIndex = 0;
-        this.lobbyAudioTracks = [
-            { name: 'Track 1', url: 'assets/song/track1.mp3' },
-            { name: 'Track 2', url: 'assets/song/track2.mp3' },
-            { name: 'Track 3', url: 'assets/song/track3.mp3' },
-            { name: 'The First', url: 'assets/song/TheFirst.mp3' }
-        ];
-        this.lobbyAudioMounted = false;
-        
         this.init();
     }
 
@@ -429,8 +419,12 @@ class MultiplayerLobby {
         }
 
         const btnApplyMapLink = document.getElementById('btn-apply-map-link');
-        if (btnApplyMapLink) {
+        if (btnApplyMapLink || btnChooseMap) {
             btnApplyMapLink.onclick = () => {
+                const url = document.getElementById('input-map-url').value;
+                if (url) this.selectMap(url);
+            };
+            btnChooseMap.onclick = () => {
                 const url = document.getElementById('input-map-url').value;
                 if (url) this.selectMap(url);
             };
@@ -684,11 +678,9 @@ class MultiplayerLobby {
         if (siteGrid) siteGrid.innerHTML = '<div class="session-loading"><i class="fas fa-spinner fa-spin"></i></div>';
         if (communityGrid) communityGrid.innerHTML = '<div class="session-loading"><i class="fas fa-spinner fa-spin"></i></div>';
 
-        // 1. Mapas Oficiais (Site) - Agora com descrições
+        // 1. Mapas Oficiais (Site) sem restrições
         const siteMaps = [
-            { name: 'Floresta Élfica', description: 'Uma floresta antiga protegida por elfos.', url: 'assets/maps/florest.jpg' },
-            { name: 'Mapa Padrão', description: 'O mapa clássico de aventuras ELARA.', url: 'assets/Mapa.png' },
-            { name: 'Caverna Obscura', description: 'Um local úmido e perigoso nas profundezas.', url: 'assets/Jogar/História/Fundos/Caverna.png' },
+            { name: 'Caverna Obscura', description: 'Um local úmido e perigoso nas profundezas.', url: 'assets/Jogar/História/Fundos/Escudo.png' },
             { name: 'Vulcão Ativo', description: 'O calor é insuportável perto da lava.', url: 'assets/Jogar/História/Fundos/Vulcão.png' }
         ];
 
@@ -703,7 +695,7 @@ class MultiplayerLobby {
                 </div>
             ` + siteMaps.map(map => `
                 <div class="map-card" onclick="window.lobby.selectMap('${map.url}')">
-                    <img src="${map.url}" onerror="this.onerror=null; this.src='assets/Mapa.png'">
+                    <img src="${map.url}" onerror="this.onerror=null; this.src='assets/Jogar/História/Fundos/S3.png'">
                     <div class="map-info">
                         <strong>${map.name}</strong>
                         <p>${map.description}</p>
@@ -728,7 +720,8 @@ class MultiplayerLobby {
         if (this.sessionData.status === 'saved') return;
         try {
             await updateDoc(doc(db, "sessions", this.currentSessionId), {
-                map_url: url
+                map_url: url,
+                map_img: url
             });
             this.closeAllModals();
             console.log("Mapa atualizado para:", url);
@@ -758,7 +751,7 @@ class MultiplayerLobby {
                 const card = document.createElement('div');
                 card.className = 'map-card';
                 card.innerHTML = `
-                    <img src="${map.url}" onerror="this.onerror=null; this.src='assets/Mapa.png'">
+                    <img src="${map.url}" onerror="this.onerror=null; this.src='assets/Jogar/História/Fundos/S3.png'">
                     <div class="map-info">
                         <strong>${map.name || 'Mapa da Comunidade'}</strong>
                         <p>${map.description || 'Compartilhado por um aventureiro.'}</p>
@@ -931,7 +924,7 @@ class MultiplayerLobby {
             is_private: false,
             password: '',
             background_type: 'classic',
-            map_url: '',
+            map_url: this.sessionData.map_url || '',
             free_category: '',
             map_editor: { brightness: 1, assets_visible: true, map_opacity: 0, floor: { preset: 'classic_hatching', visible: true, opacity: 1 } },
             map_assets: [],
@@ -984,8 +977,6 @@ class MultiplayerLobby {
         
         this.entryOverlay.style.display = 'none';
         this.lobbyMain.style.display = 'flex';
-
-        this.mountLobbyAudioUI();
         this.setupChatToggle();
         
         this.listenToSession();
@@ -1050,134 +1041,6 @@ class MultiplayerLobby {
         }
 
         window.addEventListener('resize', () => applyState(getState()));
-    }
-
-    mountLobbyAudioUI() {
-        if (this.lobbyAudioMounted) return;
-        if (!this.lobbyMain) return;
-
-        this.lobbyAudioMounted = true;
-        this.lobbyAudio = new Audio();
-        const savedVol = parseFloat(localStorage.getItem('lobby_audio_volume') || '0.25');
-        this.lobbyAudio.volume = Number.isFinite(savedVol) ? Math.max(0, Math.min(1, savedVol)) : 0.25;
-        this.lobbyAudio.loop = false;
-        this.lobbyAudio.onended = () => this.nextLobbyTrack(true);
-
-        const widget = document.createElement('div');
-        widget.className = 'lobby-audio-widget';
-        widget.innerHTML = `
-            <button type="button" class="lobby-audio-open-btn" id="lobby-audio-open-btn" title="Música do Saguão" aria-label="Abrir controles de música">
-                <i class="fas fa-music"></i>
-            </button>
-            <div class="lobby-audio-panel" id="lobby-audio-panel">
-                <div class="lobby-audio-controls">
-            <div class="lobby-audio-track" id="lobby-audio-track">Música do Saguão</div>
-            <button class="lobby-audio-btn" id="lobby-audio-toggle" title="Play/Pause"><i class="fas fa-play"></i></button>
-            <button class="lobby-audio-btn" id="lobby-audio-next" title="Próxima"><i class="fas fa-step-forward"></i></button>
-            <input class="lobby-audio-volume" id="lobby-audio-volume" type="range" min="0" max="1" step="0.05" value="${this.lobbyAudio.volume}">
-                </div>
-            </div>
-        `;
-        const slot = document.getElementById('lobby-audio-slot');
-        (slot || document.body).appendChild(widget);
-
-        const trackLabel = document.getElementById('lobby-audio-track');
-        const btnToggle = document.getElementById('lobby-audio-toggle');
-        const btnNext = document.getElementById('lobby-audio-next');
-        const vol = document.getElementById('lobby-audio-volume');
-        const openBtn = document.getElementById('lobby-audio-open-btn');
-        const panel = document.getElementById('lobby-audio-panel');
-
-        if (panel) {
-            const key = this.currentSessionId ? `lobby_audio_ui_${this.currentSessionId}` : 'lobby_audio_ui';
-            const stored = localStorage.getItem(key);
-            if (stored === 'open') panel.classList.add('open');
-
-            const setOpen = (isOpen) => {
-                panel.classList.toggle('open', isOpen);
-                localStorage.setItem(key, isOpen ? 'open' : 'closed');
-            };
-
-            if (openBtn) {
-                openBtn.onclick = (e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    setOpen(!panel.classList.contains('open'));
-                };
-            }
-
-            document.addEventListener('click', (e) => {
-                if (!panel.classList.contains('open')) return;
-                if (widget.contains(e.target)) return;
-                setOpen(false);
-            });
-        }
-
-        const updateToggleIcon = () => {
-            if (!btnToggle) return;
-            btnToggle.innerHTML = this.lobbyAudio.paused ? '<i class="fas fa-play"></i>' : '<i class="fas fa-pause"></i>';
-        };
-
-        const updateTrackLabel = () => {
-            if (!trackLabel) return;
-            const t = this.lobbyAudioTracks[this.lobbyAudioIndex] || this.lobbyAudioTracks[0];
-            trackLabel.textContent = t?.name || 'Música do Saguão';
-        };
-
-        this.playLobbyTrack(false);
-        updateTrackLabel();
-        updateToggleIcon();
-
-        if (btnToggle) {
-            btnToggle.onclick = async () => {
-                if (this.lobbyAudio.paused) {
-                    try {
-                        await this.lobbyAudio.play();
-                    } catch {}
-                } else {
-                    this.lobbyAudio.pause();
-                }
-                updateToggleIcon();
-            };
-        }
-
-        if (btnNext) {
-            btnNext.onclick = () => {
-                const wasPlaying = !this.lobbyAudio.paused;
-                this.nextLobbyTrack(wasPlaying);
-                updateToggleIcon();
-            };
-        }
-
-        if (vol) {
-            vol.oninput = (e) => {
-                const v = parseFloat(e.target.value);
-                this.lobbyAudio.volume = Number.isFinite(v) ? v : 0.25;
-                localStorage.setItem('lobby_audio_volume', `${this.lobbyAudio.volume}`);
-            };
-        }
-    }
-
-    playLobbyTrack(autoplay = false) {
-        if (!this.lobbyAudio) return;
-        const t = this.lobbyAudioTracks[this.lobbyAudioIndex] || this.lobbyAudioTracks[0];
-        if (!t) return;
-        this.lobbyAudio.src = t.url;
-        const trackLabel = document.getElementById('lobby-audio-track');
-        if (trackLabel) trackLabel.textContent = t.name;
-        if (autoplay) {
-            this.lobbyAudio.play().catch(() => {});
-        } else {
-            this.lobbyAudio.pause();
-            const btnToggle = document.getElementById('lobby-audio-toggle');
-            if (btnToggle) btnToggle.innerHTML = '<i class="fas fa-play"></i>';
-        }
-    }
-
-    nextLobbyTrack(autoplay = true) {
-        if (!this.lobbyAudioTracks.length) return;
-        this.lobbyAudioIndex = (this.lobbyAudioIndex + 1) % this.lobbyAudioTracks.length;
-        this.playLobbyTrack(autoplay);
     }
 
     listenToSession() {
@@ -1286,7 +1149,7 @@ class MultiplayerLobby {
                 mapImg.src = this.sessionData.map_url;
                 mapImg.onerror = () => {
                     mapImg.onerror = null;
-                    mapImg.src = 'assets/Mapa.png';
+                    mapImg.src = '';
                 };
                 mapImg.style.display = 'block'; 
                 mapImg.classList.add('active');

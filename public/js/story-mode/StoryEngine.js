@@ -1,4 +1,4 @@
-import { STORY_NODES, ELEMENTS, GAME_PLAYLIST } from './constants.js';
+import { STORY_NODES, ELEMENTS } from './constants.js';
 import { db, doc, updateDoc, arrayUnion, setDoc, getDoc } from '../firebase.js';
 
 export class StoryEngine {
@@ -15,95 +15,8 @@ export class StoryEngine {
         this.battleSystem = null;
         this.unlockedSkills = []; // Armazena IDs de habilidades desbloqueadas
         this.user = null; // UID do Firebase
-        this.gameAudio = null; // Elemento de áudio
-        this.currentPlaylist = [...GAME_PLAYLIST];
-        this.currentTrackIndex = -1;
 
         this.setupPauseMenu();
-    }
-
-    setupAudioSystem() {
-        if (this.gameAudio) return; // Evita duplicar
-
-        this.gameAudio = new Audio();
-        this.gameAudio.volume = 0.5;
-        
-        // Quando a música acabar, toca a próxima aleatória
-        this.gameAudio.onended = () => this.playRandomTrack();
-
-        const audioControls = document.createElement('div');
-        audioControls.className = 'audio-controls';
-        audioControls.id = 'story-audio-player'; // ID para controle de visibilidade
-        audioControls.style.display = 'none'; // Escondido por padrão no início
-        audioControls.innerHTML = `
-            <div id="audio-track-info" class="audio-track-info" style="font-size: 0.75rem; color: #ffd700; font-weight: bold; font-family: 'Cinzel', serif; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 116px;"></div>
-            <button id="audio-toggle-btn" class="audio-btn" title="Play/Pause">
-                <i class="fas fa-play"></i>
-            </button>
-            <button id="audio-next-btn" class="audio-btn" title="Próxima Faixa">
-                <i class="fas fa-step-forward"></i>
-            </button>
-            <button id="audio-mute-btn" class="audio-btn" title="Mute/Unmute">
-                <i class="fas fa-volume-up"></i>
-            </button>
-            <input type="range" id="audio-volume" class="volume-slider" min="0" max="1" step="0.1" value="0.1">
-        `;
-        document.body.appendChild(audioControls);
-
-        const toggleBtn = document.getElementById('audio-toggle-btn');
-        const nextBtn = document.getElementById('audio-next-btn');
-        const muteBtn = document.getElementById('audio-mute-btn');
-        const volumeSlider = document.getElementById('audio-volume');
-
-        toggleBtn.onclick = () => {
-            if (this.gameAudio.paused) {
-                this.gameAudio.play().catch(e => console.log("Áudio aguardando interação..."));
-                toggleBtn.innerHTML = '<i class="fas fa-pause"></i>';
-            } else {
-                this.gameAudio.pause();
-                toggleBtn.innerHTML = '<i class="fas fa-play"></i>';
-            }
-        };
-
-        nextBtn.onclick = () => this.playRandomTrack();
-
-        muteBtn.onclick = () => {
-            this.gameAudio.muted = !this.gameAudio.muted;
-            muteBtn.innerHTML = this.gameAudio.muted ? '<i class="fas fa-volume-mute"></i>' : '<i class="fas fa-volume-up"></i>';
-        };
-
-        volumeSlider.oninput = (e) => {
-            this.gameAudio.volume = e.target.value;
-        };
-
-        // Inicia a primeira música aleatória
-        this.playRandomTrack();
-    }
-
-    playRandomTrack() {
-        if (!this.gameAudio) return;
-
-        // Escolhe um índice aleatório diferente do atual (se possível)
-        let nextIndex;
-        if (this.currentPlaylist.length > 1) {
-            do {
-                nextIndex = Math.floor(Math.random() * this.currentPlaylist.length);
-            } while (nextIndex === this.currentTrackIndex);
-        } else {
-            nextIndex = 0;
-        }
-
-        this.currentTrackIndex = nextIndex;
-        const track = this.currentPlaylist[this.currentTrackIndex];
-        
-        this.gameAudio.src = track.src;
-        this.gameAudio.play().then(() => {
-            const toggleBtn = document.getElementById('audio-toggle-btn');
-            if (toggleBtn) toggleBtn.innerHTML = '<i class="fas fa-pause"></i>';
-            
-            const trackInfo = document.getElementById('audio-track-info');
-            if (trackInfo) trackInfo.textContent = `🎵 ${track.title}`;
-        }).catch(e => console.log("Autoplay bloqueado, aguardando clique..."));
     }
 
     setBattleSystem(battleSystem) {

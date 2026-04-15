@@ -104,10 +104,21 @@ body {
 }
 
 .assets-thumb {
-  height: 120px;
-  background-size: cover;
-  background-position: center;
+    height: 250px;
+    background-size: cover;
+    background-position: top;
   border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+.assets-thumb:hover {
+  height: 358px;
+  border: 1px solid var(--elara-gold-light);
+  background-color: var(--elara-gold);
+  border-radius: 18px;
+  transition: height 0.3s ease, border-bottom 0.3s ease;
+  -webkit-border-radius: 18px;
+  -moz-border-radius: 18px;
+  -ms-border-radius: 18px;
+  -o-border-radius: 18px;
 }
 
 .assets-item-meta {
@@ -126,7 +137,7 @@ body {
 }
 
 .assets-item-actions {
-  display: flex;
+  display: none;
   gap: 10px;
 }
 

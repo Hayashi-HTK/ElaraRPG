@@ -1,7 +1,6 @@
 import { auth, db, doc, getDoc, collection, query, where, getDocs, addDoc, updateDoc, deleteDoc, serverTimestamp, waitForAuth } from './firebase.js';
 import { addXP } from './gamification.js';
 import { defaultEnemies } from './enemies.js';
-import { GAME_PLAYLIST } from './story-mode/constants.js';
 
 // Elements
 const selectionScreen = document.getElementById('selection-screen');
@@ -77,8 +76,6 @@ let isDodging = false;
 let enemyAttackDebuff = 0;
 let healBuffActive = false; // Indica se o próximo ataque terá +2 de dano
 let unlockedSkillsGlobal = []; // Habilidades desbloqueadas no Modo História (UID)
-let gameAudio = null; // Elemento de áudio global
-let currentTrackIndex = -1;
 
 async function initTower() {
     user = await waitForAuth();
@@ -86,8 +83,6 @@ async function initTower() {
         window.location.replace('login.html');
         return;
     }
-
-    setupAudioSystem();
 
     // Carrega habilidades desbloqueadas do perfil global
     try {
@@ -105,12 +100,6 @@ async function initTower() {
     setupBasicCreation();
     
     startTowerBtn.addEventListener('click', () => {
-        // Inicia a música ao clicar em começar (bypass autoplay policy)
-        if (gameAudio && gameAudio.paused) {
-            gameAudio.play().catch(e => console.log("Áudio aguardando interação..."));
-            const toggleBtn = document.getElementById('audio-toggle-btn');
-            if (toggleBtn) toggleBtn.innerHTML = '<i class="fas fa-pause"></i>';
-        }
         startTowerFlow();
     });
     confirmSkillsBtn.addEventListener('click', confirmSkillSelection);
@@ -135,87 +124,6 @@ async function initTower() {
 
     // Configura o Log de Batalha Colapsável
     setupCollapsibleLog();
-}
-
-function setupAudioSystem() {
-    // Cria o elemento de áudio
-    gameAudio = new Audio();
-    gameAudio.volume = 0.5;
-    
-    // Quando a música acabar, toca a próxima aleatória
-    gameAudio.onended = () => playRandomTrack();
-
-    const audioControls = document.createElement('div');
-    audioControls.className = 'audio-controls';
-    audioControls.innerHTML = `
-        <div id="audio-track-info" class="audio-track-info" style="font-size: 0.75rem; color: var(--tower-gold); margin-right: 15px; font-weight: bold; font-family: 'Cinzel', serif; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 150px;"></div>
-        <button id="audio-toggle-btn" class="audio-btn" title="Play/Pause">
-            <i class="fas fa-play"></i>
-        </button>
-        <button id="audio-next-btn" class="audio-btn" title="Próxima Faixa">
-            <i class="fas fa-step-forward"></i>
-        </button>
-        <button id="audio-mute-btn" class="audio-btn" title="Mute/Unmute">
-            <i class="fas fa-volume-up"></i>
-        </button>
-        <input type="range" id="audio-volume" class="volume-slider" min="0" max="1" step="0.1" value="0.5">
-    `;
-    document.body.appendChild(audioControls);
-
-    const toggleBtn = document.getElementById('audio-toggle-btn');
-    const nextBtn = document.getElementById('audio-next-btn');
-    const muteBtn = document.getElementById('audio-mute-btn');
-    const volumeSlider = document.getElementById('audio-volume');
-
-    toggleBtn.onclick = () => {
-        if (gameAudio.paused) {
-            gameAudio.play().catch(e => console.log("Interação do usuário necessária para áudio"));
-            toggleBtn.innerHTML = '<i class="fas fa-pause"></i>';
-        } else {
-            gameAudio.pause();
-            toggleBtn.innerHTML = '<i class="fas fa-play"></i>';
-        }
-    };
-
-    nextBtn.onclick = () => playRandomTrack();
-
-    muteBtn.onclick = () => {
-        gameAudio.muted = !gameAudio.muted;
-        muteBtn.innerHTML = gameAudio.muted ? '<i class="fas fa-volume-mute"></i>' : '<i class="fas fa-volume-up"></i>';
-    };
-
-    volumeSlider.oninput = (e) => {
-        gameAudio.volume = e.target.value;
-    };
-
-    // Inicia a primeira música aleatória
-    playRandomTrack();
-}
-
-function playRandomTrack() {
-    if (!gameAudio) return;
-
-    // Escolhe um índice aleatório diferente do atual (se possível)
-    let nextIndex;
-    if (GAME_PLAYLIST.length > 1) {
-        do {
-            nextIndex = Math.floor(Math.random() * GAME_PLAYLIST.length);
-        } while (nextIndex === currentTrackIndex);
-    } else {
-        nextIndex = 0;
-    }
-
-    currentTrackIndex = nextIndex;
-    const track = GAME_PLAYLIST[currentTrackIndex];
-    
-    gameAudio.src = track.src;
-    gameAudio.play().then(() => {
-        const toggleBtn = document.getElementById('audio-toggle-btn');
-        if (toggleBtn) toggleBtn.innerHTML = '<i class="fas fa-pause"></i>';
-        
-        const trackInfo = document.getElementById('audio-track-info');
-        if (trackInfo) trackInfo.textContent = `🎵 ${track.title}`;
-    }).catch(e => console.log("Autoplay bloqueado, aguardando clique em Começar..."));
 }
 
 function setupCollapsibleLog() {

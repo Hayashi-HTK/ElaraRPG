@@ -384,7 +384,7 @@ async function renderMapList(source) {
 
     // Simulação de mapas
     const maps = [
-        { id: 'map1', name: 'Floresta Sombria', img: 'https://i.postimg.cc/P5q7H3Sj/DALL-E-2024-03-14-A-dark-and-eerie-forest-with-glowing-mushrooms-and-twisted-trees-digital-art.webp', source: 'official' },
+        { id: 'map1', name: 'Escudo Elara', img: 'assets/Jogar/História/Fundos/Escudo.png', source: 'official' },
         { id: 'map2', name: 'Cavernas de Cristal', img: 'https://i.postimg.cc/d1mZz6g5/DALL-E-2024-03-14-A-vast-underground-cavern-filled-with-glowing-crystals-of-various-colors-dig.webp', source: 'official' },
         { id: 'map3', name: 'Cidade Flutuante', img: 'https://i.postimg.cc/Y0d7Y0c1/DALL-E-2024-03-14-A-majestic-city-with-waterfalls-and-bridges-floating-in-the-sky-digital-art-f.webp', source: 'community' },
     ];
@@ -402,7 +402,7 @@ async function renderMapList(source) {
         mapCard.className = 'map-card';
         mapCard.dataset.mapId = map.id;
         mapCard.innerHTML = `
-            <img src="${map.img}" alt="${map.name}">
+            <img src="${map.url || map.img}" alt="${map.name}">
             <p>${map.name}</p>
         `;
         mapCard.addEventListener('click', () => {

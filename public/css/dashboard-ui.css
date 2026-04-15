@@ -333,12 +333,12 @@ body {
 
 #avatar-container .frame-border:not(.frame-adm) {
     /* display: none; */
-    rotate: 180deg;
+    /* rotate: 180deg; */
     position: absolute;
-    top: -13%;
-    left: -20%;
-    right: -20%;
-    bottom: -28%;
+    top: -20%;
+    left: -25%;
+    right: -25%;
+    bottom: -25%;
 }
 
 #avatar-container .frame-border.frame-adm {

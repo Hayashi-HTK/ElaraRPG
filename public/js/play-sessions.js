@@ -7,7 +7,7 @@ function initActiveSessions() {
     if (!sessionsList) return;
 
     const q = query(
-        collection(db, "sessions"), 
+        collection(db, "sessions", "is_private", "==", false), 
         where("status", "==", "lobby"),
         orderBy("created_at", "desc")
     );
@@ -15,7 +15,7 @@ function initActiveSessions() {
     onSnapshot(
         q,
         (snapshot) => {
-            if (snapshot.empty) {
+            if (!items.length) {
                 sessionsList.innerHTML = `
                     <div class="session-loading">
                         <i class="fas fa-moon"></i>
@@ -29,7 +29,7 @@ function initActiveSessions() {
             snapshot.forEach((doc) => {
                 const session = doc.data() || {};
                 if (session.is_private === true) return;
-                items.push({ id: doc.id, session });
+                items.push({ id: doc.id, session, is_private: session.is_private });
             });
 
             if (!items.length) {
@@ -43,7 +43,7 @@ function initActiveSessions() {
             }
 
             sessionsList.innerHTML = '';
-            items.forEach(({ id, session }) => {
+                items.forEach(({ id, session, is_private }) => {
                 const playerCount = session?.players && typeof session.players === 'object'
                     ? Object.keys(session.players || {}).length
                     : Array.isArray(session.participants)
@@ -83,6 +83,9 @@ function initActiveSessions() {
                     <a href="${pageLink}?join=${id}" class="btn-primary btn-join-session-card">Entrar na Mesa</a>
                 `;
                 sessionsList.appendChild(card);
+                if (session.is_private) {
+                    card.querySelector('.btn-join-session-card').style.display = 'none';
+                }
             });
         },
         () => {

@@ -2,6 +2,8 @@ import {
     auth, db, doc, getDoc, setDoc, updateDoc, onSnapshot, collection, query, where, getDocs, orderBy, serverTimestamp, addDoc, deleteDoc, arrayUnion, limit, deleteField 
 } from "./firebase.js";
 
+import { initClickSound } from "./ui-click.js";
+
 import {
     getBuiltinCharacterAssets,
     BUILTIN_FLOOR_BASE_PATHS,
@@ -85,7 +87,6 @@ class GameSession {
         this.selectedAssetId = null;
 
         // Áudio
-        this.currentAudio = null;
         this.localVolume = 0.5; // Volume padrão 50%
 
         this.sessionStartTime = Date.now(); // Marca o início da sessão para evitar gatilhos de F5
@@ -141,7 +142,7 @@ class GameSession {
             const n = Number(stored);
             if (Number.isFinite(n)) floorSize = n;
         } catch {}
-        this.floorDefaultSizePx = Math.max(50, Math.min(2000, Math.round(floorSize / 50) * 50));
+        this.floorDefaultSizePx = Math.max(50, Math.min(5000, Math.round(floorSize / 50) * 50));
 
         this.mapObjects = [];
         this.selectedMapObjectId = null;
@@ -158,7 +159,8 @@ class GameSession {
             floors: new Set(),
             assets: new Set(),
             objects: new Set(),
-            tokens: new Set()
+            tokens: new Set(),
+            texts: new Set()
         };
         this.isDeleteMarqueeSelecting = false;
         this.deleteMarqueeStart = null;
@@ -291,14 +293,15 @@ class GameSession {
             floors: new Set(),
             assets: new Set(),
             objects: new Set(),
-            tokens: new Set()
+            tokens: new Set(),
+            texts: new Set()
         };
     }
 
     getDeleteSelectionCount() {
         const s = this.deleteSelection;
         if (!s) return 0;
-        return (s.floors?.size || 0) + (s.assets?.size || 0) + (s.objects?.size || 0) + (s.tokens?.size || 0);
+        return (s.floors?.size || 0) + (s.assets?.size || 0) + (s.objects?.size || 0) + (s.tokens?.size || 0) + (s.texts?.size || 0);
     }
 
     toggleDeleteSelection(kind, id) {
@@ -311,7 +314,8 @@ class GameSession {
             floor: s.floors,
             asset: s.assets,
             object: s.objects,
-            token: s.tokens
+            token: s.tokens,
+            text: s.texts
         };
         const set = map[kind];
         if (!set) return;
@@ -422,10 +426,10 @@ class GameSession {
             return mode === 'down' ? Math.floor(v / g) * g : Math.ceil(v / g) * g;
         };
 
-        const x1 = Math.max(0, Math.min(2000, snap(minX, 'down')));
-        const y1 = Math.max(0, Math.min(2000, snap(minY, 'down')));
-        const x2 = Math.max(0, Math.min(2000, snap(maxX, 'up')));
-        const y2 = Math.max(0, Math.min(2000, snap(maxY, 'up')));
+        const x1 = Math.max(0, Math.min(10000, snap(minX, 'down')));
+        const y1 = Math.max(0, Math.min(10000, snap(minY, 'down')));
+        const x2 = Math.max(0, Math.min(10000, snap(maxX, 'up')));
+        const y2 = Math.max(0, Math.min(10000, snap(maxY, 'up')));
         const w = Math.max(0, x2 - x1);
         const h = Math.max(0, y2 - y1);
 
@@ -458,7 +462,8 @@ class GameSession {
             floors: new Set(),
             assets: new Set(),
             objects: new Set(),
-            tokens: new Set()
+            tokens: new Set(),
+            texts: new Set()
         };
 
         mapContainer.querySelectorAll('.floor-tile').forEach((node) => {
@@ -489,12 +494,34 @@ class GameSession {
             if (overlap(sel, r)) next.tokens.add(id);
         });
 
+        const ctx = this.drawCtx;
+        const ops = Array.isArray(this.drawOps) ? this.drawOps : [];
+        if (ctx) {
+            ops.forEach((op, idx) => {
+                if (!op || op.type !== 'text') return;
+                const size = Number(op.size) || 22;
+                ctx.font = `900 ${size}px Cinzel, serif`;
+                const text = String(op.text || '');
+                const pad = 8;
+                const metrics = ctx.measureText(text);
+                const w = metrics.width + pad * 2;
+                const h = size + pad * 2;
+                const x = (Number(op.x) || 0) - w / 2;
+                const y = (Number(op.y) || 0) - h / 2;
+                const r = { x, y, w, h };
+                if (!overlap(sel, r)) return;
+                const key = String(op.id || `idx_${idx}`);
+                next.texts.add(key);
+            });
+        }
+
         this.deleteSelection = next;
         this.renderDeleteBar();
         this.renderFloorTiles();
         this.renderMapAssets();
         this.renderMapObjects();
         this.renderTokens();
+        this.renderDrawLayer();
     }
 
     async deleteSelectedItems() {
@@ -508,6 +535,7 @@ class GameSession {
         const assets = Array.from(this.deleteSelection.assets || []);
         const objects = Array.from(this.deleteSelection.objects || []);
         const tokens = Array.from(this.deleteSelection.tokens || []);
+        const texts = Array.from(this.deleteSelection.texts || []);
 
         try {
             if (floors.length) {
@@ -534,6 +562,16 @@ class GameSession {
                 await setDoc(sessionRef, { map_tokens: filtered }, { merge: true });
                 if (this.selectedTokenId && tokens.includes(this.selectedTokenId)) this.selectedTokenId = null;
             }
+
+            if (texts.length) {
+                const ops = Array.isArray(this.drawOps) ? this.drawOps : [];
+                this.drawOps = ops.filter((op, idx) => {
+                    if (!op || op.type !== 'text') return true;
+                    const key = String(op.id || `idx_${idx}`);
+                    return !texts.includes(key);
+                });
+                await this.persistDrawOps();
+            }
         } catch (e) {
             console.error(e);
         }
@@ -543,6 +581,7 @@ class GameSession {
         this.renderMapAssets();
         this.renderMapObjects();
         this.renderTokens();
+        this.renderDrawLayer();
         this.renderDeleteBar();
     }
 
@@ -953,6 +992,8 @@ class GameSession {
             window.addEventListener('mouseup', () => this.floorPickerEndSelect());
         }
     }
+
+
 
     resetFloorPickerCrop() {
         this._floorPicker = { img: null, sourceUrl: null, canvasScale: 1, drawW: 0, drawH: 0, drawX: 0, drawY: 0, selecting: false, start: null, rect: null };
@@ -1398,7 +1439,7 @@ class GameSession {
         const menu = document.getElementById('map-context-menu');
         if (!menu || !target) return;
 
-        if (target.kind === 'object') {
+        if (target.kind === 'object' || target.kind === 'fog') {
             this.mapContextTarget = target;
             menu.innerHTML = `
                 <button type="button" data-action="move" ${target.canMove ? '' : 'disabled'}>
@@ -1473,6 +1514,7 @@ class GameSession {
         this.mapContextTarget = target;
 
         menu.innerHTML = `
+        <div style="display: flex; flex-direction: column; gap: 6px;">
             <button type="button" data-action="move" ${target.canMove ? '' : 'disabled'}>
                 <span>Mover</span>
                 <i class="fas fa-arrows-alt"></i>
@@ -1485,9 +1527,10 @@ class GameSession {
                 <span>Deletar</span>
                 <i class="fas fa-trash"></i>
             </button>
-            <div class="menu-sep"></div>
-            <div class="menu-colors" data-action="border">
+            <div class="menu-sep" style="display: none;"></div>
+            <div class="menu-colors" data-action="border" style="display: none;">
                 ${colors.map(x => `<div class="menu-color" role="button" tabindex="0" data-color="${x.c}" style="--c: ${x.c};" title="${x.label}"></div>`).join('')}
+            </div>
             </div>
         `;
 
@@ -1585,7 +1628,27 @@ class GameSession {
         const mapContainer = document.getElementById('map-container');
         const measureLayer = document.getElementById('measure-layer');
         if (!area || !mapContainer) return;
-        
+        if (!this._listenersBound?.blockedFloorBtn) {
+            this._listenersBound.blockedFloorBtn = true;
+            const btnBlockedFloor = document.getElementById('btn-blocked-floor');
+            if (btnBlockedFloor) {
+                btnBlockedFloor.onclick = () => {
+                    const measureLayer = document.querySelector('.measure-layer');
+                    measureLayer.style.pointerEvents = this._blockedFloor ? 'none' : 'auto';
+                    this._blockedFloor = !this._blockedFloor;
+                    btnBlockedFloor.classList.toggle('active', !!this._blockedFloor);
+                    if (this._blockedFloor) {
+                        this.isMovingFloorTile = false;
+                        this.movingFloorTile = null;
+                        const overlay = document.getElementById('targeting-overlay');
+                        if (overlay) overlay.style.display = 'none';
+                        if (this.isFloorPainting) this.finishFloorPaint();
+                    }
+                };
+            }
+        }
+
+
         area.onmousedown = (e) => {
             if (this.isMaster && this.deleteMode && e.button === 0) {
                 this.startDeleteMarquee(e);
@@ -1626,6 +1689,8 @@ class GameSession {
                 return;
             }
 
+           
+
             this.didPan = false;
             const canPanLeft = !this.isMaster || this.activeMapTool === 'hand';
             const blocked = !!(e.target.closest('.token') || e.target.closest('.map-asset') || e.target.closest('.floor-tile') || e.target.closest('.control-btn') || e.target.closest('#map-context-menu'));
@@ -1643,12 +1708,15 @@ class GameSession {
             if (this.isMaster && this.deleteMode && Date.now() < (this._deleteClickBlockUntil || 0)) {
                 return;
             }
+            // função para mobile hand tool touchstart / touchmove / touchend
 
-            if (this.isMaster && this.activeMapTool === 'hand') {
+            if (this.isMaster && this.activeMapTool === 'hand' || e.type === 'touchstart' || e.type === 'touchmove' || e.type === 'touchend') {
+
                 return;
             }
 
             if (this.isMovingFloorTile && this.movingFloorTileId) {
+                if (this._blockedFloor) return;
                 const rect = mapContainer.getBoundingClientRect();
                 const x = (e.clientX - rect.left) / this.scale;
                 const y = (e.clientY - rect.top) / this.scale;
@@ -1669,6 +1737,10 @@ class GameSession {
             }
 
             if (this.isMaster && this.activeMapTool === 'floor' && this.floorSubMode === 'paint' && !this.floorRemoveMode && !this.deleteMode) {
+                if (this._blockedFloor) {
+                    alert('Piso bloqueado.');
+                    return;
+                }
                 if (!this.selectedFloorTextureId) {
                     alert('Selecione um piso primeiro.');
                     return;
@@ -1707,6 +1779,7 @@ class GameSession {
                 const x = (e.clientX - rect.left) / this.scale;
                 const y = (e.clientY - rect.top) / this.scale;
                 this.spawnPing(x, y);
+                
                 return;
             }
 
@@ -1789,10 +1862,16 @@ class GameSession {
                 this.renderMapAssets();
                 this.renderMapObjects();
                 this.renderTokens();
+                this.renderGmTokenPanel();
+                // deletar texto
+                
                 return;
             }
+            
+
 
             if (this.isMovingToken || this.isTargeting) {
+
                 const rect = mapContainer.getBoundingClientRect();
                 const x = (e.clientX - rect.left) / this.scale;
                 const y = (e.clientY - rect.top) / this.scale;
@@ -1819,6 +1898,10 @@ class GameSession {
                 return;
             }
             if (this.isFloorPainting) {
+                if (this._blockedFloor) {
+                    this.finishFloorPaint();
+                    return;
+                }
                 this.updateFloorPaint(e);
                 return;
             }
@@ -1826,6 +1909,7 @@ class GameSession {
                 this.updateOverlayDraw(e);
                 return;
             }
+
             if (this.isMeasuring && this.measureStart && this.measureEls) {
                 const rect = mapContainer.getBoundingClientRect();
                 const x = (e.clientX - rect.left) / this.scale;
@@ -1870,13 +1954,13 @@ class GameSession {
             this.updateMapToolUI();
             if (this.isMeasuring) {
                 this.isMeasuring = false;
-                this.measureStart = null;
+                // this.measureStart = null;
                 const els = this.measureEls;
                 this.measureEls = null;
                 setTimeout(() => {
                     els?.line?.remove();
                     els?.label?.remove();
-                }, 1200);
+                }, 20000);
             }
         };
 
@@ -1890,47 +1974,56 @@ class GameSession {
     setMapScale(next) {
         const n = Number(next);
         const base = Number.isFinite(n) ? n : (Number.isFinite(this.scale) ? this.scale : 0.5);
-        this.scale = Math.max(0.2, Math.min(base, 3));
+        this.newScale = Math.max(0.2, Math.min(base, 5));
+
         this.updateMapTransform();
         const r = document.getElementById('range-map-zoom');
-        if (r) r.value = String(this.scale);
+        if (r) r.value = String(this.newScale);
         const label = document.getElementById('map-zoom-label');
         if (label) label.textContent = `${Math.round(this.scale * 100)}%`;
+
+        // Atualiza scale
+        this.scale = this.newScale;
     }
+    
+
 
     updateMapTransform() {
         const container = document.getElementById('map-container');
         if (container) {
+            // Centraliza o mapa no meio da área visível
             container.style.transform = `translate3d(${this.panX}px, ${this.panY}px, 0) scale(${this.scale})`;
         }
     }
 
-    centerMap() {
-        const area = document.querySelector('.map-area');
-        if (!area) return;
-        
-        const areaRect = area.getBoundingClientRect();
-        // Centraliza o mapa de 2000px no meio da área visível
-        this.scale = 0.5;
-        this.panX = (areaRect.width / 2) - (2000 * this.scale / 2);
-        this.panY = (areaRect.height / 2) - (2000 * this.scale / 2);
-        this.updateMapTransform();
-        const r = document.getElementById('range-map-zoom');
-        if (r) r.value = String(this.scale);
-        const label = document.getElementById('map-zoom-label');
-        if (label) label.textContent = `${Math.round(this.scale * 100)}%`;
+        centerMap() { 
+        const area = document.querySelector('.map-area'); 
+        if (!area) return; 
+        const areaRect = area.getBoundingClientRect(); 
+        // Centraliza o mapa de 5000px no meio da área visível 
+        this.scale = Math.min(3, Math.max(0.2, areaRect.width / 5000)); 
+        console.log(this.scale); 
+        this.panX = (areaRect.width / 2) - (5000 * this.scale / 2 - areaRect.left); 
+        this.panY = (areaRect.height / 2) - (5000 * this.scale / 2 - areaRect.top); 
+        this.updateMapTransform(); 
+        const r = document.getElementById('range-map-zoom'); 
+        if (r) r.value = String(this.scale); 
+        const label = document.getElementById('map-zoom-label'); 
+        if (label) label.textContent = `${Math.round(this.scale * 100)}%`; 
+        }
+
+        setupZoomControl() { 
+        const btnIn = document.getElementById('btn-zoom-in'); 
+        const btnOut = document.getElementById('btn-zoom-out'); 
+        const range = document.getElementById('range-map-zoom'); 
+        if (btnIn) btnIn.onclick = () => this.setMapScale(this.scale * 1.2); 
+        if (btnOut) btnOut.onclick = () => this.setMapScale(this.scale * 0.8); 
+        if (range) range.oninput = (e) => this.setMapScale(parseFloat(e.target.value || '0.2')); 
+        this.setMapScale(this.scale); 
     }
 
-    setupZoomControl() {
-        const btnIn = document.getElementById('btn-zoom-in');
-        const btnOut = document.getElementById('btn-zoom-out');
-        const range = document.getElementById('range-map-zoom');
 
-        if (btnIn) btnIn.onclick = () => this.setMapScale(this.scale * 1.1);
-        if (btnOut) btnOut.onclick = () => this.setMapScale(this.scale * 0.9);
-        if (range) range.oninput = (e) => this.setMapScale(parseFloat(e.target.value || '0.5'));
-        this.setMapScale(this.scale);
-    }
+
 
     setupMapOverlays() {
         this.drawCanvas = document.getElementById('draw-layer');
@@ -2635,6 +2728,13 @@ class GameSession {
                 ctx.fillRect(op.x - w / 2, op.y - h / 2, w, h);
                 ctx.fillStyle = this.hexToRgba(op.color || '#ffffff', 1);
                 ctx.fillText(text, op.x - metrics.width / 2, op.y - size / 2);
+                if (this.deleteMode && this.deleteSelection?.texts?.has?.(String(op.id || `idx_${this.drawOps.indexOf(op)}`))) {
+                    ctx.save();
+                    ctx.strokeStyle = this.hexToRgba('#ff3b30', 0.85);
+                    ctx.lineWidth = 3;
+                    ctx.strokeRect(op.x - w / 2, op.y - h / 2, w, h);
+                    ctx.restore();
+                }
                 return;
             }
 
@@ -2721,7 +2821,8 @@ class GameSession {
         const store = this.fogStoreCtx;
         store.clearRect(0, 0, this.fogStore.width, this.fogStore.height);
 
-        if (this.fogState.covered) {
+        const covered = !!this.fogState.covered || !this.isMaster;
+        if (covered) {
             store.globalCompositeOperation = 'source-over';
             store.fillStyle = 'rgba(0,0,0,0.92)';
             store.fillRect(0, 0, this.fogStore.width, this.fogStore.height);
@@ -2730,19 +2831,20 @@ class GameSession {
             const reveals = Array.isArray(this.fogState.reveals) ? this.fogState.reveals : [];
             reveals.forEach((r) => this.applyFogStroke(store, r));
 
+            // Visão agora é map-object player 
             const editor = this.sessionData?.map_editor || {};
             const vision = editor.vision || {};
             const enabled = !!vision.enabled;
             const radius = Number.isFinite(vision.radius) ? vision.radius : 220;
             if (enabled) {
-                const targets = this.isMaster
-                    ? this.tokens.filter(t => t && t.type === 'player' && !t.isDead && t.isRevealed !== false)
-                    : this.tokens.filter(t => t && t.type === 'player' && t.sheet_id === this.playerSheetId && !t.isDead && t.isRevealed !== false);
+                const targets = this.tokens.filter(t => t && t.type === 'player' && !t.isDead && t.isRevealed !== false);
                 targets.forEach(t => {
-                    this.applyFogSpot(store, t.x, t.y, radius, 1, 0.75);
+                    const ang = Number.isFinite(t.vision_angle) ? t.vision_angle : (-Math.PI / 2);
+                    this.applyFogCone(store, t.x, t.y, radius, ang, 1, 0.8);
                 });
+                
             }
-        }
+        } 
 
         const ctx = this.fogCtx;
         ctx.clearRect(0, 0, this.fogCanvas.width, this.fogCanvas.height);
@@ -2761,6 +2863,32 @@ class GameSession {
         ctx.beginPath();
         ctx.arc(x, y, r, 0, Math.PI * 2);
         ctx.fill();
+    }
+
+    applyFogCone(ctx, x, y, radius, angle, opacity, soft) {
+        const r = Math.max(20, Number(radius) || 220);
+        const o = Math.max(0, Math.min(1, Number(opacity) || 0.9));
+        const s = Math.max(0, Math.min(1, Number(soft) || 0.8));
+        const spread = (Math.PI / 2.2);
+        const a = Number.isFinite(angle) ? angle : (-Math.PI / 2);
+        const inner = r * (1 - s * 0.85);
+
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.rotate(a);
+
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.arc(0, 0, r, -spread / 2, spread / 2, false);
+        ctx.closePath();
+        ctx.clip();
+
+        const g = ctx.createRadialGradient(0, 0, Math.max(0, inner), 0, 0, r);
+        g.addColorStop(0, `rgba(0,0,0,${o})`);
+        g.addColorStop(1, 'rgba(0,0,0,0)');
+        ctx.fillStyle = g;
+        ctx.fillRect(-r, -r, r * 2, r * 2);
+        ctx.restore();
     }
 
     applyFogStroke(ctx, stroke) {
@@ -2930,7 +3058,8 @@ class GameSession {
         const size = parseFloat(document.getElementById('text-size')?.value || '22') || 22;
         const color = String(document.getElementById('text-color')?.value || '#ffffff');
         const bg = String(document.getElementById('text-bg')?.value || '#000000');
-        this.drawOps = [...this.drawOps, { type: 'text', text, x, y, size, color, bg }].slice(-80);
+        const id = `text_${Date.now().toString(36)}_${Math.random().toString(16).slice(2, 6)}`;
+        this.drawOps = [...this.drawOps, { id, type: 'text', text, x, y, size, color, bg }].slice(-80);
         this.persistDrawOps().then(() => this.renderDrawLayer());
     }
 
@@ -3106,11 +3235,31 @@ class GameSession {
         if (tool === 'measure' || tool === 'ping') {
             const next = this.activeGmTool === tool ? null : tool;
             this.activeGmTool = next;
-            document.querySelectorAll('.gm-tool-btn[data-tool="measure"], .gm-tool-btn[data-tool="ping"]').forEach(b => {
-                b.classList.toggle('active', b.dataset.tool === next);
-            });
-            return;
-        }
+            if (next === 'ping') {
+                this._blockedFloor = true;
+                const btnBlockedFloor = document.getElementById('btn-blocked-floor');
+                btnBlockedFloor.classList.toggle('active', !!this._blockedFloor);
+                const measureLayer = document.querySelector('.measure-layer');
+                measureLayer.style.pointerEvents = 'auto';
+            } else {
+                this._blockedFloor = false;
+                const btnBlockedFloor = document.getElementById('btn-blocked-floor');
+                btnBlockedFloor.classList.toggle('active', !!this._blockedFloor);
+                const measureLayer = document.querySelector('.measure-layer');
+                measureLayer.style.pointerEvents = 'none';
+            }
+                document.querySelectorAll('.gm-tool-btn[data-tool="measure"], .gm-tool-btn[data-tool="ping"]').forEach(b => {
+                    b.classList.toggle('active', b.dataset.tool === next);
+                    // btnBlockedFloor.onclick();
+                });
+                return;
+            }
+               
+                 
+                 
+                
+                 
+            
 
         if (tool === 'floor') {
             if (this.activeMapTool === 'floor') {
@@ -3321,6 +3470,11 @@ class GameSession {
             for (let i = 1; i <= 5; i++) {
                 const on = i <= currentStars;
                 starsHtml += `<button class="gm-rate-star ${on ? 'active' : ''}" type="button" data-star="${i}" aria-label="${i} estrelas"><i class="${on ? 'fas' : 'far'} fa-star"></i></button>`;
+             // salva as estrelas e renderiza
+             if (sheet.rating_stars !== currentStars) {
+                sheet.rating_stars = currentStars;
+             }
+
             }
             const item = document.createElement('div');
             item.className = 'gm-sheet-item';
@@ -3331,7 +3485,7 @@ class GameSession {
                 </div>
                 <div class="gm-sheet-right">
                     <div class="gm-sheet-rating" data-sheet-id="${sheet.id}">${starsHtml}</div>
-                    <button class="btn-confirm-small gm-sheet-open" type="button">ABRIR</button>
+                    <button class="btn-confirm-small gm-sheet-open" type="button" style="display: none;">ABRIR</button>
                 </div>
             `;
             const btn = item.querySelector('.gm-sheet-open');
@@ -3429,6 +3583,7 @@ class GameSession {
     }
 
     spawnPing(x, y) {
+        
         if (!this.isMaster) return;
         const sessionRef = doc(db, "sessions", this.sessionId);
         updateDoc(sessionRef, {
@@ -3441,14 +3596,15 @@ class GameSession {
     }
 
     spawnPingLocal(x, y) {
-        const layer = document.getElementById('measure-layer') || document.getElementById('map-container');
+        const layer = document.getElementById('measure-layer') || document.getElementById('map-container'); 
         if (!layer) return;
+       
         const el = document.createElement('div');
         el.className = 'ping-marker';
         el.style.left = `${x}px`;
         el.style.top = `${y}px`;
         layer.appendChild(el);
-        setTimeout(() => el.remove(), 1200);
+        setTimeout(() => el.remove(), 5200);
     }
 
     async loadSession() {
@@ -3458,7 +3614,6 @@ class GameSession {
                 window.location.href = 'index.html';
                 return;
             }
-            const oldAudioState = this.sessionData?.audio_state;
             const oldRoll = this.sessionData?.last_roll;
             this.sessionData = snapshot.data();
             if (this.sessionData.status === 'ended') {
@@ -3517,7 +3672,6 @@ class GameSession {
             this.renderFloorLibrary();
             this.renderFloorTileInspector();
             this.renderObjectBook();
-            this.handleAudioSync(oldAudioState);
             this.handleDiceSync(oldRoll);
             this.handleSFXSync(this.sessionData.last_sfx);
             this.handlePingSync(this.sessionData.last_ping);
@@ -3653,7 +3807,7 @@ class GameSession {
                     this.toggleDeleteSelection('object', o.id);
                     return;
                 }
-                if (this.isMaster && this.activeMapTool !== 'pointer') return;
+                if (this.isMaster && this.activeMapTool  !== 'pointer') return;
                 this.selectedMapObjectId = o.id;
                 this.renderMapObjects();
                 if (this.isMaster && this.activeMapTool === 'pointer') {
@@ -3839,14 +3993,14 @@ class GameSession {
     }
 
     startMovingMapObject(objectId) {
-        if (!this.isMaster) return;
+        if (!this.isMaster || this.activeMapTool ) return;
         const o = (Array.isArray(this.mapObjects) ? this.mapObjects : []).find(x => x && x.id === objectId);
         if (!o || o.locked) return;
         this.isMovingMapObject = true;
         this.movingMapObjectId = objectId;
         this.isMovingToken = false;
         this.tokenToMove = null;
-        this.isMovingFloorTile = false;
+        this.isMovingFloorTile = true;
         this.movingFloorTileId = null;
         this.isPlacingToken = false;
         this.pendingTokenPlacement = null;
@@ -3858,7 +4012,7 @@ class GameSession {
     }
 
     async moveMapObjectTo(x, y) {
-        if (!this.isMaster || !this.movingMapObjectId) return;
+        if (!this.isMaster || !this.movingMapObjectId || this.activeMapTool !== 'pointer') return;
         this.patchMapObject(this.movingMapObjectId, { x, y });
         this.isMovingMapObject = false;
         this.movingMapObjectId = null;
@@ -3871,7 +4025,9 @@ class GameSession {
     }
 
     getSelectedFloorTile() {
-        return (Array.isArray(this.floorTiles) ? this.floorTiles : []).find(t => t && t.id === this.selectedFloorTileId) || null;
+
+            return (Array.isArray(this.floorTiles) ? this.floorTiles : []).find(t => t && t.id === this.selectedFloorTileId) || null;
+  
     }
 
     getFloorTileRect(t) {
@@ -3908,7 +4064,7 @@ class GameSession {
                     if (Math.abs(dx) !== r && Math.abs(dy) !== r) continue;
                     const nx = base.x + dx * step;
                     const ny = base.y + dy * step;
-                    if (nx < 0 || ny < 0 || nx > 2000 - w || ny > 2000 - h) continue;
+                    if (nx < 0 || ny < 0 || nx > 5000 - w || ny > 5000 - h) continue;
                     if (isFree(nx, ny)) return { x: nx, y: ny };
                 }
             }
@@ -3951,14 +4107,12 @@ class GameSession {
                     this.removeFloorTileNoConfirm(t.id);
                     return;
                 }
-                if (this.isMaster && this.activeMapTool !== 'pointer') return;
+                if (this.isMaster && this._blockedFloor === true) return;
                 this.selectedFloorTileId = t.id;
                 this.renderFloorTiles();
                 this.renderFloorTileInspector();
                 if (this.isMaster && this.activeMapTool === 'floor' && this.floorSubMode === 'edit') {
                     this.openFloorTilePopover(t.id, e.clientX, e.clientY);
-                } else {
-                    this.hideFloorTilePopover();
                 }
             };
 
@@ -3966,7 +4120,7 @@ class GameSession {
                 e.preventDefault();
                 e.stopPropagation();
                 if (this.deleteMode) return;
-                if (this.isMaster && this.activeMapTool !== 'pointer') return;
+                if (this.isMaster && this._blockedFloor === true) return;
                 this.selectedFloorTileId = t.id;
                 this.renderFloorTiles();
                 this.renderFloorTileInspector();
@@ -3981,7 +4135,7 @@ class GameSession {
                 }, e.clientX, e.clientY);
             };
 
-            if (this.isMaster && this.activeMapTool === 'pointer') {
+            if (this.isMaster && this._blockedFloor !== true) {
                 this.makeFloorTileDraggable(el, t);
             }
 
@@ -3992,7 +4146,6 @@ class GameSession {
     async removeFloorTileNoConfirm(tileId) {
         if (!this.isMaster) return;
         this.floorTiles = (Array.isArray(this.floorTiles) ? this.floorTiles : []).filter(t => t && t.id !== tileId);
-        if (this.selectedFloorTileId === tileId) this.selectedFloorTileId = null;
         this.renderFloorTiles();
         this.renderFloorTileInspector();
         this.hideFloorTilePopover();
@@ -4005,13 +4158,15 @@ class GameSession {
         let offsetY = 0;
 
         const onMouseDown = (e) => {
-            if (!this.isMaster || this.activeMapTool !== 'pointer') return;
-            if (e.button !== 0) return;
+            if (!this.isMaster) return;
+            if (this._blockedFloor === true) return;  
             e.stopPropagation();
 
+            
             this.selectedFloorTileId = tile.id;
-            this.renderFloorTiles();
             this.hideFloorTilePopover();
+           
+            this.renderFloorTiles();
 
             const p = this.getMapPointFromClient(e.clientX, e.clientY);
             if (!p) return;
@@ -4023,11 +4178,12 @@ class GameSession {
             window.addEventListener('mousemove', onMouseMove);
             window.addEventListener('mouseup', onMouseUp);
         };
+        //faz mover ao arrastar o token 
 
         const onMouseMove = (e) => {
-            if (!isDragging) return;
+            if (!isDragging ) return;
             const p = this.getMapPointFromClient(e.clientX, e.clientY);
-            if (!p) return;
+            // if (!p) return;
             const newX = p.x - offsetX;
             const newY = p.y - offsetY;
             el.style.left = `${newX}px`;
@@ -4054,6 +4210,7 @@ class GameSession {
 
     async patchFloorTile(tileId, patch, resolveCollision = false) {
         if (!this.isMaster) return;
+        if (this._blockedFloor) return;
         const tiles = Array.isArray(this.floorTiles) ? [...this.floorTiles] : [];
         const idx = tiles.findIndex(t => t && t.id === tileId);
         if (idx === -1) return;
@@ -4075,6 +4232,7 @@ class GameSession {
 
     async removeFloorTile(tileId) {
         if (!this.isMaster) return;
+        if (this._blockedFloor) return;
         const ok = confirm('Deletar este piso?');
         if (!ok) return;
         this.floorTiles = (Array.isArray(this.floorTiles) ? this.floorTiles : []).filter(t => t && t.id !== tileId);
@@ -4086,6 +4244,7 @@ class GameSession {
 
     async duplicateFloorTile(tileId) {
         if (!this.isMaster) return;
+        if (this._blockedFloor) return;
         const tiles = Array.isArray(this.floorTiles) ? [...this.floorTiles] : [];
         const t = tiles.find(x => x && x.id === tileId);
         if (!t) return;
@@ -4103,6 +4262,7 @@ class GameSession {
 
     startMovingFloorTile(tileId) {
         if (!this.isMaster) return;
+        if (this._blockedFloor) return;
         const t = (Array.isArray(this.floorTiles) ? this.floorTiles : []).find(x => x && x.id === tileId);
         if (!t) return;
         this.isMovingFloorTile = true;
@@ -4121,6 +4281,7 @@ class GameSession {
 
     async moveFloorTileTo(x, y) {
         if (!this.isMaster || !this.movingFloorTileId) return;
+        if (this._blockedFloor) return;
         await this.patchFloorTile(this.movingFloorTileId, { x, y }, true);
         this.isMovingFloorTile = false;
         this.movingFloorTileId = null;
@@ -4346,7 +4507,7 @@ class GameSession {
 
         const rot = Number(t.rot || 0) % 360;
         const opacity = Math.max(0.05, Math.min(1, Number(t.opacity ?? 1)));
-        const sizeSquares = Math.max(1, Math.min(40, Math.round((Number(t.w || 50) || 50) / 50)));
+        const sizeSquares = Math.max(1, Math.min(400, Math.round((Number(t.w || 50) || 50) / 50)));
         const layer = Math.max(0, Math.min(4, Number(t.layer) || 0));
         const name = (Array.isArray(this.floorTextures) ? this.floorTextures : []).find(x => x && x.url === t.url)?.name || 'Piso';
 
@@ -4354,7 +4515,7 @@ class GameSession {
         const areaRect = area ? area.getBoundingClientRect() : null;
         const visibleW = areaRect ? (areaRect.width / (this.scale || 1)) : 800;
         const visibleH = areaRect ? (areaRect.height / (this.scale || 1)) : 600;
-        const visibleSquares = Math.max(1, Math.min(40, Math.ceil(Math.max(visibleW, visibleH) / 50)));
+        const visibleSquares = Math.max(1, Math.min(400, Math.ceil(Math.max(visibleW, visibleH) / 50)));
         const maxSquares = Math.max(6, visibleSquares);
         const defaultSquares = Math.max(1, Math.min(40, Math.round((Number(this.floorDefaultSizePx || 150) || 150) / 50)));
 
@@ -4385,7 +4546,7 @@ class GameSession {
                 <label>Tamanho</label>
                 <div style="display:grid; grid-template-columns: 1fr 50px; gap: 10px; align-items:center;">
                     <input id="floor-edit-size" type="range" min="1" max="${maxSquares}" step="1" value="${sizeSquares}" style="max-width: 78px;">
-                    <input id="floor-edit-size-input" type="number" min="1" max="${maxSquares}" step="1" value="${sizeSquares}" class="sidebar-search" style="height: 34px; padding: 0 10px;">
+                    <input id="floor-edit-size-input" type="number" min="1" max="${maxSquares}" step="1" value="${sizeSquares}" class="sidebar-search" style="height: 34px; padding: 0 5px;">
                 </div>
                 <div style="display: flex;flex-direction: column;width: 224px;text-align: center;font-size: 0.78rem;opacity: 0.75;margin-top: 6px;">
                     Padrão para próximos pisos: <b>${defaultSquares}x</b> (ajuste aqui e o próximo piso já vem nesse tamanho)
@@ -4415,12 +4576,15 @@ class GameSession {
         if (btnL) btnL.onclick = () => this.patchFloorTile(t.id, { rot: (rot - 90 + 360) % 360 });
         if (btnR) btnR.onclick = () => this.patchFloorTile(t.id, { rot: (rot + 90) % 360 });
         const setDefaultFloorSizeSquares = (sq) => {
-            const v = Math.max(1, Math.min(40, Math.round(Number(sq) || 1)));
+
+            const v = Math.max(1, Math.min(400, Math.round(Number(sq) || 1)));
+            console.log('max40  1')
             this.floorDefaultSizePx = v * 50;
             try { localStorage.setItem('floor_default_size_px', String(this.floorDefaultSizePx)); } catch {}
         };
         const applySizeSquares = (sq) => {
-            const v = Math.max(1, Math.min(maxSquares, Math.round(Number(sq) || 1)));
+            const v = Math.max(1, Math.min(400, Math.round(Number(sq) || 1)));
+            console.log('max400  2');
             if (rangeS) rangeS.value = String(v);
             if (inputS) inputS.value = String(v);
             setDefaultFloorSizeSquares(v);
@@ -4445,6 +4609,7 @@ class GameSession {
         if (this.activeMapTool !== 'floor') return;
         if (this.floorRemoveMode) return;
         if (this.floorSubMode !== 'paint') return;
+        if (this._blockedFloor) return;
         if (!this.selectedFloorTextureId) {
             alert('Selecione um piso primeiro.');
             return;
@@ -4460,6 +4625,7 @@ class GameSession {
 
     updateFloorPaint(e) {
         if (!this.isFloorPainting) return;
+        if (this._blockedFloor) return;
         const tex = this.getFloorTextureById(this.selectedFloorTextureId);
         if (!tex) return;
         this.paintFloorAtClient(e.clientX, e.clientY, tex);
@@ -4472,6 +4638,7 @@ class GameSession {
     }
 
     paintFloorAtClient(clientX, clientY, tex) {
+        if (this._blockedFloor) return;
         const p = this.getMapPointFromClient(clientX, clientY);
         if (!p) return;
         const gridX = Math.floor(p.x / 50) * 50;
@@ -4481,11 +4648,11 @@ class GameSession {
         if (this.lastFloorPaintCellKey === key) return;
         this.lastFloorPaintCellKey = key;
 
-        const tiles = Array.isArray(this.floorTiles) ? [...this.floorTiles] : [];
+        const tiles = this.floorTiles || [];
         const occupied = tiles.some(t => t && (t.layer ?? 0) === layer && Number(t.x || 0) === gridX && Number(t.y || 0) === gridY);
         if (occupied) return;
 
-        const size = Math.max(50, Math.min(2000, Math.round((Number(this.floorDefaultSizePx || 150) || 150) / 50) * 50));
+        const size = Math.max(50, Math.min(5000, Math.round((Number(this.floorDefaultSizePx || 150) || 150) / 50) * 50));
         const tile = {
             id: `floor_${Date.now().toString(36)}_${Math.random().toString(16).slice(2, 5)}`,
             layer,
@@ -4537,7 +4704,7 @@ class GameSession {
         }
 
         if (mapImg) {
-            mapImg.style.opacity = String(Math.max(0, Math.min(1, mapOpacity)));
+            mapImg.style.opacity = String(Math.max(0.3, Math.min(1, mapOpacity)));
             mapImg.style.filter = `brightness(${Math.max(0.4, Math.min(1.6, brightness))})`;
         }
 
@@ -4847,7 +5014,7 @@ class GameSession {
             el.style.boxShadow = `0 0 10px ${fp.color || '#ffd700'}`;
             el.style.opacity = '0.6';
             el.style.pointerEvents = 'none';
-            el.style.zIndex = '3';
+            el.style.zIndex = '999999999999';
             grid.appendChild(el);
         });
     }
@@ -5210,23 +5377,21 @@ class GameSession {
         this.renderTokens(); // Limpa borders de target e moving
     }
 
-    async handleTokenClick(token) {
-        if (this.isTargeting) {
-            this.selectTarget(token);
-            return;
-        }
-        if (this.isMovingToken) {
-            // Se estiver movendo e clicar em um token, move para a posição desse token
-            await this.moveTokenTo(token.x, token.y);
-            return;
-        }
+ async handleTokenClick(token) {
+    if (this.selectedTokenId === token.id) {
+        this.selectedTokenId = null;
+    } else {
         this.selectedTokenId = token.id;
-        this.renderTokens();
-        this.renderGmTokenPanel();
-        if (!this.isMaster) {
-            this.openTokenDetails(token);
-        }
     }
+
+    this.renderTokens();
+    this.renderGmTokenPanel();
+
+    if (!this.isMaster) {
+        this.openTokenDetails(token);
+    }
+}
+    
 
     startMovingToken(tokenId) {
         if (!this.isMaster && this.sessionData.permissions?.allow_tokens === false) {
@@ -5284,10 +5449,15 @@ class GameSession {
         }
 
         // Atualiza posição
+        const dx = x - oldX;
+        const dy = y - oldY;
         tokens[index].x = x;
         tokens[index].y = y;
+        if (token.type === 'player' && (dx !== 0 || dy !== 0)) {
+            tokens[index].vision_angle = Math.atan2(dy, dx);
+        }
 
-        // Sistema de Rastro (Footprints)
+        // Sistema de Rastro que faz linha entre os pontos (Footprints)
         const footprint = {
             x: oldX,
             y: oldY,
@@ -5352,11 +5522,11 @@ class GameSession {
 
         setTimeout(() => {
             el.classList.remove('hit-animation');
-        }, 2000);
+        }, 5000);
     }
 
     openTokenDetails(token) {
-        const modal = document.getElementById('token-details-modal');
+        // const modal = document.getElementById('token-details-modal');
         const title = document.getElementById('token-modal-title');
         const img = document.getElementById('token-modal-img');
         const hpCurrent = document.getElementById('token-hp-current');
@@ -5389,6 +5559,8 @@ class GameSession {
             atk.disabled = true;
             def.disabled = true;
             saveBtn.style.display = 'none';
+            moveBtn.style.display = 'none';
+            moveBtn.disabled = true;
         }
 
         modal.style.display = 'flex';
@@ -5429,41 +5601,6 @@ class GameSession {
     }
 
     // Método loadTokens removido pois agora usamos map_tokens no documento principal
-
-    handleAudioSync(oldState) {
-        const newState = this.sessionData.audio_state;
-        if (!newState) {
-            if (this.currentAudio) {
-                this.currentAudio.pause();
-                this.currentAudio = null;
-            }
-            return;
-        }
-
-        // Se a música mudou ou o status mudou para playing
-        if (newState.url !== oldState?.url || (newState.status === 'playing' && oldState?.status !== 'playing')) {
-            this.playMusicLocal(newState.url, newState.status === 'playing');
-        } else if (newState.status === 'paused' && oldState?.status !== 'paused') {
-            if (this.currentAudio) this.currentAudio.pause();
-        } else if (newState.status === 'stopped') {
-            if (this.currentAudio) {
-                this.currentAudio.pause();
-                this.currentAudio = null;
-            }
-        }
-    }
-
-    playMusicLocal(url, startPlaying = true) {
-        if (this.currentAudio) {
-            this.currentAudio.pause();
-        }
-        this.currentAudio = new Audio(url);
-        this.currentAudio.loop = true;
-        this.currentAudio.volume = this.localVolume;
-        if (startPlaying) {
-            this.currentAudio.play().catch(e => console.log("Interação do usuário necessária para áudio"));
-        }
-    }
 
     updateUI() {
         // Remove referências antigas a display-session-name
@@ -5675,42 +5812,8 @@ class GameSession {
     }
 
     loadMasterKit() {
-        // Músicas
         const musicList = document.getElementById('music-list');
-        const songs = [
-            { name: 'Dies Irae Reborn', url: 'assets/song/Dies Irae Reborn.mp3' },
-            { name: 'The First Reborn', url: 'assets/song/The First Reborn.mp3' },
-            { name: 'Aventura Épica', url: 'assets/song/track1.mp3' }
-        ];
-
-        const audioState = this.sessionData?.audio_state || {};
-
-        musicList.innerHTML = songs.map(song => {
-            const isCurrent = audioState.url === song.url;
-            const isPlaying = isCurrent && audioState.status === 'playing';
-            
-            return `
-                <div class="kit-item ${isCurrent ? 'current-song' : ''}">
-                    <span><i class="fas ${isPlaying ? 'fa-volume-up' : 'fa-music'}"></i> ${song.name}</span>
-                    <div class="kit-item-controls">
-                        ${isCurrent && isPlaying ? `
-                            <button class="btn-icon" title="Pausar" onclick="window.gameSession.updateAudioStatus('paused')">
-                                <i class="fas fa-pause"></i>
-                            </button>
-                        ` : `
-                            <button class="btn-icon" title="Tocar" onclick="window.gameSession.playMusicMaster('${song.url}')">
-                                <i class="fas fa-play"></i>
-                            </button>
-                        `}
-                        ${isCurrent ? `
-                            <button class="btn-icon btn-stop" title="Parar" onclick="window.gameSession.updateAudioStatus('stopped')">
-                                <i class="fas fa-stop"></i>
-                            </button>
-                        ` : ''}
-                    </div>
-                </div>
-            `;
-        }).join('');
+        if (musicList) musicList.innerHTML = '';
 
         // Controle de Volume Local
         let volumeControl = document.getElementById('local-volume-control');
@@ -5727,7 +5830,6 @@ class GameSession {
             volumeControl = volumeDiv.querySelector('input');
             volumeControl.oninput = (e) => {
                 this.localVolume = parseFloat(e.target.value);
-                if (this.currentAudio) this.currentAudio.volume = this.localVolume;
             };
         }
 
@@ -5762,47 +5864,10 @@ class GameSession {
         this.renderGmTokenPanel();
     }
 
-    async playMusicMaster(url) {
-        if (!this.isMaster) return;
-        await updateDoc(doc(db, "sessions", this.sessionId), {
-            audio_state: {
-                url: url,
-                status: 'playing',
-                updated_at: serverTimestamp()
-            }
-        });
-    }
-
-    async updateAudioStatus(status) {
-        if (!this.isMaster) return;
-        const currentUrl = this.sessionData.audio_state?.url;
-        if (!currentUrl) return;
-
-        await updateDoc(doc(db, "sessions", this.sessionId), {
-            'audio_state.status': status,
-            'audio_state.updated_at': serverTimestamp()
-        });
-    }
-
     setupEventListeners() {
         if (this._listenersBound?.eventListeners) return;
         this._listenersBound.eventListeners = true;
-        // Global click sound for buttons
-        document.addEventListener('click', (e) => {
-            if (e.target.closest('button') || e.target.closest('.gm-tool-btn') || e.target.closest('.btn-icon')) {
-                // Tenta tocar um som de clique rápido, baixo e não intrusivo
-                // Podemos usar o próprio sistema de SFX ou criar um Audio rápido
-                try {
-                    if (!this._uiClickAudio) {
-                        this._uiClickAudio = new Audio('https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3');
-                        this._uiClickAudio.preload = 'auto';
-                    }
-                    this._uiClickAudio.volume = 0.2 * this.localVolume;
-                    try { this._uiClickAudio.currentTime = 0; } catch {}
-                    this._uiClickAudio.play().catch(() => {});
-                } catch(err) {}
-            }
-        });
+        initClickSound();
 
         // Botões de Combate
         const btnStart = document.getElementById('btn-start-combat');
@@ -5815,12 +5880,12 @@ class GameSession {
         if (btnInitiative) btnInitiative.onclick = () => this.rollInitiative();
         if (btnRollEnemies) btnRollEnemies.onclick = () => this.rollEnemiesInitiative();
 
-        // Voltar ao Saguão
+        // Voltar play.html
         const btnReturnLobby = document.getElementById('btn-return-lobby');
         if (btnReturnLobby) {
             btnReturnLobby.onclick = () => {
-                const type = this.sessionData?.type || 'guild';
-                window.location.href = `${type === 'free' ? 'free-session.html' : 'guild.html'}?id=${this.sessionId || ''}`;
+                // const type = this.sessionData?.type || 'guild';
+                window.location.href = 'play.html'
             };
         }
 
@@ -5874,7 +5939,7 @@ class GameSession {
                 }
             };
 
-            // Recolher automaticamente após 6 segundos da carga inicial
+            // Recolher automaticamente após 2 segundos da carga inicial
             setTimeout(() => {
                 if (!header.classList.contains('collapsed')) {
                     header.classList.add('collapsed');
@@ -5884,7 +5949,7 @@ class GameSession {
                         icon.classList.add('fa-chevron-down');
                     }
                 }
-            }, 6000);
+            }, 2000);
         }
 
         // Toggle Sidebars
@@ -6289,7 +6354,7 @@ class GameSession {
             try {
                 const rect = mapContainer.getBoundingClientRect();
                 
-                // Cálculo de coordenadas relativas ao mapa 2000x2000
+                // Cálculo de coordenadas relativas ao mapa 5000x5000
                 const x = (e.clientX - rect.left) / this.scale;
                 const y = (e.clientY - rect.top) / this.scale;
 
@@ -6301,7 +6366,7 @@ class GameSession {
                 const text = String(rawData || '').trim();
                 if (!text) {
                     // Se não tem dados de drag e não está movendo, pode ser apenas um clique no mapa
-                    if (this.isTargeting || this.isMovingToken) return;
+                    if (this.isTargeting || this.isMovingToken ) return;
                     return;
                 }
 
@@ -6326,7 +6391,7 @@ class GameSession {
                         alert('Selecione um piso válido.');
                         return;
                     }
-                    const size = Math.max(50, Math.min(2000, Math.round((Number(this.floorDefaultSizePx || 150) || 150) / 50) * 50));
+                    const size = Math.max(50, Math.min(5000, Math.round((Number(this.floorDefaultSizePx || 150) || 150) / 50) * 50));
                     const tile = {
                         id: `floor_${Date.now().toString(36)}_${Math.random().toString(16).slice(2, 5)}`,
                         layer: Math.max(0, Math.min(4, Number(layer) || 0)),
@@ -6447,6 +6512,7 @@ class GameSession {
                 isDead: data.hp <= 0,
                 owner_uid: this.user.uid,
                 sheet_id: data.id || null, // Se for player, guarda o ID da ficha
+                vision_angle: type === 'player' ? (-Math.PI / 2) : undefined,
                 created_at: new Date().toISOString()
             };
 
@@ -6848,10 +6914,16 @@ class GameSession {
             el.style.setProperty('--token-scale', String(tokenScale));
             if (token.borderColor) el.style.setProperty('--token-custom-border-color', String(token.borderColor));
             
-            // Determina se o usuário pode mover este token (apenas via botão MOVER agora)
+            // Determina se o usuário pode mover este token (mestre ou dono de folha)
+            const isMaster = this.isMaster;
             const isSheetOwner = token.type === 'player' && token.sheet_id === this.playerSheetId;
+            const canMove = isMaster || isSheetOwner;
+            el.dataset.canMove = canMove;
+            el.dataset.sheetOwner = isSheetOwner;
+            el.dataset.isMaster = isMaster;
+            el.dataset.canMove = canMove;
 
-            // Gerar Estrelas (Yu-Gi-Oh style)
+            // Gerar Estrelas de nível
             let stars = '';
             const level = token.level || 1;
             for(let i=0; i < level; i++) {
@@ -6871,23 +6943,16 @@ class GameSession {
                     <div class="token-stars">${stars}</div>
                     <div class="token-image-area" style="background-image: url('${token.image_url || 'assets/default-enemy.png'}')"></div>
                     <div class="token-info-area">
-                        <div class="token-name">${token.name}</div>
-                        ${token.job ? `<div style="font-size: 0.6rem; color: #666; margin-top: -2px;">${token.job}</div>` : ''}
-                        <div class="token-health-bar">
-                            <div class="health-bar-fill" style="width: ${hpPercent}%; background: ${hpColor};"></div>
-                        </div>
-                        <div class="token-stats">
-                            <div class="stat-box">ATK/ ${token.atk || '0'}</div>
-                            <div class="stat-box">DEF/ ${token.def || '0'}</div>
-                        </div>
+                        <div class="token-name" style="font-size: 1.1rem; color: #000000ff; font-weight: bold; text-align: center;">${token.name}</div>
+
                     </div>
                     <div class="token-dead-overlay">
                         <span class="dead-text">${token.type === 'player' ? 'CAÍDO' : 'ELIMINADO'}</span>
                     </div>
                 </div>
-                ${(this.isMaster || isSheetOwner) && !token.isDead ? `
+                ${canMove && !token.isDead && token.type === 'player' ? `
                     <div class="token-controls">
-                        ${this.isMaster ? `
+                        ${this.isMaster ?  `
                             <button class="control-btn btn-reveal" onclick="window.gameSession.toggleReveal('${token.id}', ${token.isRevealed})" title="${token.isRevealed ? 'Esconder' : 'Revelar'}">
                                 <i class="fas ${token.isRevealed ? 'fa-eye-slash' : 'fa-eye'}"></i>
                             </button>
@@ -6905,7 +6970,7 @@ class GameSession {
                 ` : ''}
             `;
 
-            // Evento de Clique no Token
+           // Evento de Clique no Token
             el.onclick = (e) => {
                 e.stopPropagation();
                 // Se estiver clicando nos controles, ignora para não abrir modal
@@ -6944,7 +7009,7 @@ class GameSession {
                 }, e.clientX, e.clientY);
             };
 
-            const canDrag = !this.deleteMode && !token.isDead && (this.isMaster || isSheetOwner) && (!this.isMaster || this.activeMapTool === 'pointer');
+            const canDrag = !this.deleteMode && !token.isDead && canMove && (!this.isMaster || this.activeMapTool === 'pointer');
             if (canDrag) {
                 this.makeTokenDraggable(el, token);
             }
@@ -7026,18 +7091,27 @@ class GameSession {
         let isDragging = false;
         
         const onMouseDown = (e) => {
-            e.stopPropagation();
-            if (e.button !== 0) return;
-            this.selectedTokenId = token.id;
-            this.renderGmTokenPanel();
-            document.querySelectorAll('.token.selected').forEach((t) => t.classList.remove('selected'));
-            el.classList.add('selected');
-            isDragging = true;
-            el.style.zIndex = 1000;
-            
-            window.addEventListener('mousemove', onMouseMove);
-            window.addEventListener('mouseup', onMouseUp);
-        };
+    e.stopPropagation();
+    if (e.button !== 0) return;
+
+    const isSelected = this.selectedTokenId === token.id;
+
+    if (isSelected) {
+        // 🔥 DESSELECIONAR
+        
+        this.selectedTokenId = null;
+    } else {
+        // 🔥 SELECIONAR
+        this.selectedTokenId = token.id;
+    }
+
+
+    // 🔥 ESSENCIAL
+    this.renderTokens();
+    this.renderGmTokenPanel();
+    e.preventDefault();
+    };
+
 
         const onMouseMove = (e) => {
             if (!isDragging) return;
@@ -7361,11 +7435,6 @@ class GameSession {
         }
     }
 
-    // Método original playMusic mantido para compatibilidade se necessário, masMaster usa playMusicMaster
-    playMusic(url) {
-        this.playMusicMaster(url);
-    }
-
     async rollDice(sides) {
         if (!this.isMaster && this.sessionData.permissions?.allow_dice === false) {
             console.warn("Rolagem de dados bloqueada pelo Mestre.");
@@ -7497,6 +7566,15 @@ class GameSession {
         }
     }
 }
+const btnMenu = document.getElementById('btn-menu');
+const hamburgerMenu = document.querySelector('.hamburger-menu');
+const controls = document.querySelector('.combat-controls');
+
+btnMenu.addEventListener('click', () => {
+    console.log('click');
+    hamburgerMenu.classList.toggle('active');
+    controls.classList.toggle('active');   
+});
 
 window.onload = () => {
     window.gameSession = new GameSession();

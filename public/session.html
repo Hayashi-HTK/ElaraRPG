@@ -22,17 +22,27 @@
 
     <!-- Top Menu Fixo -->
     <nav class="top-menu-bar">
+            <!-- Controle de Combate e Voltar -->
+            <button type="checkbox" id="btn-menu" class="btn-combat btn-combat-mobile" title="Menu"><i class="fas fa-bars"></i></button>
+             <div class="hamburger-menu">
+            <div class="combat-controls">
+                <button id="btn-start-combat" class="btn-combat master-only"><i class="fas fa-swords"></i> INICIAR COMBATE</button>
+                <button id="btn-roll-initiative" class="btn-combat" style="display: none;"><i class="fas fa-dice-d20"></i> ROLAR INICIATIVA</button>
+                <button id="btn-open-rules" class="btn-combat"><i class="fas fa-book"></i> REGRAS</button>
+                <button id="btn-return-lobby" class="btn-combat" style="background: var(--dark-bg); border: 1px solid var(--accent-gold);"><i class="fas fa-door-open"></i> VOLTAR</button>
+            </div>
+            </div>
         <div class="top-menu-logo">
             <img src="/assets/icons/LogoElara.png" alt="ELARA RPG">
             <span>ELARA RPG</span>
         </div>
         <div class="top-menu-actions">
-            <div id="group-kill-counter" class="kill-counter" title="Inimigos Eliminados">
+            <div id="group-kill-counter" class="kill-counter" title="Inimigos Eliminados" style="display: none;">
                 <i class="fas fa-skull"></i> <span id="kill-count-value">0</span>
             </div>
-            <button id="btn-toggle-grid" class="btn-icon" title="Alternar Grid"><i class="fas fa-th"></i></button>
-            <button class="btn-icon master-only" onclick="window.gameSession.clearFootprints()" title="Limpar Rastros"><i class="fas fa-eraser"></i></button>
-            <button id="btn-toggle-fullscreen" class="btn-icon" title="Tela Cheia"><i class="fas fa-expand"></i></button>
+            <button id="btn-toggle-grid" class="btn-icon btn-session" title="Alternar Grid"><i class="fas fa-th"></i></button>
+            <button class="btn-icon master-only" onclick="window.gameSession.clearFootprints()" title="Limpar Rastros" style="display: none;"><i class="fas fa-eraser"></i></button>
+            <button id="btn-toggle-fullscreen" class="btn-icon btn-session" title="Tela Cheia"><i class="fas fa-expand"></i></button>
             <button id="btn-exit-session" class="btn-danger-small" title="Sair"><i class="fas fa-sign-out-alt"></i> Sair</button>
         </div>
     </nav>
@@ -45,16 +55,7 @@
                 <!-- Preenchido via JS -->
             </div>
             
-            <!-- Controle de Combate e Voltar -->
-            <div class="combat-controls">
-                <button id="btn-return-lobby" class="btn-combat" style="background: var(--dark-bg); border: 1px solid var(--accent-gold);"><i class="fas fa-door-open"></i> VOLTAR AO SAGUÃO</button>
-                <button id="btn-start-combat" class="btn-combat master-only"><i class="fas fa-swords"></i> INICIAR COMBATE</button>
-                <button id="btn-roll-initiative" class="btn-combat" style="display: none;"><i class="fas fa-dice-d20"></i> ROLAR INICIATIVA</button>
-                <button id="btn-open-rules" class="btn-combat"><i class="fas fa-book"></i> REGRAS</button>
-                <button id="btn-roll-enemies" class="btn-combat master-only" style="display: none;"><i class="fas fa-dragon"></i> INICIATIVA INIMIGOS</button>
-                <button id="btn-next-turn" class="btn-combat master-only" style="display: none;"><i class="fas fa-step-forward"></i> PRÓXIMO TURNO</button>
-                <button id="btn-end-combat" class="btn-danger-small master-only" style="display: none;"><i class="fas fa-stop"></i> ENCERRAR</button>
-            </div>
+
         </div>
         <div class="header-toggle-arrow">
             <i class="fas fa-chevron-up"></i>
@@ -73,17 +74,18 @@
         <button class="gm-tool-btn gm-map-tool" data-tool="pointer" title="Ponteiro"><i class="fas fa-mouse-pointer"></i></button>
         <button class="gm-tool-btn gm-map-tool" data-tool="hand" title="Mover Mapa"><i class="fas fa-hand-paper"></i></button>
         <button class="gm-tool-btn" data-tool="kit" title="Kit do Mestre"><i class="fas fa-toolbox"></i></button>
+        <button class="gm-tool-btn" data-tool="blocked-floor" title="Piso Bloqueado" id="btn-blocked-floor"><i class="fas fa-lock"></i></button>
         <button class="gm-tool-btn gm-map-tool" data-tool="floor" title="Piso"><i class="fas fa-th-large"></i></button>
         <button class="gm-tool-btn" data-tool="delete-mode" title="Modo Deletar"><i class="fas fa-trash"></i></button>
         <button class="gm-tool-btn" data-tool="editor" title="Editor do Mapa"><i class="fas fa-layer-group"></i></button>
         <button class="gm-tool-btn" data-tool="enemy-create" title="Criar Inimigo"><i class="fas fa-plus"></i></button>
         <button class="gm-tool-btn" data-tool="bestiary" title="Inimigos"><i class="fas fa-dragon"></i></button>
-        <button class="gm-tool-btn" data-tool="sheets" title="Fichas"><i class="fas fa-file-alt"></i></button>
+        <button class="gm-tool-btn" data-tool="sheets" title="Classificação de fichas"><i class="fas fa-file-alt"></i></button>
         <button class="gm-tool-btn" data-tool="players" title="Aventureiros"><i class="fas fa-users"></i></button>
         <button class="gm-tool-btn" data-tool="measure" title="Régua"><i class="fas fa-ruler-combined"></i></button>
         <button class="gm-tool-btn gm-map-tool" data-tool="draw" title="Desenhar"><i class="fas fa-paint-brush"></i></button>
         <button class="gm-tool-btn gm-map-tool" data-tool="text" title="Texto"><i class="fas fa-font"></i></button>
-        <button class="gm-tool-btn gm-map-tool" data-tool="path" title="Caminho e Alfinetes"><i class="fas fa-route"></i></button>
+        <button class="gm-tool-btn gm-map-tool" data-tool="path" title="Caminho e Alfinetes" style="display: none;"><i class="fas fa-route"></i></button>
         <button class="gm-tool-btn gm-map-tool" data-tool="fog" title="Neblina"><i class="fas fa-cloud"></i></button>
         <button class="gm-tool-btn gm-map-tool" data-tool="vision" title="Visão"><i class="fas fa-eye"></i></button>
         <button class="gm-tool-btn" data-tool="ping" title="Ping"><i class="fas fa-bullseye"></i></button>
@@ -176,15 +178,15 @@
                 <div id="floor-layer" class="floor-layer"></div>
                 <div id="map-grid" class="map-grid"></div>
                 <div id="measure-layer" class="measure-layer"></div>
-                <img id="session-map" src="assets/Mapa.png" alt="Mapa de Jogo">
+                <img id="session-map" src="assets/Mapa.png" alt="Mapa de Jogo" draggable="false">
                 <div id="floor-tiles-layer" class="floor-tiles-layer"></div>
                 <div id="map-objects-layer" class="map-objects-layer"></div>
                 <div id="assets-layer" class="assets-layer"></div>
                 <div id="tokens-layer" class="tokens-layer">
                     <!-- Tokens de monstros e jogadores aqui -->
                 </div>
-                <canvas id="draw-layer" class="draw-layer" width="2000" height="2000"></canvas>
-                <canvas id="fog-layer" class="fog-layer" width="2000" height="2000"></canvas>
+                <canvas id="draw-layer" class="draw-layer" width="5000" height="5000"></canvas>
+                <canvas id="fog-layer" class="fog-layer" width="5000" height="5000"></canvas>
                 <div id="delete-marquee" class="delete-marquee"></div>
             </div>
 
@@ -197,7 +199,7 @@
 
             <div id="map-zoom-control" class="map-zoom-control">
                 <button id="btn-zoom-in" class="map-zoom-btn" type="button">+</button>
-                <input id="range-map-zoom" class="map-zoom-range" type="range" min="0.2" max="3" step="0.05" value="0.5">
+                <input id="range-map-zoom" class="map-zoom-range" type="range" min="0.2" max="3" step="0.1" value="0.5">
                 <button id="btn-zoom-out" class="map-zoom-btn" type="button">−</button>
                 <div id="map-zoom-label" class="map-zoom-label">50%</div>
             </div>
@@ -347,7 +349,9 @@
                 </div>
             </div>
         </section>
+        <div class="mobile-map-area">
 
+        </div>
         <!-- Barra Lateral Direita: Kit do Mestre ou Chat Privado (Jogador) -->
         <aside id="sidebar-right" class="sidebar sidebar-right collapsed" style="display: none;">
             <div class="sidebar-toggle-btn" id="toggle-master-kit">
@@ -356,6 +360,7 @@
                 <span class="master-only">KIT MESTRE</span>
                 <span class="player-only">CHAT PRIVADO</span>
             </div>
+        
             <div class="sidebar-content">
                 <!-- Conteúdo Mestre -->
                 <div id="master-kit-content" class="master-only">
@@ -804,7 +809,7 @@
     <div id="gm-sheets-modal" class="modal-overlay" style="display: none;">
         <div class="modal-content token-details-content" style="max-width: 520px;">
             <div class="modal-header">
-                <h2>Fichas dos Aventureiros</h2>
+                <h2>Classificação de fichas</h2>
                 <button class="modal-x" onclick="document.getElementById('gm-sheets-modal').style.display='none'">&times;</button>
             </div>
             <div class="modal-body">

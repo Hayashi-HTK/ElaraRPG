@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ELARA — Manual de RPG</title>
+<link rel="icon" href="/assets/icons/LogoElara2.png" type="image/png">
 <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Cinzel:wght@400;600;700&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -31,6 +32,31 @@
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
+  /* Personalização do Scrollbar */
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: var(--deep);
+    border-left: 1px solid var(--border);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--gold-dark);
+    border-radius: 5px;
+    border: 2px solid var(--deep);
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--gold);
+  }
+
+  /* Firefox */
+  html {
+    scrollbar-width: thin;
+    scrollbar-color: var(--gold-dark) var(--deep);
+    min-width: fit-content;
+  }
+
   body {
     background: var(--deep);
     color: var(--text);
@@ -38,9 +64,6 @@
     font-size: 17px;
     line-height: 1.75;
     overflow-x: hidden;
-  }
-  html {
-        min-width: fit-content;
   }
 
   .manual-back-btn {
@@ -771,6 +794,7 @@
 </style>
 </head>
 <body>
+<script type="module" src="js/ui-click.js"></script>
 
 <button id="btn-manual-back" class="manual-back-btn" type="button">← Voltar</button>
 

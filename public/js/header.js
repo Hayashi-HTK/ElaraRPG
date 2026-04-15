@@ -2,6 +2,7 @@ import { auth, db, doc, getDoc, waitForAuth, signOut, collection, query, where, 
 import './standby.js';
 import './branding.js';
 import { getPlanState, upgradeHref } from './plans.js';
+import { initClickSound } from './ui-click.js';
 
 function setupViewToggleTooltips() {
     const toggle = document.getElementById('nav-view-toggle');
@@ -37,6 +38,8 @@ function setupViewToggleTooltips() {
         if (!toggle.contains(e.target)) clearTooltip();
     }, { passive: true });
 }
+
+initClickSound();
 
 // Cria o elemento header
 const header = document.createElement('header');

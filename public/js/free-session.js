@@ -4,7 +4,6 @@ import {
 } from './firebase.js';
 import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
 import { defaultEnemies } from './enemies.js';
-import { GAME_PLAYLIST } from './story-mode/constants.js';
 
 // Estado da Sessão Livre
 let sessionId = null;
@@ -12,14 +11,10 @@ let isSpectator = false;
 let user = null;
 let communityEnemies = []; // Cache para inimigos da comunidade
 let unsubscribeSession = null;
-let gameAudio = null;
-let currentTrackIndex = -1;
 
 document.addEventListener('DOMContentLoaded', async () => {
     // Salvar esta página como a última sessão visitada para redirecionamento do bestiário
     localStorage.setItem('last_session_page', window.location.href);
-
-    setupAudioSystem();
 
     // Verificar se é um espectador pelo link
     const urlParams = new URLSearchParams(window.location.search);
@@ -55,82 +50,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         setupEnemySelection();
     });
 });
-
-function setupAudioSystem() {
-    gameAudio = new Audio();
-    gameAudio.volume = 0.5;
-    gameAudio.onended = () => playRandomTrack();
-
-    const audioControls = document.createElement('div');
-    audioControls.className = 'audio-controls';
-    audioControls.innerHTML = `
-        <div id="audio-track-info" class="audio-track-info"></div>
-        <button id="audio-toggle-btn" class="audio-btn" title="Play/Pause">
-            <i class="fas fa-play"></i>
-        </button>
-        <button id="audio-next-btn" class="audio-btn" title="Próxima Faixa">
-            <i class="fas fa-step-forward"></i>
-        </button>
-        <button id="audio-mute-btn" class="audio-btn" title="Mute/Unmute">
-            <i class="fas fa-volume-up"></i>
-        </button>
-        <input type="range" id="audio-volume" class="volume-slider" min="0" max="1" step="0.1" value="0.5">
-    `;
-    document.body.appendChild(audioControls);
-
-    const toggleBtn = document.getElementById('audio-toggle-btn');
-    const nextBtn = document.getElementById('audio-next-btn');
-    const muteBtn = document.getElementById('audio-mute-btn');
-    const volumeSlider = document.getElementById('audio-volume');
-
-    toggleBtn.onclick = () => {
-        if (gameAudio.paused) {
-            gameAudio.play().catch(e => console.log("Interação necessária"));
-            toggleBtn.innerHTML = '<i class="fas fa-pause"></i>';
-        } else {
-            gameAudio.pause();
-            toggleBtn.innerHTML = '<i class="fas fa-play"></i>';
-        }
-    };
-
-    nextBtn.onclick = () => playRandomTrack();
-
-    muteBtn.onclick = () => {
-        gameAudio.muted = !gameAudio.muted;
-        muteBtn.innerHTML = gameAudio.muted ? '<i class="fas fa-volume-mute"></i>' : '<i class="fas fa-volume-up"></i>';
-    };
-
-    volumeSlider.oninput = (e) => {
-        gameAudio.volume = e.target.value;
-    };
-
-    playRandomTrack();
-}
-
-function playRandomTrack() {
-    if (!gameAudio) return;
-
-    let nextIndex;
-    if (GAME_PLAYLIST.length > 1) {
-        do {
-            nextIndex = Math.floor(Math.random() * GAME_PLAYLIST.length);
-        } while (nextIndex === currentTrackIndex);
-    } else {
-        nextIndex = 0;
-    }
-
-    currentTrackIndex = nextIndex;
-    const track = GAME_PLAYLIST[currentTrackIndex];
-    
-    gameAudio.src = track.src;
-    gameAudio.play().then(() => {
-        const toggleBtn = document.getElementById('audio-toggle-btn');
-        if (toggleBtn) toggleBtn.innerHTML = '<i class="fas fa-pause"></i>';
-        
-        const trackInfo = document.getElementById('audio-track-info');
-        if (trackInfo) trackInfo.textContent = `🎵 ${track.title}`;
-    }).catch(e => console.log("Autoplay bloqueado"));
-}
 
 async function createOrUpdateSession(user) {
     const sessionRef = doc(db, 'sessions', sessionId);

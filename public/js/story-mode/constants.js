@@ -391,11 +391,4 @@ export const STORY_NODES = {
     }
 };
 
-export const GAME_PLAYLIST = [
-    { title: 'Dies Irae Reborn', src: 'assets/song/Dies Irae Reborn.mp3' },
-    { title: 'The First Reborn', src: 'assets/song/The First Reborn.mp3' },
-    { title: 'Batalha Épica 1', src: 'assets/song/track1.mp3' }, // Placeholder
-    { title: 'Mistérios de Elara', src: 'assets/song/track2.mp3' }, // Placeholder
-    { title: 'O Vazio Clama', src: 'assets/song/track3.mp3' }, // Placeholder
-    { title: 'Batalha Épica 2', src: 'assets/song/TheFirst.mp3' } // Placeholder
-];
+export const GAME_PLAYLIST = [];

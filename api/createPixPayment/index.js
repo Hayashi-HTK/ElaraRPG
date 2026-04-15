@@ -2,6 +2,12 @@ const { ensureAdmin, verifyFirebaseIdToken } = require('../../lib/firebaseAdmin'
 const { mpFetchJson, getMpTokenKind } = require('../../lib/mercadopago')
 const { applyCors } = require('../../lib/cors')
 
+const parseEmailList = (raw) => {
+  const v = String(raw || '').trim()
+  if (!v) return []
+  return v.split(',').map(s => s.trim()).filter(Boolean)
+}
+
 const planMeta = (plan) => {
   const k = String(plan || '').trim().toLowerCase()
   if (k === 'basic') return { plan: 'basic', name: 'Herói' }
@@ -103,6 +109,30 @@ module.exports = async (req, res) => {
       ticket_url: ticketUrl,
       created_at: admin.firestore.FieldValue.serverTimestamp()
     }, { merge: true })
+
+    try {
+      const to = parseEmailList(process.env.PAYMENT_NOTIFY_EMAIL_TO)
+      if (to.length) {
+        await db.collection('mail').add({
+          to,
+          message: {
+            subject: `Novo Pix gerado (${meta.plan})`,
+            text: [
+              `Plano: ${meta.plan}`,
+              `Valor: ${amount}`,
+              `UID: ${user.uid}`,
+              `Email: ${user.email || ''}`,
+              `Payment ID: ${paymentId}`,
+              `Request ID: ${docId}`,
+              `Origem: ${origin || ''}`,
+              `Token: ${getMpTokenKind() || ''}`,
+              `Expira em: ${expiresAt}`
+            ].join('\n')
+          },
+          created_at: admin.firestore.FieldValue.serverTimestamp()
+        })
+      }
+    } catch {}
 
     res.status(200).json({
       request_id: docId,

@@ -2,6 +2,7 @@
 import * as Firebase from './firebase.js';
 import './standby.js';
 import './branding.js';
+import './ui-click.js';
 
 console.log('Initializing Firebase Bridge...')
 

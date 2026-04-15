@@ -65,23 +65,113 @@ export const normalizeFloorUrl = (url) => {
 }
 
 export const OBJECT_BOOK = {
-  'Heróis': [],
+  'Heróis': [
+    {
+      id: 'heroi_exemplo_01',
+      name: 'Kael Cindervane',
+      image_url: 'assets/Jogar/Book/Herois/Kael.png'
+    },
+    {
+      id: 'heroi_exemplo_02',
+      name: 'Lyron Tideborn',
+      image_url: 'assets/Jogar/Book/Herois/Lyron.png'
+    },
+    {
+      id: 'heroi_exemplo_03',
+      name: 'Torak Stoneclaw',
+      image_url: 'assets/Jogar/Book/Herois/Torak.png'
+    },
+    {
+      id: 'heroi_exemplo_04',
+      name: 'Senno Galewing',
+      image_url: 'assets/Jogar/Book/Herois/Senna.png'
+    },
+    {
+      id: 'heroi_exemplo_05',
+      name: 'Taisa Voidwhisper',
+      image_url: 'assets/Jogar/Book/Herois/TaisaVoid.png'
+    },
+    {
+      id: 'heroi_exemplo_06',
+      name: 'Dax Stormfist',
+      image_url: 'assets/Jogar/Book/Herois/DaxStorm.png'
+    },
+    {
+      id: 'heroi_exemplo_07',
+      name: 'Orin Mistwalker',
+      image_url: 'assets/Jogar/Book/Herois/OrinMist.png'
+    },
+    {
+      id: 'heroi_exemplo_08',
+      name: 'Varo Sunshard',
+      image_url: 'assets/Jogar/Book/Herois/VaroSunshard.png'
+    },
+    {
+      id: 'heroi_exemplo_09',
+      name: 'Nyla Frostveil',
+      image_url: 'assets/Jogar/Book/Herois/NylaFrostveil.png'
+    },
+    {
+      id: 'heroi_exemplo_10',
+      name: 'Cassia Thornveil',
+      image_url: 'assets/Jogar/Book/Herois/CassiaThornveveil.png'
+    },
+    {
+      id: 'heroi_exemplo_11',
+      name: 'Riva Ashcroft',
+      image_url: 'assets/Jogar/Book/Herois/RivaAshcroft.png'
+    }
+  ],
   'Vilões': [
     {
       id: 'vilao_exemplo_01',
       name: 'Espantalho',
       image_url: 'assets/Jogar/Book/Viloes/espantalho.png'
+    },
+    {
+      id: 'vilao_exemplo_02',
+      name: 'DragaoRed', 
+      image_url: 'assets/Jogar/Book/Viloes/Dragao1.png'
+    },
+    {
+      id: 'vilao_exemplo_03',
+      name: 'Mago', 
+      image_url: 'assets/Jogar/Book/Viloes/Mago1.png'
     }
   ],
-  "NPC's": [],
+  "NPC's": [ {
+      id: 'npc_exemplo_01',
+      name: 'NPC1',
+      image_url: 'assets/Jogar/Book/NPCs/NPC1.png'
+    },
+    {
+      id: 'npc_exemplo_02',
+      name: 'NPC2',
+      image_url: 'assets/Jogar/Book/NPCs/NPC2.png'
+    }
+  ],
   'Animais': [],
   'Formas': [],
   'Efeitos': [],
   'Clima': [],
-  'Estatuas': [],
+  'Estatuas': [{
+      id: 'estatua_exemplo_01',
+      name: 'Estatua1',
+      image_url: 'assets/Jogar/Book/Estatua/estatua1.png'
+    }],
   'Casas': [],
   'Prédios': [],
-  'Cavernas': [],
+  'Cavernas': [{
+      id: 'caverna_exemplo_01',
+      name: 'Caverna1',
+      image_url: 'assets/Jogar/Book/Cavernas/Caverna1.png'
+    },
+    {
+      id: 'caverna_exemplo_02',
+      name: 'Caverna2',
+      image_url: 'assets/Jogar/Book/Cavernas/CavernaEntrada.png'
+    }
+  ],
   'Cidade': [],
   'Caixas': [],
   'Baús': [],
@@ -90,7 +180,13 @@ export const OBJECT_BOOK = {
   'Explosões': [],
   'Vulcão': [],
   'Mares': [],
-  'Portais': []
+  'Portais': [
+    {
+      id: 'portal_exemplo_01',
+      name: 'Portal1',
+      image_url: 'assets/Jogar/Book/Portais/Portal1.png'
+    }
+  ]
 }
 
 export const getObjectBookCategories = () => {

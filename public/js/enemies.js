@@ -141,28 +141,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const user = await waitForAuth();
 
-    // Sistema de Áudio para Bosses
-    let bossAudio = null;
-    const THE_FIRST_THEME = 'assets/song/track3.mp3'; // COLOQUE O LINK DA MÚSICA AQUI
-
-    function playBossMusic(url) {
-        if (bossAudio) {
-            bossAudio.pause();
-            bossAudio = null;
-        }
-        bossAudio = new Audio(url);
-        bossAudio.loop = true;
-        bossAudio.volume = 0.5;
-        bossAudio.play().catch(e => console.log("Autoplay bloqueado pelo navegador. Clique no modal para tocar."));
-    }
-
-    function stopBossMusic() {
-        if (bossAudio) {
-            bossAudio.pause();
-            bossAudio = null;
-        }
-    }
-
     async function loadCommunityEnemies() {
         try {
             const q = query(collection(db, 'enemies'));
@@ -464,11 +442,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             stars += '<span class="star">★</span>';
         }
 
-        // Se for o Boss Final, toca a música tema
-        if (enemy.name.toUpperCase() === 'THE FIRST') {
-            playBossMusic(THE_FIRST_THEME);
-        }
-
         modalContainer.innerHTML = `
             <div class="modal-overlay visible">
                 <div class="modal-content enemy-modal-content">
@@ -606,7 +579,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         const modalOverlay = modalContainer.querySelector('.modal-overlay');
         if (modalOverlay) {
             modalOverlay.classList.remove('visible');
-            stopBossMusic(); // Para a música quando fechar o modal
             setTimeout(() => {
                 modalContainer.innerHTML = '';
             }, 300);
