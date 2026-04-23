@@ -74,6 +74,7 @@
 }
 
 .modal-content {
+    padding: 40px;
     width: min(720px, 92vw);
     max-height: 86vh;
     background: radial-gradient(140% 120% at 10% 10%, rgba(255, 215, 0, 0.10) 0%, rgba(255, 215, 0, 0.02) 25%, rgba(18, 18, 20, 0.98) 60%), linear-gradient(180deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.02) 100%);

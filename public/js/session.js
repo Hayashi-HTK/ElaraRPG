@@ -142,7 +142,7 @@ class GameSession {
             const n = Number(stored);
             if (Number.isFinite(n)) floorSize = n;
         } catch {}
-        this.floorDefaultSizePx = Math.max(50, Math.min(5000, Math.round(floorSize / 50) * 50));
+        this.floorDefaultSizePx = Math.max(50, Math.min(3000, Math.round(floorSize / 50) * 50));
 
         this.mapObjects = [];
         this.selectedMapObjectId = null;
@@ -1455,6 +1455,8 @@ class GameSession {
                     <i class="fas fa-trash"></i>
                 </button>
             `;
+           
+            
 
             menu.onclick = async (e) => {
                 e.stopPropagation();
@@ -1650,7 +1652,7 @@ class GameSession {
 
 
         area.onmousedown = (e) => {
-            if (this.isMaster && this.deleteMode && e.button === 0) {
+            if (this.isMaster  && this.deleteMode && e.button === 0) {
                 this.startDeleteMarquee(e);
                 return;
             }
@@ -1692,15 +1694,17 @@ class GameSession {
            
 
             this.didPan = false;
-            const canPanLeft = !this.isMaster || this.activeMapTool === 'hand';
+            const canPanLeft = !this.isMaster || this.activeMapTool === 'hand' || e.button === 0;
             const blocked = !!(e.target.closest('.token') || e.target.closest('.map-asset') || e.target.closest('.floor-tile') || e.target.closest('.control-btn') || e.target.closest('#map-context-menu'));
-            if (e.button === 1 || (e.button === 0 && canPanLeft && !blocked)) {
+            // mobile hand tool touchstart / touchmove / touchend
+            
+            if (e.button === 1 || (e.button === 0 && canPanLeft && !blocked) || e.type === 'touchstart') {
                 this.isPanning = true;
                 this.didPan = false;
                 area.style.cursor = 'grabbing';
             }
         };
-
+        
         // Clique no mapa para mover ou selecionar alvo
         area.onclick = async (e) => {
             if (Date.now() - this.lastPanTime < 180) return;
@@ -1708,12 +1712,43 @@ class GameSession {
             if (this.isMaster && this.deleteMode && Date.now() < (this._deleteClickBlockUntil || 0)) {
                 return;
             }
-            // função para mobile hand tool touchstart / touchmove / touchend
+        let isDragging = false;
+        let startX = 0;
+        let startY = 0;
+        let lastX = 0;
+        let lastY = 0;
 
-            if (this.isMaster && this.activeMapTool === 'hand' || e.type === 'touchstart' || e.type === 'touchmove' || e.type === 'touchend') {
-
-                return;
+        area.addEventListener('touchstart', (e) => {
+            const mobile = true;
+        
+            if (mobile && this.isMaster && this.activeMapTool === 'hand') {
+                const touch = e.touches[0];
+            
+                isDragging = true;
+                startX = touch.clientX - lastX;
+                startY = touch.clientY - lastY;
             }
+        });
+
+        area.addEventListener('touchmove', (e) => {
+            if (!isDragging) return;
+        
+            const touch = e.touches[0];      
+        
+            lastX = touch.clientX - startX;
+            lastY = touch.clientY - startY;
+        
+            area.style.transform = `translate(${lastX}px, ${lastY}px)`;
+
+        });
+
+        area.addEventListener('touchend', () => {
+            isDragging = false;
+            // area.style.transform = `translate(${panX}px, ${panY}px)`;
+        }
+        
+    );
+
 
             if (this.isMovingFloorTile && this.movingFloorTileId) {
                 if (this._blockedFloor) return;
@@ -1973,14 +2008,14 @@ class GameSession {
 
     setMapScale(next) {
         const n = Number(next);
-        const base = Number.isFinite(n) ? n : (Number.isFinite(this.scale) ? this.scale : 0.5);
-        this.newScale = Math.max(0.2, Math.min(base, 5));
+        const base = Number.isFinite(n) ? n : (Number.isFinite(this.scale) ? this.scale : 0.1);
+        this.newScale = Math.max(0.1, Math.min(base, 1));
 
         this.updateMapTransform();
         const r = document.getElementById('range-map-zoom');
         if (r) r.value = String(this.newScale);
         const label = document.getElementById('map-zoom-label');
-        if (label) label.textContent = `${Math.round(this.scale * 100)}%`;
+        if (label) label.textContent = `${Math.round(this.newScale * 100)}%`;
 
         // Atualiza scale
         this.scale = this.newScale;
@@ -1992,7 +2027,9 @@ class GameSession {
         const container = document.getElementById('map-container');
         if (container) {
             // Centraliza o mapa no meio da área visível
-            container.style.transform = `translate3d(${this.panX}px, ${this.panY}px, 0) scale(${this.scale})`;
+            // container.style.transform = `translate3d(${this.panX}px, ${this.panY}px, 0) scale(${this.newScale})`;
+            container.style.transform = `translate(${this.panX}px, ${this.panY}px) scale(${this.newScale})`;
+            
         }
     }
 
@@ -2000,26 +2037,29 @@ class GameSession {
         const area = document.querySelector('.map-area'); 
         if (!area) return; 
         const areaRect = area.getBoundingClientRect(); 
-        // Centraliza o mapa de 5000px no meio da área visível 
-        this.scale = Math.min(3, Math.max(0.2, areaRect.width / 5000)); 
-        console.log(this.scale); 
-        this.panX = (areaRect.width / 2) - (5000 * this.scale / 2 - areaRect.left); 
-        this.panY = (areaRect.height / 2) - (5000 * this.scale / 2 - areaRect.top); 
-        this.updateMapTransform(); 
+        // Centraliza o mapa de 3000px no meio da área visível 
+        // this.newScale = Math.min(3, Math.max(0.2, areaRect.width / 2400)); 
+        console.log(this.newScale); 
+        this.newScale = Math.min(3, Math.max(0.2, areaRect.width / 2400)); 
+        this.panX = (areaRect.width / 2) - (1900 * this.newScale / 2 - areaRect.left); 
+        this.panY = (areaRect.height / 2) - (-1400 * this.newScale / 2 - areaRect.top); 
         const r = document.getElementById('range-map-zoom'); 
-        if (r) r.value = String(this.scale); 
+        if (r) r.value = String(this.newScale); 
         const label = document.getElementById('map-zoom-label'); 
-        if (label) label.textContent = `${Math.round(this.scale * 100)}%`; 
+        if (label) label.textContent = `${Math.round(this.newScale * 100)}%`; 
+        this.updateMapTransform(); 
         }
 
         setupZoomControl() { 
         const btnIn = document.getElementById('btn-zoom-in'); 
         const btnOut = document.getElementById('btn-zoom-out'); 
         const range = document.getElementById('range-map-zoom'); 
-        if (btnIn) btnIn.onclick = () => this.setMapScale(this.scale * 1.2); 
-        if (btnOut) btnOut.onclick = () => this.setMapScale(this.scale * 0.8); 
+        const centerBtn = document.getElementById('btn-center');
+        if (centerBtn) centerBtn.onclick = () => this.centerMap();
+        if (btnIn) btnIn.onclick = () => this.setMapScale(this.newScale * 1.2); 
+        if (btnOut) btnOut.onclick = () => this.setMapScale(this.newScale * 0.9); 
         if (range) range.oninput = (e) => this.setMapScale(parseFloat(e.target.value || '0.2')); 
-        this.setMapScale(this.scale); 
+        this.setMapScale(this.newScale);    
     }
 
 
@@ -2033,8 +2073,8 @@ class GameSession {
         this.fogCtx = this.fogCanvas?.getContext?.('2d') || null;
 
         this.fogStore = document.createElement('canvas');
-        this.fogStore.width = 2000;
-        this.fogStore.height = 2000;
+        this.fogStore.width = 1000;
+        this.fogStore.height = 3000;
         this.fogStoreCtx = this.fogStore.getContext('2d');
 
         this.renderDrawLayer();
@@ -2080,6 +2120,7 @@ class GameSession {
                 this.renderDrawLayer();
             };
         }
+
 
         const pathSetA = document.getElementById('path-set-a');
         const pathSetB = document.getElementById('path-set-b');
@@ -2154,6 +2195,8 @@ class GameSession {
                 await this.updateMapEditorConfig({ vision: { enabled, radius } });
             };
         }
+        
+
     }
 
     updateMapToolUI() {
@@ -2201,10 +2244,15 @@ class GameSession {
         if (this.drawCanvas) this.drawCanvas.style.pointerEvents = (this.isMaster && (this.activeMapTool === 'draw' || this.activeMapTool === 'text' || this.activeMapTool === 'path')) ? 'auto' : 'none';
         if (this.fogCanvas) this.fogCanvas.style.pointerEvents = (this.isMaster && this.activeMapTool === 'fog') ? 'auto' : 'none';
 
+
+
+
+
         if (area) {
             if (this.isMaster && this.activeMapTool === 'hand') area.style.cursor = 'grab';
             else if (this.isMaster && this.activeMapTool === 'pointer') area.style.cursor = 'default';
             else if (this.isMaster && (this.activeMapTool === 'draw' || this.activeMapTool === 'fog' || this.activeMapTool === 'path' || this.activeMapTool === 'text' || this.activeMapTool === 'floor')) area.style.cursor = 'crosshair';
+            
             else area.style.cursor = 'grab';
         }
 
@@ -2824,7 +2872,7 @@ class GameSession {
         const covered = !!this.fogState.covered || !this.isMaster;
         if (covered) {
             store.globalCompositeOperation = 'source-over';
-            store.fillStyle = 'rgba(0,0,0,0.92)';
+            store.fillStyle = 'rgba(0,0,0,0.99)';
             store.fillRect(0, 0, this.fogStore.width, this.fogStore.height);
 
             store.globalCompositeOperation = 'destination-out';
@@ -3223,10 +3271,13 @@ class GameSession {
             console.error("Erro ao atualizar permissão:", error);
         }
     }
+    // handlegmToolbar pode ser usado pelos players apenas algumas funções
 
     handleGmToolbar(tool) {
-        if (!this.isMaster) return;
-
+        // if (!this.isMaster) return;
+        if(!this.isMaster) {
+            tool === 'pointer' || tool === 'hand' || tool === 'mobile-touch' || tool === 'draw' || tool === 'text' || tool === 'path' || tool === 'fog' || tool === 'vision' && (this.activeMapTool = tool);
+        }
         if (tool === 'delete-mode') {
             this.toggleDeleteMode();
             return;
@@ -3286,8 +3337,8 @@ class GameSession {
             this.renderFloorTiles();
             return;
         }
-
-        if (tool === 'pointer' || tool === 'hand' || tool === 'draw' || tool === 'text' || tool === 'path' || tool === 'fog' || tool === 'vision') {
+        // Map Tools & mobile touch
+        if (tool === 'pointer' || tool === 'hand' || tool === 'mobile-touch' || tool === 'draw' || tool === 'text' || tool === 'path' || tool === 'fog' || tool === 'vision') {
             this.deleteMode = false;
             const next = this.activeMapTool === tool ? 'pointer' : tool;
             this.activeMapTool = next;
@@ -3422,7 +3473,7 @@ class GameSession {
             type: 'enemy',
             data: {
                 name: enemy.name,
-                image_url: enemy.image_url || 'assets/default-enemy.png',
+                image_url: enemy.image_url || 'assets/inimigos/Aranha.png',
                 hp: enemy.hp || 10,
                 hpMax: enemy.hp || 10,
                 atk: enemy.atk || 0,
@@ -3991,11 +4042,12 @@ class GameSession {
 
         el.addEventListener('mousedown', onMouseDown);
     }
-
-    startMovingMapObject(objectId) {
-        if (!this.isMaster || this.activeMapTool ) return;
+    
+    startMovingMapObject(objectId, e) {
+        if (!this.isMaster || this.activeMapTool !== 'pointer') return;
         const o = (Array.isArray(this.mapObjects) ? this.mapObjects : []).find(x => x && x.id === objectId);
         if (!o || o.locked) return;
+
         this.isMovingMapObject = true;
         this.movingMapObjectId = objectId;
         this.isMovingToken = false;
@@ -4064,7 +4116,7 @@ class GameSession {
                     if (Math.abs(dx) !== r && Math.abs(dy) !== r) continue;
                     const nx = base.x + dx * step;
                     const ny = base.y + dy * step;
-                    if (nx < 0 || ny < 0 || nx > 5000 - w || ny > 5000 - h) continue;
+                    if (nx < 0 || ny < 0 || nx > 3000 - w || ny > 3000 - h) continue;
                     if (isFree(nx, ny)) return { x: nx, y: ny };
                 }
             }
@@ -4162,6 +4214,7 @@ class GameSession {
             if (this._blockedFloor === true) return;  
             e.stopPropagation();
 
+
             
             this.selectedFloorTileId = tile.id;
             this.hideFloorTilePopover();
@@ -4174,6 +4227,7 @@ class GameSession {
             offsetY = p.y - (tile.y || 0);
             isDragging = true;
             el.style.zIndex = '1200';
+
 
             window.addEventListener('mousemove', onMouseMove);
             window.addEventListener('mouseup', onMouseUp);
@@ -4513,8 +4567,8 @@ class GameSession {
 
         const area = document.querySelector('.map-area');
         const areaRect = area ? area.getBoundingClientRect() : null;
-        const visibleW = areaRect ? (areaRect.width / (this.scale || 1)) : 800;
-        const visibleH = areaRect ? (areaRect.height / (this.scale || 1)) : 600;
+        const visibleW = areaRect ? (areaRect.width / (this.newScale || 1)) : 800;
+        const visibleH = areaRect ? (areaRect.height / (this.newScale || 1)) : 600;
         const visibleSquares = Math.max(1, Math.min(400, Math.ceil(Math.max(visibleW, visibleH) / 50)));
         const maxSquares = Math.max(6, visibleSquares);
         const defaultSquares = Math.max(1, Math.min(40, Math.round((Number(this.floorDefaultSizePx || 150) || 150) / 50)));
@@ -4652,7 +4706,7 @@ class GameSession {
         const occupied = tiles.some(t => t && (t.layer ?? 0) === layer && Number(t.x || 0) === gridX && Number(t.y || 0) === gridY);
         if (occupied) return;
 
-        const size = Math.max(50, Math.min(5000, Math.round((Number(this.floorDefaultSizePx || 150) || 150) / 50) * 50));
+        const size = Math.max(50, Math.min(3000, Math.round((Number(this.floorDefaultSizePx || 150) || 150) / 50) * 50));
         const tile = {
             id: `floor_${Date.now().toString(36)}_${Math.random().toString(16).slice(2, 5)}`,
             layer,
@@ -4775,8 +4829,8 @@ class GameSession {
             el.className = `map-asset${this.selectedAssetId === a.id ? ' selected' : ''}${this.deleteMode ? ' delete-armed' : ''}${deleteSelected ? ' delete-selected' : ''}`;
             el.style.left = `${a.x || 0}px`;
             el.style.top = `${a.y || 0}px`;
-            el.style.width = `${a.w || 220}px`;
-            el.style.height = `${a.h || 220}px`;
+            el.style.width = `${a.w || 2}px`;
+            el.style.height = `${a.h || 2}px`;
             el.style.opacity = String(Math.max(0, Math.min(1, a.opacity ?? 1)));
             el.style.backgroundImage = `url('${a.url}')`;
             el.dataset.id = a.id;
@@ -4798,13 +4852,13 @@ class GameSession {
                 e.stopPropagation();
                 if (this.deleteMode) return;
                 if (this.isMaster && this.activeMapTool !== 'pointer') return;
-                if (e.target.closest('button')) return;
+                if (e.target.closest('button' ) ) return;
                 this.selectedAssetId = a.id;
                 this.renderMapAssets();
                 this.openMapContextMenu({
                     kind: 'asset',
                     id: a.id,
-                    canMove: !!this.isMaster,
+                    canMove: !!this.isMaster || a.type === 'player',
                     canDuplicate: !!this.isMaster,
                     canDelete: !!this.isMaster,
                     canBorderColor: !!this.isMaster
@@ -4944,7 +4998,7 @@ class GameSession {
     updateExitButton() {
         const btnExit = document.getElementById('btn-exit-session');
         if (!btnExit) return;
-        btnExit.innerHTML = `<i class="fas fa-sign-out-alt"></i> ${this.isMaster ? 'Encerrar Sessão' : 'Sair'}`;
+        btnExit.innerHTML = `<i class="fas fa-sign-out-alt"></i> ${this.isMaster ? '' : 'Sair'}`;
     }
 
     async leaveOrEndSession() {
@@ -5537,7 +5591,7 @@ class GameSession {
         const saveBtn = document.getElementById('btn-save-token-stats');
 
         title.textContent = `Ficha de ${token.name}`;
-        img.src = token.image_url || 'assets/default-enemy.png';
+        img.src = token.image_url || 'assets/inimigos/Aranha.png';
         hpCurrent.value = token.hp || 0;
         hpMax.value = token.hpMax || 0;
         ac.value = token.def || 10; // Usando def como AC para simplificar se necessário
@@ -5679,7 +5733,7 @@ class GameSession {
 
         if (this.isMaster) {
             console.log("Usuário é Mestre, carregando ferramentas...");
-            this.loadBestiary();
+            // this.loadBestiary();
             this.loadMasterKit();
             this.renderNpcList();
         } else {
@@ -5758,7 +5812,7 @@ class GameSession {
         
         list.innerHTML = filtered.map(enemy => `
             <div class="enemy-drag-card" draggable="true" data-enemy-id="${enemy.id}">
-                <img src="${enemy.image_url || 'assets/default-enemy.png'}" onerror="this.onerror=null; this.src='assets/default-enemy.png'">
+                <img src="${enemy.image_url || 'assets/inimigos/Aranha.png'}" onerror="this.onerror=null; this.src='assets/inimigos/Aranha.png'">
                 <div class="enemy-info">
                     <strong>${enemy.name}</strong>
                     <span>Nível ${enemy.level || 1}</span>
@@ -6244,36 +6298,36 @@ class GameSession {
         // Criar NPC
         const btnCreateNpc = document.getElementById('btn-create-npc');
         if (btnCreateNpc) {
-            btnCreateNpc.onclick = () => {
+            btnCreateNpc.addEventListener('click', () => {
                 document.getElementById('npc-create-modal').style.display = 'flex';
-            };
+            });
         }
 
         const btnConfirmNpc = document.getElementById('btn-confirm-npc-create');
         if (btnConfirmNpc) {
-            btnConfirmNpc.onclick = () => this.createQuickNpc();
+            btnConfirmNpc.addEventListener('click', () => this.createQuickNpc());
         }
 
         // Criar Inimigo Customizado
         const btnAddCustomEnemy = document.getElementById('btn-add-custom-enemy');
         if (btnAddCustomEnemy) {
-            btnAddCustomEnemy.onclick = () => {
+            btnAddCustomEnemy.addEventListener('click', () => {
                 document.getElementById('enemy-create-modal').style.display = 'flex';
-            };
+            });
         }
 
         const btnConfirmEnemyCreate = document.getElementById('btn-confirm-enemy-create');
         if (btnConfirmEnemyCreate) {
-            btnConfirmEnemyCreate.onclick = () => this.createCustomEnemy(false);
+            btnConfirmEnemyCreate.addEventListener('click', () => this.createCustomEnemy(false));
         }
         const btnConfirmEnemyCreatePlace = document.getElementById('btn-confirm-enemy-create-place');
         if (btnConfirmEnemyCreatePlace) {
-            btnConfirmEnemyCreatePlace.onclick = () => this.createCustomEnemy(true);
+            btnConfirmEnemyCreatePlace.addEventListener('click', () => this.createCustomEnemy(true));
         }
 
         // Toolbar do Mestre
         document.querySelectorAll('.gm-tool-btn').forEach(btn => {
-            btn.onclick = () => this.handleGmToolbar(btn.dataset.tool);
+            btn.addEventListener('click', () => this.handleGmToolbar(btn.dataset.tool));
         });
 
         // Expansão de Jogadores na Sidebar Esquerda
@@ -6391,7 +6445,7 @@ class GameSession {
                         alert('Selecione um piso válido.');
                         return;
                     }
-                    const size = Math.max(50, Math.min(5000, Math.round((Number(this.floorDefaultSizePx || 150) || 150) / 50) * 50));
+                    const size = Math.max(50, Math.min(3000, Math.round((Number(this.floorDefaultSizePx || 150) || 150) / 50) * 50));
                     const tile = {
                         id: `floor_${Date.now().toString(36)}_${Math.random().toString(16).slice(2, 5)}`,
                         layer: Math.max(0, Math.min(4, Number(layer) || 0)),
@@ -6459,6 +6513,8 @@ class GameSession {
                 // Se for jogador, o mestre pode colocar qualquer um, e o jogador pode colocar o seu
                 else if (droppedData.type === 'player') {
                     await this.addTokenToMap(droppedData.data, gridX, gridY, 'player');
+                    this.renderTokens();
+                    this.schedulePersistTokens();
                 }
             } catch (error) {
                 console.error("Erro no processamento do drop:", error);
@@ -6547,7 +6603,7 @@ class GameSession {
         const newEnemy = {
             id: 'custom_' + Date.now().toString(36),
             name: name,
-            image_url: imageUrl || 'assets/default-enemy.png',
+            image_url: imageUrl || 'assets/inimigos/Aranha.png',
             hp: hp,
             level: level,
             atk: atk,
@@ -6769,7 +6825,7 @@ class GameSession {
             updates[`initiatives.enemy_${safeId}`] = {
                 uid: `enemy_${safeId}`,
                 name: name,
-                avatar: enemy.image_url || 'assets/default-enemy.png',
+                avatar: enemy.image_url || 'assets/inimigos/Aranha.png',
                 frame: 'iron',
                 roll: roll,
                 type: 'enemy',
@@ -6876,13 +6932,13 @@ class GameSession {
             item.className = `turn-item ${isActive ? 'active' : ''}`;
             
             // Frame classes
-            const frameClass = player.frame ? `frame-${player.frame.toLowerCase()}` : 'frame-wood';
-            const glowClass = player.frame ? `glow-${player.frame.toLowerCase()}` : 'glow-wood';
+            const frameClass = player.frame  ? `frame-${player.frame.toLowerCase()}` : '';
+            const glowClass = player.frame  ? `glow-${player.frame.toLowerCase()}` : '';
 
             item.innerHTML = `
                 <div class="turn-avatar-container">
                     <div class="frame-glow ${glowClass}"></div>
-                    <div class="frame-border ${frameClass}"></div>
+                    <div class="frame-border ${frameClass} ${player.isMaster ? 'frame-ADM' : ''}"></div>
                     <div class="turn-avatar" style="background-image: url('${player.avatar}')"></div>
                 </div>
                 <div class="turn-name">${player.name}</div>
@@ -6941,7 +6997,7 @@ class GameSession {
             el.innerHTML = `
                 <div class="token-card-inner">
                     <div class="token-stars">${stars}</div>
-                    <div class="token-image-area" style="background-image: url('${token.image_url || 'assets/default-enemy.png'}')"></div>
+                    <div class="token-image-area" style="background-image: url('${token.image_url || 'assets/inimigos/Aranha.png'}')"></div>
                     <div class="token-info-area">
                         <div class="token-name" style="font-size: 1.1rem; color: #000000ff; font-weight: bold; text-align: center;">${token.name}</div>
 
@@ -7248,7 +7304,7 @@ class GameSession {
 
         root.innerHTML = `
             <div class="gm-token-header">
-                <div class="gm-token-preview" style="background-image: url('${token.image_url || 'assets/default-enemy.png'}')"></div>
+                <div class="gm-token-preview" style="background-image: url('${token.image_url || 'assets/inimigos/Aranha.png'}')"></div>
                 <div class="gm-token-title">
                     <strong>${token.name || 'Token'}</strong>
                     <span>${typeLabel} • X:${token.x ?? 0} Y:${token.y ?? 0}</span>
@@ -7351,6 +7407,34 @@ class GameSession {
             card.addEventListener('click', (e) => {
                 if (!this.isMaster) return;
                 if (e.target.closest('input, button, a')) return;
+                const id = card.dataset.characterId;
+                const c = list.find(x => x.id === id);
+                if (!c) return;
+
+                this.isPlacingToken = true;
+                this.pendingTokenPlacement = {
+                    type: 'npc',
+                    data: {
+                        name: c.name,
+                        image_url: c.image_url,
+                        hp: 10,
+                        hpMax: 10,
+                        level: 1,
+                        atk: 0,
+                        def: 0,
+                        scale: 1
+                    }
+                };
+                const overlay = document.getElementById('targeting-overlay');
+                if (overlay) overlay.style.display = 'flex';
+                const txt = document.getElementById('targeting-text');
+                if (txt) txt.textContent = `Posicionar ${c.name}: clique no mapa para colocar...`;
+                const btn = document.getElementById('btn-confirm-attack');
+                if (btn) btn.style.display = 'none';
+            });
+            card.addEventListener('touchstart', (e) => {
+                if (!this.isMaster) return;
+             if (e.target.closest('input, button, a')) return;
                 const id = card.dataset.characterId;
                 const c = list.find(x => x.id === id);
                 if (!c) return;
@@ -7514,7 +7598,7 @@ class GameSession {
     renderMessage(msg, container) {
         if (!container) return;
         const root = document.createElement('div');
-        root.className = `chat-msg ${msg.uid === this.user.uid ? 'own' : ''}`;
+        root.className = `chat-msg ${msg.this.user.displayName === this.user.uid ? 'own' : ''}`;
 
         const header = document.createElement('div');
         header.className = 'msg-header';
@@ -7572,6 +7656,11 @@ const controls = document.querySelector('.combat-controls');
 
 btnMenu.addEventListener('click', () => {
     console.log('click');
+    hamburgerMenu.classList.toggle('active');
+    controls.classList.toggle('active');   
+});
+btnMenu.addEventListener('touchstart', () => {
+    console.log('touchstart');
     hamburgerMenu.classList.toggle('active');
     controls.classList.toggle('active');   
 });

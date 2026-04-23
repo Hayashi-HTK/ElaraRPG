@@ -246,7 +246,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                             </button>
                             <button class="btn-secondary" id="mini-profile-msg">Mandar Mensagem</button>
                             <button class="btn-secondary" id="mini-profile-block">Bloquear</button>
-                            <button class="btn-secondary" id="mini-profile-close2">Fechar</button>
+                            <button class="btn-secondary" id="mini-profile-close2">Ver Perfil</button>
                         </div>
                     </div>
                 </div>
@@ -290,7 +290,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         };
 
         document.getElementById('mini-profile-close')?.addEventListener('click', close);
-        document.getElementById('mini-profile-close2')?.addEventListener('click', close);
+        document.getElementById('mini-profile-close2')?.addEventListener('click', () => {
+            window.location.href = `profile.html?uid=${encodeURIComponent(uid)}`
+        }
+        );
         document.getElementById('mini-profile-overlay')?.addEventListener('click', (e) => {
             if (e.target?.id === 'mini-profile-overlay') close();
         });
@@ -1298,7 +1301,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     async function startPrivateChat(friend) {
-        const chatId = [user.uid, friend.id].sort().join('_');
+        const friendUid = friend?.id || friend?.uid || friend?.other_id;
+        if (!friendUid) return;
+
+        const chatId = [user.uid, friendUid].sort().join('_');
         currentChatId = chatId;
         currentChatType = 'private';
         noChatPlaceholder.style.display = 'none';
@@ -1307,6 +1313,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         chatHeaderStatus.textContent = friend.status === 'online' ? 'Online' : 'Offline';
         chatHeaderAvatar.style.backgroundImage = `url('${friend.avatar_url || 'https://via.placeholder.com/150?text=Avatar'}')`;
         
+        chatHeaderName.onclick = (e) => {
+            e.preventDefault();
+            window.location.href = `profile.html?uid=${encodeURIComponent(friendUid)}`;
+        };
         // Esconder botão de gerenciar membros (👤+) em chats privados
         if (chatMembersBtn) chatMembersBtn.style.display = 'none';
 
@@ -1317,7 +1327,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const chatData = docSnap.data();
                 const acceptedBy = chatData.accepted_by || [];
                 if (!acceptedBy.includes(user.uid)) {
-                    const friendDoc = await getDoc(doc(db, 'friendships', [user.uid, friend.id].sort().join('_')));
+                    const friendDoc = await getDoc(doc(db, 'friendships', [user.uid, friendUid].sort().join('_')));
                     if (friendDoc.exists() && friendDoc.data().status === 'accepted') {
                         await updateDoc(doc(db, 'chats', chatId), { accepted_by: arrayUnion(user.uid) });
                         messageRequestActions.style.display = 'none';
@@ -1345,7 +1355,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 updateChatBackground(chatData.background_url, chatData.background_opacity || 0.5);
             } else {
                 await setDoc(doc(db, 'chats', chatId), {
-                    participants: [user.uid, friend.id],
+                    participants: [user.uid, friendUid],
                     type: 'private',
                     accepted_by: [user.uid],
                     created_at: serverTimestamp()

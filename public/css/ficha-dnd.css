@@ -25,18 +25,18 @@ body.view-iframe .navbar {
 }
 
 .dnd-shell {
-  max-width: 1100px;
+  /* max-width: 1100px; */
   margin: 6rem auto 2.5rem;
   padding: 0 16px;
 }
 
 body.view-iframe .dnd-shell {
   margin: 1rem auto;
-  max-width: 100%;
+  /* max-width: 100%; */
 }
 
 body.view-iframe .dnd-topbar {
-  display: none;
+  /* display: none; */
 }
 
 html, body {
@@ -118,7 +118,7 @@ body.view-iframe .dnd-shell {
 }
 
 .dnd-paper {
-  width: min(100%, 860px);
+  width: fit-content;
   margin: 0 auto;
   background: var(--paper-bg);
   color: var(--paper-ink);
@@ -185,12 +185,13 @@ body.view-iframe .dnd-shell {
 
 .dnd-page-grid {
   display: grid;
-  grid-template-columns: 1.05fr 1.35fr 1.05fr;
+  grid-template-columns: 1.35fr;
   gap: 12px;
 }
 
 .dnd-col {
   display: grid;
+  grid-template-columns: 1.05fr 1.05fr;
   gap: 12px;
   align-content: start;
 }

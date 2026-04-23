@@ -342,6 +342,11 @@ async function init() {
     uidDisplay.textContent = isEditable ? currentUser.uid : ''
   }
 
+  if (!isEditable) {
+    document.body.classList.add('profile-visitor-mode')
+    if (visitorSection) visitorSection.style.display = 'block'
+  }
+
   let currentBannerY = 0
   let isDraggingBanner = false
   let startY = 0
@@ -569,7 +574,11 @@ async function init() {
   }
 
   const renderVisitorFriends = async (uid) => {
-    if (!visitorFriendsGrid || !visitorFriendsEmpty) return
+
+    const verify = !visitorFriendsGrid || !visitorFriendsEmpty;
+    if (verify) {
+      return
+    }
     visitorFriendsGrid.innerHTML = ''
     const qFriends = query(collection(db, 'friendships'), where('participants', 'array-contains', uid), where('status', '==', 'accepted'), limit(12))
     const snap = await getDocs(qFriends)
@@ -578,6 +587,7 @@ async function init() {
       return
     }
     visitorFriendsEmpty.style.display = 'none'
+      
     const friendUids = []
     snap.forEach((d) => {
       const f = d.data() || {}
@@ -592,7 +602,7 @@ async function init() {
         const name = p.nickname || p.full_name || 'Aventureiro'
         const avatar = p.avatar_url || 'assets/default-avatar.png'
         const el = document.createElement('div')
-        el.className = 'profile-visitor-friend'
+        el.className = 'profile-visitor-friend profile-visitor-friend-item'
         el.innerHTML = `
           <div class="profile-visitor-thumb"><img alt="" src="${escHtml(avatar)}"></div>
           <div class="profile-visitor-username">${escHtml(name)}</div>
@@ -600,7 +610,7 @@ async function init() {
         el.addEventListener('click', () => {
           window.location.href = `profile.html?uid=${encodeURIComponent(otherUid)}`
         })
-        visitorFriendsGrid.appendChild(el)
+      visitorFriendsGrid.appendChild(el)
       } catch {}
     }
   }
@@ -629,19 +639,37 @@ async function init() {
 
   try {
     const profileRef = doc(db, 'profiles', viewedUid)
-    const profileDoc = await getDoc(profileRef)
-    const profile = profileDoc.exists() ? profileDoc.data() : null
+    let profileDoc = await getDoc(profileRef)
+    let profile = profileDoc.exists() ? profileDoc.data() : null
 
-    const isUserAdmin = !!profile?.is_admin || (isEditable && currentUser.email === 'hayagames@outlook.com')
-    planState = getPlanState({ user: currentUser, profile: profile || {} })
-    const level = profile?.level || 1
-    const currentXP = Number.isFinite(profile?.xp) ? profile.xp : (parseInt(profile?.xp) || 0)
+    if (!profile && isEditable) {
+      const fallbackNickname = String(currentUser.email || '').split('@')[0]?.toLowerCase() || 'aventureiro'
+      const seed = {
+        full_name: currentUser.displayName || '',
+        nickname: fallbackNickname,
+        email: currentUser.email || '',
+        provider: currentUser.providerData?.[0]?.providerId || 'unknown',
+        plan: 'free',
+        plan_status: 'free',
+        created_at: new Date(),
+        updated_at: new Date()
+      }
+      await setDoc(profileRef, seed, { merge: true })
+      profileDoc = await getDoc(profileRef)
+      profile = profileDoc.exists() ? profileDoc.data() : seed
+    }
+    const safeProfile = profile || {}
+
+    const isUserAdmin = !!safeProfile?.is_admin || (isEditable && currentUser.email === 'hayagames@outlook.com')
+    planState = getPlanState({ user: currentUser, profile: safeProfile })
+    const level = safeProfile?.level || 1
+    const currentXP = Number.isFinite(safeProfile?.xp) ? safeProfile.xp : (parseInt(safeProfile?.xp) || 0)
 
     if (levelDisplay) levelDisplay.textContent = `${level}`
     if (badgePremium) badgePremium.style.display = planState.isPaid ? 'inline-flex' : 'none'
     if (badgeTitle) {
       badgeTitle.style.display = 'inline-flex'
-      badgeTitle.textContent = isUserAdmin ? 'ADM' : (profile?.title || 'Jogador')
+      badgeTitle.textContent = isUserAdmin ? 'ADM' : (safeProfile?.title || 'Jogador')
     }
 
     if (planDisplay) planDisplay.textContent = planState.displayName
@@ -709,54 +737,53 @@ async function init() {
       }
     }
 
-    const displayName = profile?.nickname || profile?.full_name || currentUser.displayName || currentUser.email || 'Viajante'
+    const displayName = safeProfile?.nickname || safeProfile?.full_name || currentUser.displayName || currentUser.email || 'Viajante'
     if (sidebarDisplayName) sidebarDisplayName.textContent = displayName
 
 
+    if (nicknameInput) nicknameInput.value = safeProfile.nickname || ''
+    if (fullNameInput) fullNameInput.value = safeProfile.full_name || ''
+    if (birthDateInput) birthDateInput.value = safeProfile.birth_date || ''
+    if (playStyleInput) playStyleInput.value = safeProfile.play_style || ''
 
-    if (nicknameInput && profile) nicknameInput.value = profile.nickname || ''
-    if (fullNameInput && profile) fullNameInput.value = profile.full_name || ''
-    if (birthDateInput && profile) birthDateInput.value = profile.birth_date || ''
-    if (playStyleInput && profile) playStyleInput.value = profile.play_style || ''
-
-    const role = profile?.player_role || 'Jogador'
+    const role = safeProfile?.player_role || 'Jogador'
     if (roleInput) roleInput.value = role
     if (roleDisplay) roleDisplay.textContent = role
 
-    if (nicknameDisplay) nicknameDisplay.textContent = (profile?.nickname || profile?.full_name || '—')
+    if (nicknameDisplay) nicknameDisplay.textContent = (safeProfile?.nickname || safeProfile?.full_name || '—')
 
-    if (bioText) bioText.textContent = profile?.bio || 'Este aventureiro ainda não contou sua história...'
-    if (bioInput) bioInput.value = profile?.bio || ''
+    if (bioText) bioText.textContent = safeProfile?.bio || 'Este aventureiro ainda não contou sua história...'
+    if (bioInput) bioInput.value = safeProfile?.bio || ''
 
-    if (friendsCountDisplay) friendsCountDisplay.textContent = `${profile?.friends_count || 0}`
-    if (followersCountDisplay) followersCountDisplay.textContent = `${profile?.followers_count || 0}`
-    if (towerRecordDisplay) towerRecordDisplay.textContent = `${profile?.tower_record || 0}`
+    if (friendsCountDisplay) friendsCountDisplay.textContent = `${safeProfile?.friends_count || 0}`
+    if (followersCountDisplay) followersCountDisplay.textContent = `${safeProfile?.followers_count || 0}`
+    if (towerRecordDisplay) towerRecordDisplay.textContent = `${safeProfile?.tower_record || 0}`
 
-    if (avatarUrlInput) avatarUrlInput.value = profile?.avatar_url || ''
-    if (bannerUrlInput) bannerUrlInput.value = profile?.banner_url || ''
+    if (avatarUrlInput) avatarUrlInput.value = safeProfile?.avatar_url || ''
+    if (bannerUrlInput) bannerUrlInput.value = safeProfile?.banner_url || ''
 
-    currentBannerY = parseInt(profile?.banner_pos_y) || 0
+    currentBannerY = parseInt(safeProfile?.banner_pos_y) || 0
     if (bannerPosYInput) bannerPosYInput.value = `${currentBannerY}`
 
-    updateAvatarDisplay(profile?.avatar_url, avatarImg, avatarPlaceholder, selectedFrame)
-    updateBannerDisplay(profile?.banner_url, bannerImg, bannerPlaceholder, bannerControls, bannerHint, currentBannerY)
+    updateAvatarDisplay(safeProfile?.avatar_url, avatarImg, avatarPlaceholder, selectedFrame)
+    updateBannerDisplay(safeProfile?.banner_url, bannerImg, bannerPlaceholder, bannerControls, bannerHint, currentBannerY)
 
-    const unlockedFrames = await checkAndUnlockFrames(viewedUid, level, profile?.unlocked_frames || ['wood'])
-    selectedFrame = isUserAdmin ? 'adm' : (profile?.current_frame || 'wood')
+    const unlockedFrames = await checkAndUnlockFrames(viewedUid, level, safeProfile?.unlocked_frames || ['wood'])
+    selectedFrame = isUserAdmin ? 'ADM' : (safeProfile?.current_frame || 'wood')
     if (planState && !planState.canUseFrames && !isUserAdmin) selectedFrame = 'wood'
-    updateAvatarDisplay(profile?.avatar_url, avatarImg, avatarPlaceholder, selectedFrame)
+    updateAvatarDisplay(safeProfile?.avatar_url, avatarImg, avatarPlaceholder, selectedFrame)
 
     const FRAME_INFO = {
-      wood: { name: 'Madeira', level: 1 },
-      iron: { name: 'Ferro', level: 5 },
-      bronze: { name: 'Bronze', level: 10 },
-      silver: { name: 'Prata', level: 20 },
-      gold: { name: 'Ouro', level: 30 },
-      platinum: { name: 'Platina', level: 40 },
-      adm: { name: 'ADM', level: Number.POSITIVE_INFINITY }
+      wood: { name: 'Ametista Sombria', level: 1 },
+      iron: { name: 'Safira Celestial', level: 5 },
+      bronze: { name: 'Topázio Solar', level: 10 },
+      silver: { name: 'Rubi Infernal', level: 20 },
+      gold: { name: 'Esmeralda Ancestral', level: 30 },
+      platinum: { name: 'Opala Arcana', level: 40 },
+      ADM: { name: 'ADM', level: 999 }
     }
 
-    const FRAME_ORDER = ['wood', 'iron', 'bronze', 'silver', 'gold', 'platinum']
+    const FRAME_ORDER = ['wood', 'iron', 'bronze', 'silver', 'gold', 'platinum', 'ADM']
 
     const xpToReachLevel = (fromLevel, xpInLevel, targetLevel) => {
       if (!targetLevel || targetLevel <= fromLevel) return 0
@@ -778,7 +805,7 @@ async function init() {
       if (!frameStatusEl) return
       const currentName = FRAME_INFO[selectedFrame]?.name || '—'
       const base = `Borda: ${currentName}`
-      if (selectedFrame === 'adm') {
+      if (selectedFrame === 'ADM') {
         frameStatusEl.textContent = base
         return
       }
@@ -794,21 +821,22 @@ async function init() {
     if (frameOptionsContainer && btnToggleFrames) {
       const framesLockedByPlan = !!(planState && !planState.canUseFrames && !isUserAdmin)
       if (framesLockedByPlan) {
-        btnToggleFrames.disabled = true
+        btnToggleFrames.disabled = false
         btnToggleFrames.style.opacity = '0.55'
       }
 
       const frames = [
-        { id: 'wood', name: 'Madeira' },
-        { id: 'iron', name: 'Ferro' },
-        { id: 'bronze', name: 'Bronze' },
-        { id: 'silver', name: 'Prata' },
-        { id: 'gold', name: 'Ouro' },
-        { id: 'platinum', name: 'Platina' }
+        { id: 'wood', name: 'Ametista Sombria' },
+        { id: 'iron', name: 'Safira Celestial' },
+        { id: 'bronze', name: 'Topázio Solar' },
+        { id: 'silver', name: 'Rubi Infernal' },
+        { id: 'gold', name: 'Esmeralda Ancestral' },
+        { id: 'platinum', name: 'Opala Arcana' },
+        { id: 'ADM', name: 'ADM' },
       ]
-      if (isUserAdmin) frames.push({ id: 'adm', name: 'ADM' })
+    // if (isUserAdmin) frames.push({ id: 'ADM', name: 'ADM' })
 
-      const updatePreview = (frameId) => {
+      function updatePreview(frameId) {
         if (previewGlow) {
           previewGlow.className = 'frame-glow'
           previewGlow.classList.add(`glow-${frameId.toLowerCase()}`)
@@ -822,7 +850,7 @@ async function init() {
       updatePreview(selectedFrame)
       updateFrameStatus()
       if (btnToggleFrames.disabled && frameStatusEl) {
-        frameStatusEl.textContent = 'Borda: Madeira • Disponível no plano Lenda'
+        frameStatusEl.textContent = 'Borda: Ametista Sombria • Disponível no plano Lenda'
       }
 
       btnToggleFrames.onclick = (e) => {
@@ -861,8 +889,8 @@ async function init() {
       })
     }
 
-    recentAvatars = Array.isArray(profile?.recent_avatars) ? profile.recent_avatars.filter(Boolean) : []
-    recentBanners = Array.isArray(profile?.recent_banners) ? profile.recent_banners.filter(Boolean) : []
+    recentAvatars = Array.isArray(safeProfile?.recent_avatars) ? safeProfile.recent_avatars.filter(Boolean) : []
+    recentBanners = Array.isArray(safeProfile?.recent_banners) ? safeProfile.recent_banners.filter(Boolean) : []
 
     renderRecentThumbs(recentAvatars, recentAvatarsContainer, recentAvatarsList, 'avatar', (url) => {
       if (!isEditable) return
@@ -878,7 +906,7 @@ async function init() {
       updateBannerPosition()
     })
 
-    bgLayers = normalizeBgLayers(profile?.background_layers || [])
+    bgLayers = normalizeBgLayers(safeProfile?.background_layers || [])
     if (bgLayersInput) bgLayersInput.value = JSON.stringify(bgLayers)
     renderBgLayers(bgLayers)
     if (planState && !planState.canUseBgLayers && !isUserAdmin) {
@@ -894,8 +922,8 @@ async function init() {
       renderBgLayers(bgLayers)
     })
 
-    const initialOpacity = profile?.bg_opacity !== undefined ? profile.bg_opacity : 20
-    const initialBlur = profile?.bg_blur !== undefined ? profile.bg_blur : 0
+    const initialOpacity = safeProfile?.bg_opacity !== undefined ? safeProfile.bg_opacity : 20
+    const initialBlur = safeProfile?.bg_blur !== undefined ? safeProfile.bg_blur : 0
     
     if (bgOpacitySlider) bgOpacitySlider.value = initialOpacity
     if (bgBlurSlider) bgBlurSlider.value = initialBlur
@@ -905,13 +933,13 @@ async function init() {
     document.documentElement.style.setProperty('--bg-global-opacity', initialOpacity / 100)
     document.documentElement.style.setProperty('--bg-global-blur', `${initialBlur}px`)
 
-    const createdAtText = formatDateShort(profile?.created_at) || formatDateShort(profile?.updated_at) || null
+    const createdAtText = formatDateShort(safeProfile?.created_at) || formatDateShort(safeProfile?.updated_at) || null
     if (createdAtChip && createdAtDisplay && createdAtText) {
       createdAtDisplay.textContent = createdAtText
       createdAtChip.style.display = 'inline-flex'
     }
 
-    if (isEditable && !profile?.created_at) {
+    if (isEditable && !safeProfile?.created_at) {
       const creationTime = currentUser?.metadata?.creationTime ? new Date(currentUser.metadata.creationTime) : null
       if (creationTime) {
         setDoc(doc(db, 'profiles', currentUser.uid), { created_at: creationTime }, { merge: true }).catch(() => {})
@@ -919,12 +947,11 @@ async function init() {
     }
 
     if (!isEditable) {
-      document.body.classList.add('profile-visitor-mode')
       if (visitorSection) visitorSection.style.display = 'block'
-      if (visitorBio) visitorBio.textContent = profile?.bio || 'Este aventureiro ainda não contou sua história...'
-      if (visitorTowerRecord) visitorTowerRecord.textContent = `${profile?.tower_record || 0}`
-      if (visitorSessionsCount) visitorSessionsCount.textContent = `${profile?.sessions_count || 0}`
-      if (visitorSessionsTime) visitorSessionsTime.textContent = formatHours(profile?.sessions_total_minutes || 0)
+      if (visitorBio) visitorBio.textContent = safeProfile?.bio || 'Este aventureiro ainda não contou sua história...'
+      if (visitorTowerRecord) visitorTowerRecord.textContent = `${safeProfile?.tower_record || 0}`
+      if (visitorSessionsCount) visitorSessionsCount.textContent = `${safeProfile?.sessions_count || 0}`
+      if (visitorSessionsTime) visitorSessionsTime.textContent = formatHours(safeProfile?.sessions_total_minutes || 0)
 
       renderVisitorBg(bgLayers)
       renderVisitorPosts(viewedUid).catch(() => {})
@@ -950,6 +977,10 @@ async function init() {
 
   } catch (error) {
     console.error('Erro ao carregar perfil:', error)
+    if (messageEl) {
+      messageEl.textContent = `Erro ao carregar perfil: ${error?.message || error}`
+      messageEl.style.color = '#ef4444'
+    }
   }
 
   if (btnVisitorBgClose && visitorBgModal) btnVisitorBgClose.onclick = () => closeModalLite(visitorBgModal)

@@ -680,8 +680,8 @@ class MultiplayerLobby {
 
         // 1. Mapas Oficiais (Site) sem restrições
         const siteMaps = [
-            { name: 'Caverna Obscura', description: 'Um local úmido e perigoso nas profundezas.', url: 'assets/Jogar/História/Fundos/Escudo.png' },
-            { name: 'Vulcão Ativo', description: 'O calor é insuportável perto da lava.', url: 'assets/Jogar/História/Fundos/Vulcão.png' }
+            { name: 'Caverna Obscura', description: 'Um local úmido e perigoso nas profundezas.', url: 'https://i.postimg.cc/SRbSV4LR/Escudo-Elara.png' },
+            { name: 'Vulcão Ativo', description: 'O calor é insuportável perto da lava.', url: 'assets/maps/florest.png' }
         ];
 
         if (siteGrid) {
@@ -695,7 +695,7 @@ class MultiplayerLobby {
                 </div>
             ` + siteMaps.map(map => `
                 <div class="map-card" onclick="window.lobby.selectMap('${map.url}')">
-                    <img src="${map.url}" onerror="this.onerror=null; this.src='assets/Jogar/História/Fundos/S3.png'">
+                    <img src="${map.url}" onerror="this.onerror=null; this.src='assets/maps/florest.png'">
                     <div class="map-info">
                         <strong>${map.name}</strong>
                         <p>${map.description}</p>
@@ -924,7 +924,6 @@ class MultiplayerLobby {
             is_private: false,
             password: '',
             background_type: 'classic',
-            map_url: this.sessionData.map_url || '',
             free_category: '',
             map_editor: { brightness: 1, assets_visible: true, map_opacity: 0, floor: { preset: 'classic_hatching', visible: true, opacity: 1 } },
             map_assets: [],

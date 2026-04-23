@@ -23,8 +23,8 @@
     <!-- Top Menu Fixo -->
     <nav class="top-menu-bar">
             <!-- Controle de Combate e Voltar -->
-            <button type="checkbox" id="btn-menu" class="btn-combat btn-combat-mobile" title="Menu"><i class="fas fa-bars"></i></button>
-             <div class="hamburger-menu">
+            <button type="checkbox" id="btn-menu" class="btn-combat btn-combat-mobile" title="Menu" style="display: none;"><i class="fas fa-bars"></i></button>
+             <div class="hamburger-menu" style="display: none;">
             <div class="combat-controls">
                 <button id="btn-start-combat" class="btn-combat master-only"><i class="fas fa-swords"></i> INICIAR COMBATE</button>
                 <button id="btn-roll-initiative" class="btn-combat" style="display: none;"><i class="fas fa-dice-d20"></i> ROLAR INICIATIVA</button>
@@ -70,6 +70,7 @@
     </div>
 
     <!-- Toolbar do Mestre -->
+    <article class="gm-toolbar-container">
     <div id="gm-toolbar" class="gm-toolbar master-only">
         <button class="gm-tool-btn gm-map-tool" data-tool="pointer" title="Ponteiro"><i class="fas fa-mouse-pointer"></i></button>
         <button class="gm-tool-btn gm-map-tool" data-tool="hand" title="Mover Mapa"><i class="fas fa-hand-paper"></i></button>
@@ -78,10 +79,10 @@
         <button class="gm-tool-btn gm-map-tool" data-tool="floor" title="Piso"><i class="fas fa-th-large"></i></button>
         <button class="gm-tool-btn" data-tool="delete-mode" title="Modo Deletar"><i class="fas fa-trash"></i></button>
         <button class="gm-tool-btn" data-tool="editor" title="Editor do Mapa"><i class="fas fa-layer-group"></i></button>
-        <button class="gm-tool-btn" data-tool="enemy-create" title="Criar Inimigo"><i class="fas fa-plus"></i></button>
-        <button class="gm-tool-btn" data-tool="bestiary" title="Inimigos"><i class="fas fa-dragon"></i></button>
+        <button class="gm-tool-btn" data-tool="enemy-create" title="Criar Inimigo" style="display: none;"><i class="fas fa-plus"></i></button>
+        <button class="gm-tool-btn" data-tool="bestiary" title="Inimigos" style="display: none;"><i class="fas fa-dragon"></i></button>
         <button class="gm-tool-btn" data-tool="sheets" title="Classificação de fichas"><i class="fas fa-file-alt"></i></button>
-        <button class="gm-tool-btn" data-tool="players" title="Aventureiros"><i class="fas fa-users"></i></button>
+        <button class="gm-tool-btn" data-tool="players" title="Aventureiros" style="display: none;"><i class="fas fa-users"></i></button>
         <button class="gm-tool-btn" data-tool="measure" title="Régua"><i class="fas fa-ruler-combined"></i></button>
         <button class="gm-tool-btn gm-map-tool" data-tool="draw" title="Desenhar"><i class="fas fa-paint-brush"></i></button>
         <button class="gm-tool-btn gm-map-tool" data-tool="text" title="Texto"><i class="fas fa-font"></i></button>
@@ -90,6 +91,13 @@
         <button class="gm-tool-btn gm-map-tool" data-tool="vision" title="Visão"><i class="fas fa-eye"></i></button>
         <button class="gm-tool-btn" data-tool="ping" title="Ping"><i class="fas fa-bullseye"></i></button>
     </div>
+        <div id="map-zoom-control" class="map-zoom-control">
+        <button id="btn-zoom-in" class="map-zoom-btn" type="button">+</button>
+        <input id="range-map-zoom" class="map-zoom-range" type="range" min="0.1" max="1" step="0.1" value="0.1">
+        <button id="btn-zoom-out" class="map-zoom-btn" type="button">−</button>
+        <div id="map-zoom-label" class="map-zoom-label">10%</div>
+    </div>
+    </article>
 
     <main class="game-container">
         <!-- Barra Lateral Esquerda: Bestiário (Mestre) ou Dados (Jogador) -->
@@ -185,8 +193,8 @@
                 <div id="tokens-layer" class="tokens-layer">
                     <!-- Tokens de monstros e jogadores aqui -->
                 </div>
-                <canvas id="draw-layer" class="draw-layer" width="5000" height="5000"></canvas>
-                <canvas id="fog-layer" class="fog-layer" width="5000" height="5000"></canvas>
+                <canvas id="draw-layer" class="draw-layer" width="1000" height="3000"></canvas>
+                <canvas id="fog-layer" class="fog-layer" width="1000" height="3000"></canvas>
                 <div id="delete-marquee" class="delete-marquee"></div>
             </div>
 
@@ -197,22 +205,17 @@
             <div id="object-popover" class="object-popover"></div>
             <div id="objects-hover-preview" class="objects-hover-preview"></div>
 
-            <div id="map-zoom-control" class="map-zoom-control">
-                <button id="btn-zoom-in" class="map-zoom-btn" type="button">+</button>
-                <input id="range-map-zoom" class="map-zoom-range" type="range" min="0.2" max="3" step="0.1" value="0.5">
-                <button id="btn-zoom-out" class="map-zoom-btn" type="button">−</button>
-                <div id="map-zoom-label" class="map-zoom-label">50%</div>
-            </div>
 
-            <div id="map-tools-panel" class="map-tools-panel master-only" style="display: none;">
+
+            <div id="map-tools-panel" class="map-tools-panel master-only " style="display: none;">
                 <div class="map-tools-panel-header">
                     <div id="map-tools-panel-title" class="map-tools-panel-title">Ferramentas do Mapa</div>
                 </div>
                 <div class="map-tools-panel-body">
-                    <div id="panel-draw" class="map-tools-panel-section" style="display: none;">
+                    <div id="panel-draw" class="map-tools-panel-section" style="display: block;">
                         <div class="map-tools-row">
                             <label>Modo</label>
-                            <select id="draw-mode">
+                            <select id="draw-mode" class="desenho">
                                 <option value="free">Mão livre</option>
                                 <option value="pen">Pen-tool</option>
                                 <option value="line">Linha</option>
@@ -274,20 +277,21 @@
 
                     <div id="panel-fog" class="map-tools-panel-section" style="display: none;">
                         <div class="map-tools-row map-tools-actions">
-                            <button id="fog-cover" class="btn-danger-small" type="button">Ocultar mapa</button>
-                            <button id="fog-clear" class="btn-secondary" type="button">Revelar tudo</button>
+                            <button id="fog-cover" class="btn-danger-small" type="button">Ocultar</button>
+                            <button id="fog-clear" class="btn-secondary" type="button">Revelar</button>
                         </div>
+                        <h4 style="text-align: center; margin:0;font-size: 0.8rem;">Opções de pincel de fog</h4>
                         <div class="map-tools-row">
                             <label>Tamanho</label>
                             <input id="fog-size" type="range" min="20" max="260" step="5" value="90">
                         </div>
                         <div class="map-tools-row">
                             <label>Opacidade</label>
-                            <input id="fog-opacity" type="range" min="0.05" max="1" step="0.05" value="0.85">
+                            <input id="fog-opacity" type="range" min="0.05" max="1" step="0.05" value="0.8">
                         </div>
                         <div class="map-tools-row">
                             <label>Degradê</label>
-                            <input id="fog-soft" type="range" min="0" max="1" step="0.05" value="0.7">
+                            <input id="fog-soft" type="range" min="0" max="1" step="0.05" value="0.5">
                         </div>
                     </div>
 

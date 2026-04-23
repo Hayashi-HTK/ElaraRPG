@@ -342,9 +342,10 @@ async function loadSheets(userId) {
     if (totalSheetsEl) totalSheetsEl.textContent = mySheets.length
     if (lastActivityEl) {
         if (mySheets.length > 0) {
+          // data sem o ano, apenas dia e mesês
             const lastDateObj = mySheets[0].updated_at || mySheets[0].created_at;
             const lastDate = lastDateObj?.toDate ? lastDateObj.toDate() : (lastDateObj ? new Date(lastDateObj) : new Date());
-            lastActivityEl.textContent = lastDate.toLocaleDateString('pt-BR');
+            lastActivityEl.textContent = lastDate.toLocaleDateString('pt-BR', { month: '2-digit', day: '2-digit' });
         } else {
             lastActivityEl.textContent = 'Sem atividade';
         }

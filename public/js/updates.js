@@ -138,9 +138,9 @@ const readAdminFlag = async (user) => {
   try {
     const p = await getDoc(doc(db, 'profiles', user.uid));
     const d = p.exists() ? (p.data() || {}) : {};
-    return !!d.is_admin || user.email === 'hayagames@outlook.com';
+    return !!d.is_admin || user.email === 'hayagames@outlook.com' || user.email === 'rafa-ido@hotmail.com';
   } catch {
-    return user.email === 'hayagames@outlook.com';
+    return user.email === 'hayagames@outlook.com' || user.email === 'rafa-ido@hotmail.com';
   }
 };
 

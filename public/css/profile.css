@@ -175,6 +175,10 @@ body {
 }
 
 .profile-avatar-placeholder {
+  
+    position: absolute;
+    top: 12px;
+
   width: 140px;
   height: 140px;
   border-radius: 50%;
@@ -243,13 +247,15 @@ body.profile-edit-enabled #banner-img {
   gap: 8px;
   padding: 6px 10px;
   border-radius: 999px;
-  background: rgba(255,255,255,0.06);
+  background: rgba(255, 255, 255, 0.158);
   border: 1px solid rgba(255,255,255,0.10);
 }
 
 .plan-chip {
-  cursor: pointer;
-  border: none;
+    color: #5ef75e;
+    cursor: pointer;
+    border: none;
+    font-weight: 700;
 }
 
 .plan-upgrade-link {
@@ -487,7 +493,8 @@ body.profile-edit-enabled #banner-img {
   .profile-banner {
     position: absolute;
     inset: 0;
-    overflow: unset;
+    overflow: hidden;
+    height: 306px;
   }
   #banner-controls{
     position: absolute;

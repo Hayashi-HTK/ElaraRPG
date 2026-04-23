@@ -25,12 +25,24 @@ const PLAN_META = {
     canChangeAvatarBanner: true,
     canUseFrames: true,
     canUseBgLayers: true
-  }
+  },
+  ADM: {
+    key: 'ADM',
+    name: 'ADM',
+    maxSheets: Number.POSITIVE_INFINITY,
+    canChangeAvatarBanner: true,
+    canUseFrames: true,
+    canUseBgLayers: true
+  },
 }
 
 const normalizePlanKey = (raw) => {
   const k = String(raw || '').trim().toLowerCase()
-  if (k === 'basic' || k === 'premium' || k === 'free') return k
+  const plain = k.normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+  if (plain === 'basic' || plain === 'premium' || plain === 'free' || plain === 'adm') return plain
+  if (plain === 'heroi' || plain === 'hero') return 'basic'
+  if (plain === 'lenda' || plain === 'legend') return 'premium'
+  if (plain === 'aventureiro' || plain === 'adventurer') return 'free'
   return 'free'
 }
 
@@ -78,6 +90,7 @@ export const getPlanState = ({ user, profile }) => {
     if (rawKey === 'free') key = 'free'
     else if (status === 'canceling' && isExpired) key = 'free'
     else if (status === 'active' && isExpired) key = 'free'
+    else if (rawKey === 'ADM') key = 'ADM'
   }
 
   const meta = PLAN_META[key] || PLAN_META.free
@@ -97,4 +110,3 @@ export const getPlanState = ({ user, profile }) => {
     isPaid: admin ? true : key !== 'free'
   }
 }
-
