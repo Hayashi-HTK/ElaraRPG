@@ -188,7 +188,7 @@ function setComposerType(type) {
   composerType = type;
   document.querySelectorAll('.composer-tab').forEach((b) => b.classList.toggle('active', b.dataset.type === type));
   if (composerSheetRow) composerSheetRow.style.display = type === 'sheet' ? 'block' : 'none';
-  if (composerText) composerText.placeholder = type === 'sheet' ? 'Escreva uma legenda para a ficha (opcional)...' : 'O que você quer compartilhar?';
+  if (composerText) composerText.placeholder = type === 'sheet' ? 'Escreva uma legenda para a ficha (obrigatório)...' : 'O que você quer compartilhar?';
   
   if (type === 'sheet' && (!composerSheetSelect.options.length || composerSheetSelect.options[0].value === '')) {
     loadUserSheets();
@@ -567,6 +567,19 @@ function openRepostModal(original) {
       repostPreviewMedia.innerHTML = '';
     }
   }
+  //profile repost item 
+  const profileRepostItem = document.querySelector('.profile-post-item');
+  if (!profileRepostItem) return;
+  profileRepostItem.style.display = 'block';
+  profileRepostItem.innerHTML = '';
+  profileRepostItem.textContent = snippet;
+  
+  if (repostPreviewName) repostPreviewName.textContent = name;
+  if (repostPreviewAvatar) repostPreviewAvatar.src = avatar;
+  if (repostPreviewSub) repostPreviewSub.textContent = snippetBase;
+  if (repostPreviewMedia) repostPreviewMedia.style.display = img ? 'block' : 'none';
+  if (repostPreviewMedia) repostPreviewMedia.innerHTML = img ? `<img alt="" src="${esc(img)}">` : '';
+
 
   if (repostComment) repostComment.value = '';
   openModal(repostModal);

@@ -91,7 +91,7 @@ function renderBgLayers(layers) {
   container.innerHTML = ''
   layers.forEach((layer, idx) => {
     const el = document.createElement('div')
-    el.className = `profile-bg-layer variant-${idx % 6}`
+    el.className = `profile-bg-layer variant-${idx % 2}`
     el.style.backgroundImage = `url('${layer.url}')`
     container.appendChild(el)
   })
@@ -272,9 +272,13 @@ async function init() {
   const visitorBio = document.getElementById('visitor-bio')
   const visitorPostsList = document.getElementById('visitor-posts-list')
   const visitorPostsEmpty = document.getElementById('visitor-posts-empty')
+  const profilePostsList = document.getElementById('profile-posts-list')
+  const profilePostsEmpty = document.getElementById('profile-posts-empty')
   const visitorBgGrid = document.getElementById('visitor-bg-grid')
   const visitorBgEmpty = document.getElementById('visitor-bg-empty')
   const visitorFriendsGrid = document.getElementById('visitor-friends-grid')
+  const perfilGrid2 = document.getElementById('visitor-friends-grid2')
+  const perfilEmpty2 = document.getElementById('visitor-friends-empty2')
   const visitorFriendsEmpty = document.getElementById('visitor-friends-empty')
   const visitorSheetsList = document.getElementById('visitor-sheets-list')
   const visitorSheetsEmpty = document.getElementById('visitor-sheets-empty')
@@ -507,6 +511,101 @@ async function init() {
     return url
   }
 
+  const getPostCreatedMs = (p) => {
+    const ts = p?.created_at
+    if (ts?.toMillis) return ts.toMillis()
+    const ms = Number(p?.created_at_ms || 0)
+    return Number.isFinite(ms) ? ms : 0
+  }
+
+  const shouldShowPost = (p, { isVisitor }) => {
+    const vis = String(p?.visibility || 'public')
+    if (vis === 'deleted') return false
+    if (isVisitor && vis !== 'public') return false
+    const exp = Number(p?.expires_at_ms || 0)
+    if (exp && exp < Date.now()) return false
+    return true
+  }
+
+  const buildProfilePostCard = (postDocId, p, profileUid) => {
+    const author = p.author || {}
+    const name = author.nickname || author.full_name || 'Aventureiro'
+    const avatar = author.avatar_url || 'assets/default-avatar.png'
+    const type = String(p.type || 'text')
+    const createdMs = getPostCreatedMs(p)
+    const date = createdMs ? new Intl.DateTimeFormat('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' }).format(new Date(createdMs)) : ''
+    const text = String(p.text || '').trim()
+    const img = String(p.image_url || '').trim()
+
+    const card = document.createElement('div')
+    card.className = 'profile-post-item'
+    card.innerHTML = `
+      <div class="profile-post-head">
+        <div class="profile-post-author">
+          <div class="profile-post-avatar"><img alt="" src="${escHtml(avatar)}"></div>
+          <div class="profile-post-meta">
+            <div class="profile-post-name">${escHtml(name)}</div>
+            <div class="profile-post-sub">${escHtml(date)}${type === 'repost' ? ' • Repost' : ''}${type === 'sheet' ? ' • Ficha' : ''}</div>
+          </div>
+        </div>
+      </div>
+      ${text ? `<div class="profile-post-text">${escHtml(text)}</div>` : ''}
+      ${img ? `<div class="profile-post-media"><img alt="" src="${escHtml(img)}"></div>` : ''}
+    `
+    card.addEventListener('click', () => {
+      window.location.href = `post.html?id=${encodeURIComponent(postDocId)}&from=${encodeURIComponent('profile.html?uid=' + profileUid)}`
+    })
+    return card
+  }
+
+  const renderPostsTo = async (uid, listEl, emptyEl, { isVisitor }) => {
+    if (!listEl || !emptyEl) return
+    listEl.innerHTML = ''
+    emptyEl.textContent = 'Sem postagens ainda.'
+    emptyEl.style.display = 'none'
+
+    try {
+      let snap = null
+      if (isVisitor) {
+        try {
+          snap = await getDocs(query(collection(db, 'posts'), where('author_id', '==', uid), where('visibility', '==', 'public'), orderBy('created_at', 'desc'), limit(20)))
+        } catch {
+          try {
+            snap = await getDocs(query(collection(db, 'posts'), where('visibility', '==', 'public'), orderBy('created_at', 'desc'), limit(200)))
+          } catch {
+            snap = await getDocs(query(collection(db, 'posts'), where('visibility', '==', 'public'), limit(200)))
+          }
+        }
+      } else {
+        try {
+          snap = await getDocs(query(collection(db, 'posts'), where('author_id', '==', uid), orderBy('created_at', 'desc'), limit(20)))
+        } catch {
+          snap = await getDocs(query(collection(db, 'posts'), where('author_id', '==', uid), limit(50)))
+        }
+      }
+
+      const items = []
+      snap.forEach((d) => {
+        const p = d.data() || {}
+        if (isVisitor && String(p?.author_id || '') !== uid) return
+        if (!shouldShowPost(p, { isVisitor })) return
+        items.push({ id: d.id, ms: getPostCreatedMs(p), p })
+      })
+
+      items.sort((a, b) => (b.ms || 0) - (a.ms || 0))
+      const top = items.slice(0, 20)
+
+      emptyEl.style.display = top.length ? 'none' : 'block'
+      top.forEach(({ id, p }) => {
+        listEl.appendChild(buildProfilePostCard(id, p, uid))
+      })
+    } catch (err) {
+      emptyEl.textContent = 'Erro ao carregar postagens.'
+      emptyEl.style.display = 'block'
+      console.error('Erro ao carregar postagens do perfil:', err)
+    }
+  }
+
   const renderVisitorBg = (layers) => {
     if (!visitorBgGrid || !visitorBgEmpty) return
     visitorBgGrid.innerHTML = ''
@@ -535,42 +634,7 @@ async function init() {
   }
 
   const renderVisitorPosts = async (uid) => {
-    if (!visitorPostsList || !visitorPostsEmpty) return
-    visitorPostsList.innerHTML = ''
-    const qPosts = query(collection(db, 'posts'), where('author_id', '==', uid), orderBy('created_at', 'desc'), limit(20))
-    const snap = await getDocs(qPosts)
-    visitorPostsEmpty.style.display = snap.empty ? 'block' : 'none'
-    snap.forEach((d) => {
-      const p = d.data() || {}
-      const author = p.author || {}
-      const name = author.nickname || author.full_name || 'Aventureiro'
-      const avatar = author.avatar_url || 'assets/default-avatar.png'
-      const type = String(p.type || 'text')
-      const createdMs = p.created_at?.toMillis ? p.created_at.toMillis() : 0
-      const date = createdMs ? new Intl.DateTimeFormat('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' }).format(new Date(createdMs)) : ''
-      const text = String(p.text || '').trim()
-      const img = String(p.image_url || '').trim()
-
-      const card = document.createElement('div')
-      card.className = 'profile-post-item'
-      card.innerHTML = `
-        <div class="profile-post-head">
-          <div class="profile-post-author">
-            <div class="profile-post-avatar"><img alt="" src="${escHtml(avatar)}"></div>
-            <div class="profile-post-meta">
-              <div class="profile-post-name">${escHtml(name)}</div>
-              <div class="profile-post-sub">${escHtml(date)}${type === 'repost' ? ' • Repost' : ''}${type === 'sheet' ? ' • Ficha' : ''}</div>
-            </div>
-          </div>
-        </div>
-        ${text ? `<div class="profile-post-text">${escHtml(text)}</div>` : ''}
-        ${img ? `<div class="profile-post-media"><img alt="" src="${escHtml(img)}"></div>` : ''}
-      `
-      card.addEventListener('click', () => {
-        window.location.href = `post.html?id=${encodeURIComponent(d.id)}&from=${encodeURIComponent('profile.html?uid=' + uid)}`
-      })
-      visitorPostsList.appendChild(card)
-    })
+    return renderPostsTo(uid, visitorPostsList, visitorPostsEmpty, { isVisitor: true })
   }
 
   const renderVisitorFriends = async (uid) => {
@@ -592,7 +656,7 @@ async function init() {
     snap.forEach((d) => {
       const f = d.data() || {}
       const parts = Array.isArray(f.participants) ? f.participants : []
-      const other = parts.find((p) => p && p !== uid)
+      const other = parts.find((p) => p && p !== uid);
       if (other) friendUids.push(other)
     })
     for (const otherUid of friendUids.slice(0, 9)) {
@@ -610,8 +674,56 @@ async function init() {
         el.addEventListener('click', () => {
           window.location.href = `profile.html?uid=${encodeURIComponent(otherUid)}`
         })
-      visitorFriendsGrid.appendChild(el)
+        visitorFriendsGrid.appendChild(el)
+        
       } catch {}
+    }
+  }
+
+  const renderProfileFriends2 = async (uid) => {
+
+    const verify = !perfilGrid2 || !perfilEmpty2;
+    if (verify) {
+      console.log('Sem amizades ainda.')
+      return
+    }
+    perfilGrid2.innerHTML = '' 
+    const qFriends = query(collection(db, 'friendships'), where('participants', 'array-contains', uid), where('status', '==', 'accepted'), limit(12))
+    const snap = await getDocs(qFriends)
+    if (snap.empty) {
+      console.log('Sem amizades ainda.')
+      perfilEmpty2.style.display = 'block'
+      return
+    }
+    perfilEmpty2.style.display = 'none'
+      
+    const friendUids = []
+    snap.forEach((d) => {
+      const f = d.data() || {}
+      const parts = Array.isArray(f.participants) ? f.participants : []
+      const other = parts.find((p) => p && p !== uid);
+      if (other) friendUids.push(other)
+    })
+    for (const otherUid of friendUids.slice(0, 9)) {
+      try {
+        const pDoc = await getDoc(doc(db, 'profiles', otherUid))
+        const p = pDoc.exists() ? (pDoc.data() || {}) : {}
+        const name = p.nickname || p.full_name || 'Aventureiro'
+        const avatar = p.avatar_url || 'assets/default-avatar.png'
+        const el = document.createElement('div')
+        el.className = 'profile-visitor-friend profile-visitor-friend-item'
+        el.innerHTML = `
+          <div class="profile-visitor-thumb"><img alt="" src="${escHtml(avatar)}"></div>
+          <div class="profile-visitor-username">${escHtml(name)}</div>
+        `
+        el.addEventListener('click', () => {
+          window.location.href = `profile.html?uid=${encodeURIComponent(otherUid)}`
+        })
+        perfilGrid2.appendChild(el)
+        
+      } catch (error) {
+        console.error('Error ao carregar perfil:', otherUid, error)
+      }
     }
   }
 
@@ -819,10 +931,25 @@ async function init() {
     }
 
     if (frameOptionsContainer && btnToggleFrames) {
-      const framesLockedByPlan = !!(planState && !planState.canUseFrames && !isUserAdmin)
-      if (framesLockedByPlan) {
-        btnToggleFrames.disabled = false
-        btnToggleFrames.style.opacity = '0.55'
+      const canFrames = !!planState?.canUseFrames || isUserAdmin
+      const framesLockedByPlan = !canFrames
+      if (framesLockedByPlan) btnToggleFrames.style.opacity = '0.55'
+
+      const persistSelectedFrame = async (frameId) => {
+        if (!isEditable) return
+        if (!canFrames) return
+        const nextFrame = frameId
+        if (nextFrame !== selectedFrame) {
+          selectedFrame = nextFrame
+          updatePreview(selectedFrame)
+          updateFrameStatus()
+          updateAvatarDisplay(avatarUrlInput?.value, avatarImg, avatarPlaceholder, selectedFrame)
+        }
+        try {
+          await setDoc(doc(db, 'profiles', currentUser.uid), { current_frame: selectedFrame, updated_at: serverTimestamp() }, { merge: true })
+        } catch (err) {
+          console.error('Erro ao salvar borda:', err)
+        }
       }
 
       const frames = [
@@ -849,13 +976,16 @@ async function init() {
 
       updatePreview(selectedFrame)
       updateFrameStatus()
-      if (btnToggleFrames.disabled && frameStatusEl) {
+      if (framesLockedByPlan && frameStatusEl) {
         frameStatusEl.textContent = 'Borda: Ametista Sombria • Disponível no plano Lenda'
       }
 
       btnToggleFrames.onclick = (e) => {
         e.preventDefault()
-        if (btnToggleFrames.disabled) return
+        if (framesLockedByPlan) {
+          if (confirm('Molduras de avatar estão disponíveis no plano Lenda. Quer ver os planos?')) window.location.href = upgradeHref()
+          return
+        }
         const isOpen = frameOptionsContainer.classList.toggle('show')
         btnToggleFrames.classList.toggle('active', isOpen)
         btnToggleFrames.innerHTML = isOpen ? '<i class="fas fa-times"></i>' : '<i class="fas fa-plus"></i>'
@@ -872,7 +1002,7 @@ async function init() {
           <div class="option-glow glow-${frame.id.toLowerCase()}"></div>
           <div class="option-border frame-${frame.id.toLowerCase()}"></div>
         `
-        if (isEditable && isUnlocked && !btnToggleFrames.disabled) {
+        if (isEditable && isUnlocked && !framesLockedByPlan) {
           el.onclick = () => {
             selectedFrame = frame.id
             document.querySelectorAll('.frame-option').forEach(opt => opt.classList.remove('active'))
@@ -880,6 +1010,7 @@ async function init() {
             updatePreview(selectedFrame)
             updateFrameStatus()
             updateAvatarDisplay(avatarUrlInput?.value, avatarImg, avatarPlaceholder, selectedFrame)
+            persistSelectedFrame(selectedFrame).catch(() => {})
             frameOptionsContainer.classList.remove('show')
             btnToggleFrames.classList.remove('active')
             btnToggleFrames.innerHTML = '<i class="fas fa-plus"></i>'
@@ -954,9 +1085,13 @@ async function init() {
       if (visitorSessionsTime) visitorSessionsTime.textContent = formatHours(safeProfile?.sessions_total_minutes || 0)
 
       renderVisitorBg(bgLayers)
-      renderVisitorPosts(viewedUid).catch(() => {})
       renderVisitorFriends(viewedUid).catch(() => {})
       renderVisitorSheets(viewedUid).catch(() => {})
+      renderVisitorPosts(viewedUid).catch(() => {})
+    }
+    renderProfileFriends2(viewedUid).catch((error) => console.error('Error ao carregar amizades:', error))
+    if (isEditable) {
+      renderPostsTo(viewedUid, profilePostsList, profilePostsEmpty, { isVisitor: false }).catch(() => {})
     }
 
     if (isEditable && bgOpacitySlider) {
@@ -1191,6 +1326,7 @@ async function init() {
           bg_opacity: bgOpacitySlider ? parseInt(bgOpacitySlider.value) : 20,
           bg_blur: bgBlurSlider ? parseInt(bgBlurSlider.value) : 0,
           updated_at: serverTimestamp()
+          
         }
 
         if (!canAvatarBanner) {

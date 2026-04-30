@@ -681,7 +681,8 @@ class MultiplayerLobby {
         // 1. Mapas Oficiais (Site) sem restrições
         const siteMaps = [
             { name: 'Caverna Obscura', description: 'Um local úmido e perigoso nas profundezas.', url: 'https://i.postimg.cc/SRbSV4LR/Escudo-Elara.png' },
-            { name: 'Vulcão Ativo', description: 'O calor é insuportável perto da lava.', url: 'assets/maps/florest.png' }
+            { name: 'Vulcão Ativo', description: 'O calor é insuportável perto da lava.', url: 'https://i.postimg.cc/BZpYz0V9/Escudo3.png' },
+            { name: 'Estrela Azul', description: 'Um local úmido e perigoso nas profundezas.', url: 'https://i.postimg.cc/h4syYB3p/Escudo2.png' },
         ];
 
         if (siteGrid) {
@@ -1150,7 +1151,7 @@ class MultiplayerLobby {
                     mapImg.onerror = null;
                     mapImg.src = '';
                 };
-                mapImg.style.display = 'block'; 
+                mapImg.style.display = 'flex'; 
                 mapImg.classList.add('active');
             }
             if (mapPlaceholder) mapPlaceholder.style.display = 'none';
@@ -1165,7 +1166,8 @@ class MultiplayerLobby {
         // Visibilidade do botão de mapa (Mestre e não pausado)
         if (btnChooseMap) {
             if (this.isMaster && this.sessionData.status !== 'saved') {
-                btnChooseMap.style.display = 'block';
+                btnChooseMap.style.display = 'flex';
+                btnChooseMap.style.cursor = 'pointer';
                 // Garante que o clique funcione
                 btnChooseMap.onclick = (e) => {
                     e.stopPropagation();

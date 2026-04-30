@@ -16,10 +16,23 @@ body {
   gap: 6px;
   z-index: 2;
 }
+
+.profile-card-posts{
+  overflow-x: scroll;
+  margin-top: 10px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 16px;
+}
+
+
+
+
 .profile-page {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 90px 20px 16px;
+  padding: 66px 90px 20px 16px;
   position: relative;
   /* height: 100vh; */
   box-sizing: border-box;
@@ -39,15 +52,25 @@ body {
 .profile-bg-layers {
   position: fixed;
   inset: 0;
-  pointer-events: none;
-  z-index: 0;
+  /*pointer-events: none;
+  */z-index: 0;
   display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
-  grid-auto-rows: minmax(120px, 1fr);
-  gap: 14px;
+  grid-template-columns: repeat(15, minmax(0, 1fr));
+  grid-auto-rows: minmax(12px, 1fr);
+  gap: 10px;
   padding: 22px;
   opacity: var(--bg-global-opacity, 0.2);
   filter: blur(var(--bg-global-blur, 0px));
+  transition: filter 0.7s ease-in-out, -webkit-filter 0.4s ease-in-out;
+  -webkit-transition: filter 0.7s ease-in-out, -webkit-filter 0.4s ease-in-out;
+  -moz-transition: filter 0.7s ease-in-out, -webkit-filter 0.4s ease-in-out;
+  -ms-transition: filter 0.7s ease-in-out, -webkit-filter 0.4s ease-in-out;
+  -o-transition: filter 0.7s ease-in-out, -webkit-filter 0.4s ease-in-out;
+}
+.profile-bg-layers:hover {
+  filter: blur(0px);
+  -webkit-filter: blur(0px);
+  opacity: 1;
 }
 
 .profile-bg-layer {
@@ -100,7 +123,7 @@ body {
 .profile-hero {
   border-radius: 20px;
   position: relative;
-  height: 220px;
+  height: 300px;
   background: radial-gradient(circle at 20% 20%, rgba(255, 215, 0, 0.12), transparent 45%),
               radial-gradient(circle at 80% 30%, rgba(139, 0, 0, 0.12), transparent 40%),
               linear-gradient(180deg, rgba(0,0,0,0.2), rgba(0,0,0,0.65));
@@ -327,7 +350,8 @@ body.profile-edit-enabled #banner-img {
 }
 
 .profile-panel.active {
-  display: block;
+  display: flex;
+  flex-direction: column;
   flex: 1 1 auto;
   min-height: 0;
   overflow: auto;
@@ -365,6 +389,7 @@ body.profile-edit-enabled #banner-img {
 }
 
 .profile-card {
+  margin-top: 16px;
   background: rgba(255,255,255,0.04);
   border: 1px solid rgba(255,255,255,0.08);
   border-radius: 16px;
@@ -459,8 +484,8 @@ body.profile-edit-enabled #banner-img {
 @media screen and (max-width: 1900px) {
 .current-frame-preview .btn-toggle-frames {
     position: absolute;
-    right: 10px;
-    bottom: 8px;
+    right: 9px;
+    bottom: 10px;
     top: auto;
     left: auto;
 }
@@ -475,7 +500,7 @@ body.profile-edit-enabled #banner-img {
   .current-frame-preview .btn-toggle-frames {
     position: absolute;
     right: 9px;
-    bottom: 6px;
+    bottom: 10px;
     top: auto;
     left: auto;
 }
@@ -735,6 +760,7 @@ body.profile-visitor-mode #email-display {
 
 .profile-visitor-left,
 .profile-visitor-right {
+  width: 100%;
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -832,28 +858,40 @@ body.profile-visitor-mode #email-display {
 .profile-stat-label {
   color: rgba(255,255,255,0.60);
   font-weight: 800;
-  font-size: 0.82rem;
+  font-size: 0.62rem;
+  text-align: center;
 }
 
 .profile-stat-value {
-  color: rgba(255,255,255,0.92);
-  font-weight: 900;
-  font-size: 1.05rem;
-}
-
-.profile-bio-readonly {
-  color: rgba(255,255,255,0.75);
-  line-height: 1.75;
-  white-space: pre-wrap;
-}
-
-.profile-visitor-posts {
-  display: flex;
+  text-align: center;
+  max-height: 500px;
+  max-width: 350px;
+  display: grid;
+  grid-auto-flow: column;
   flex-direction: column;
   gap: 12px;
 }
 
+.profile-bio-readonly {
+    /* max-height: 6%; */
+    min-width: 350px;
+    border-radius: 18px;
+    border: 1px solid rgba(255, 255, 255, 0.10);
+    background: rgba(255, 255, 255, 0.04);
+    padding: 12px;
+    cursor: pointer;
+}
+
+.profile-visitor-posts {
+    display: flex;
+    flex-direction: column;
+    overflow-x: auto;
+    gap: 12px;
+  }
+
+
 .profile-post-item {
+  margin-bottom: 16px;
   border-radius: 18px;
   border: 1px solid rgba(255,255,255,0.10);
   background: rgba(255,255,255,0.04);
@@ -919,21 +957,26 @@ body.profile-visitor-mode #email-display {
 }
 
 .profile-post-text {
+  width: 354px;
   color: rgba(255,255,255,0.78);
   white-space: pre-wrap;
   line-height: 1.6;
 }
 
 .profile-post-media {
-  margin-top: 10px;
-  border-radius: 16px;
-  overflow: hidden;
-  border: 1px solid rgba(255,255,255,0.10);
+    display: flex;
+    justify-content: center;
+    margin-top: 9px;
+    border-radius: 16px;
+    overflow: hidden;
+    /* border: 1px solid rgba(255, 255, 255, 0.10); */
 }
 
 .profile-post-media img {
-  width: 100%;
-  display: block;
+  border-radius: 16px;
+    width: 300px;
+    max-height: 400px;
+    display: block;
 }
 .visitor-bg-modal-media{
   overflow: hidden;
@@ -1009,7 +1052,16 @@ body.profile-visitor-mode #email-display {
   cursor: pointer;
 }
 
-@media (max-width: 980px) {
+@media (max-width: 1076px) {
+  .profile-page {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 90px 20px 16px;
+    position: relative;
+    /* height: 100vh; */
+    box-sizing: border-box;
+    overflow: hidden;
+}
   .profile-visitor-grid {
     grid-template-columns: 1fr;
     padding: 14px;

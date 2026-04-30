@@ -109,7 +109,7 @@ body {
     background-position: top;
   border-bottom: 1px solid rgba(255,255,255,0.08);
 }
-.assets-thumb:hover {
+/* .assets-thumb:hover {
   height: 358px;
   border: 1px solid var(--elara-gold-light);
   background-color: var(--elara-gold);
@@ -119,7 +119,7 @@ body {
   -moz-border-radius: 18px;
   -ms-border-radius: 18px;
   -o-border-radius: 18px;
-}
+} */
 
 .assets-item-meta {
   padding: 10px;

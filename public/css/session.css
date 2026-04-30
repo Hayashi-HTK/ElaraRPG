@@ -10,6 +10,7 @@
 
 :root {
     --right-overlay-width: 40px;
+    --color-gradient: linear-gradient(90deg, rgba(212, 133, 83, 0.5) 0%, #140f0c 100%);
 }
 
 /* Top Menu Bar */
@@ -819,26 +820,27 @@ option{
     position: absolute;
     margin-right: auto;
     margin-left: auto;
-    bottom: -572px;
-    /* left: 221px; */
-    box-shadow: 0 0 100px rgba(0,0,0,1);
-    background: #111; /* Fundo levemente visível */
-    width: 1000px; 
-    height: 3000px;
-    /* transform-origin: -466px 620px; */
-    transition: transform 0.1s ease-out; /* Transição suave */
+    bottom: 0;
+    left: 300px;
+    box-shadow: 0 0 100px rgba(0, 0, 0, 1);
+    background: #111;
+    width: 1000px;
+    height: 2000px;
+    transform-origin: -454px 693px;
+    transition: transform 0.1s ease-out;
     transform-style: preserve-3d;
-    will-change: transform; /* Performance */
+    will-change: transform;
 }
 
 .draw-layer,
 .fog-layer {
-    border: 3px solid var(--accent-gold);
+    border: 5px solid #201a1b;
+    border-radius: 10px;
     position: absolute;
     top: 0;
     margin-left: auto;
     margin-right: auto;
-    height: 3000px;
+    height: 2000px;
     pointer-events: none;
 }
 
@@ -1016,7 +1018,7 @@ option{
     top: 0;
     left: 0;
     width: 1000px;
-    height: 3000px;
+    height: 2000px;
     pointer-events: none;
     z-index: 0;
     opacity: 1;
@@ -1027,7 +1029,7 @@ option{
     top: 0;
     left: 0;
     width: 1000px;
-    height: 3000px;
+    height: 2000px;
     z-index: 2;
     pointer-events: auto;
 }
@@ -1425,30 +1427,21 @@ option{
 }
 
 #session-map {
+    app-region: no-drag;
+    -webkit-user-drag: none;
+    -webkit-user-drag: none;
     -webkit-user-select: none;
-    /*Safari*/-ms-user-select: none;
-    /*IE10+eEdge*/user-select: none;
-    /*Padrãomoderno*/cursor: not-allowed;
-    cursor:none;
+    -ms-user-select: none;
+    user-select: none;
+    cursor: not-allowed;
+    cursor: none;
     top: -1039px;
     right: 1238px;
     position: fixed;
-    width: 1000px;
-    /*height: 5000px;
-    */object-fit: cover;
+    object-fit: cover;
     pointer-events: none;
     display: block;
-    /*position: relative;
-    */z-index: 1;
-    /* perspective: 546px; */
-    /*transform: translate3d(66px, 109px, 0);*/
-    transform: matrix3d(4, 0, 55, 0, 1, 3, -1, 0, 0, 0, 1, 0, 2199, 841, 122, 2);
-    rotate: 0deg;
-    transform-style: preserve-3d;
-    -webkit-transform: matrix3d(3, 0, 0, 0, 1, 2, -1, 0, 0, 0, 1, 0, 2116, 745, 64, 2);
-    -moz-transform: matrix3d(3, 0, 0, 0, 1, 2, -1, 0, 0, 0, 1, 0, 2116, 745, 64, 2);
-    -ms-transform: matrix3d(3, 0, 0, 0, 1, 2, -1, 0, 0, 0, 1, 0, 2116, 745, 64, 2);
-    -o-transform: matrix3d(3, 0, 0, 0, 1, 2, -1, 0, 0, 0, 1, 0, 2116, 745, 64, 2);
+    -webkit-transform: matrix3d(5.4, 0, 0, 0, 0, 7.8, 0, 0, 0, 0, 1, 0, 2756, 3423, -86, 2);
 }
 
 .assets-layer {
@@ -1456,7 +1449,7 @@ option{
     top: 0;
     left: 0;
     width: 1000px;
-    height: 3000px;
+    height: 2000px;
     z-index: 6;
     pointer-events: none;
     transform-style: preserve-3d;
@@ -1590,7 +1583,7 @@ option{
     top: 0;
     left: 0;
     width: 1000px;
-    height: 3000px;
+    height: 2000px;
     background-image: 
         linear-gradient(rgba(255,255,255,0.2) 1px, transparent 1px),
         linear-gradient(90deg, rgba(255,255,255,0.2) 1px, transparent 1px);
@@ -1619,7 +1612,7 @@ option{
     top: 0;
     left: 0;
     width: 1000px;
-    height: 3000px;
+    height: 2000px;
     pointer-events: none;
     z-index: 10;
     transform-style: preserve-3d;
@@ -1929,6 +1922,7 @@ option{
     color: #000;
 }
 
+
 .token-controls {
     position: absolute;
     bottom: -40px; /* Ajustado para ficar sempre visível logo abaixo do card */
@@ -2115,7 +2109,7 @@ option{
     top: 0;
     left: 0;
     width: 1000px;
-    height: 3000px;
+    height: 2000px;
     z-index: 7;
     pointer-events: none;
 }
@@ -4134,7 +4128,7 @@ input:checked + .slider:before {
     box-shadow: 0 0 100px rgba(0, 0, 0, 1);
     background: #111;
     width: 1000px;
-    height: 3000px;
+    height: 2000px;
     transform-origin: -212px 795px;
     transition: transform 0.1s ease-out;
     transform-style: preserve-3d;

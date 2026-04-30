@@ -22,6 +22,20 @@
     margin: 0;
     overflow-x: hidden;
   }
+  .delete-update-btn-container {
+    padding: 2px 8px;
+    border: none;
+    border-radius: 4px;
+    background-color: #c32828;
+    color: white;
+    cursor: pointer;
+    scale: 1.2;
+  }
+  .delete-update-btn-container:hover {
+    background-color: #752222;
+    scale: 0.9;
+    transition: all 0.3s ease-in-out;
+  }
   
   .updates-hero {
     background: radial-gradient(circle at top right, rgba(200, 58, 58, 0.15), transparent 40%),
@@ -145,12 +159,26 @@
     padding: 10px 14px;
     border-radius: 12px;
     cursor: pointer;
+    
     font-weight: 800;
+  }
+  .upd-btn:hover {
+    border-color: rgba(215, 29, 29, 0.5);
+    transition: all 0.3s ease-in-out;
+    scale: 0.9;
+    
   }
 
   .upd-btn.primary {
     background: rgba(215, 29, 29, 0.20);
     border-color: rgba(215, 29, 29, 0.35);
+    
+  }
+  .upd-btn.primary:hover {
+    border-color: rgba(215, 29, 29, 0.5);
+    transition: all 0.3s ease-in-out;
+    scale: 0.9;
+    
   }
 
   /* Status Badge */
@@ -265,6 +293,9 @@
   }
 
   .release-content ul {
+    justify-content: space-between;
+    align-items: center;
+    display: flex;
     list-style: none;
     padding: 0;
     margin: 0;

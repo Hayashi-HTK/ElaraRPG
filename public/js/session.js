@@ -142,7 +142,7 @@ class GameSession {
             const n = Number(stored);
             if (Number.isFinite(n)) floorSize = n;
         } catch {}
-        this.floorDefaultSizePx = Math.max(50, Math.min(3000, Math.round(floorSize / 50) * 50));
+        this.floorDefaultSizePx = Math.max(50, Math.min(2000, Math.round(floorSize / 50) * 50));
 
         this.mapObjects = [];
         this.selectedMapObjectId = null;
@@ -1377,9 +1377,9 @@ class GameSession {
     async addFloorTextureFromUrl(url, name) {
         if (!this.isMaster) return;
         const next = Array.isArray(this.floorTextures) ? [...this.floorTextures] : [];
-        const id = `tex_${Date.now()}_${Math.random().toString(16).slice(2, 6)}`;
+        const id = `tex_${Date.now()}_${Math.random().toString(16).slice(2, 8)}`;
         next.push({ id, name: String(name || 'Piso'), url: String(url) });
-        this.floorTextures = next.slice(-80);
+        this.floorTextures = next.slice(-120);
         this.selectedFloorTextureId = id;
         this.floorSubMode = 'paint';
         this.floorRemoveMode = false;
@@ -2037,7 +2037,7 @@ class GameSession {
         const area = document.querySelector('.map-area'); 
         if (!area) return; 
         const areaRect = area.getBoundingClientRect(); 
-        // Centraliza o mapa de 3000px no meio da área visível 
+        // Centraliza o mapa de 2000px no meio da área visível 
         // this.newScale = Math.min(3, Math.max(0.2, areaRect.width / 2400)); 
         console.log(this.newScale); 
         this.newScale = Math.min(3, Math.max(0.2, areaRect.width / 2400)); 
@@ -2074,7 +2074,7 @@ class GameSession {
 
         this.fogStore = document.createElement('canvas');
         this.fogStore.width = 1000;
-        this.fogStore.height = 3000;
+        this.fogStore.height = 2000;
         this.fogStoreCtx = this.fogStore.getContext('2d');
 
         this.renderDrawLayer();
@@ -4116,7 +4116,7 @@ class GameSession {
                     if (Math.abs(dx) !== r && Math.abs(dy) !== r) continue;
                     const nx = base.x + dx * step;
                     const ny = base.y + dy * step;
-                    if (nx < 0 || ny < 0 || nx > 3000 - w || ny > 3000 - h) continue;
+                    if (nx < 0 || ny < 0 || nx > 2000 - w || ny > 2000 - h) continue;
                     if (isFree(nx, ny)) return { x: nx, y: ny };
                 }
             }
@@ -4706,7 +4706,7 @@ class GameSession {
         const occupied = tiles.some(t => t && (t.layer ?? 0) === layer && Number(t.x || 0) === gridX && Number(t.y || 0) === gridY);
         if (occupied) return;
 
-        const size = Math.max(50, Math.min(3000, Math.round((Number(this.floorDefaultSizePx || 150) || 150) / 50) * 50));
+        const size = Math.max(50, Math.min(2000, Math.round((Number(this.floorDefaultSizePx || 150) || 150) / 50) * 50));
         const tile = {
             id: `floor_${Date.now().toString(36)}_${Math.random().toString(16).slice(2, 5)}`,
             layer,
@@ -4758,7 +4758,7 @@ class GameSession {
         }
 
         if (mapImg) {
-            mapImg.style.opacity = String(Math.max(0.3, Math.min(1, mapOpacity)));
+            mapImg.style.opacity = String(Math.max(1, Math.min(1, mapOpacity)));
             mapImg.style.filter = `brightness(${Math.max(0.4, Math.min(1.6, brightness))})`;
         }
 
@@ -4775,11 +4775,11 @@ class GameSession {
         if (grid) {
             const variant = String(editor.grid_variant || 'square');
             if (variant === 'dots') {
-                grid.style.backgroundImage = `radial-gradient(rgba(255,255,255,0.22) 1px, transparent 1px)`;
-                grid.style.backgroundSize = `50px 50px`;
+                grid.style.backgroundImage = `radial-gradient(rgba(255,255,255,0.25) 1px, transparent 1px)`;
+                grid.style.backgroundSize = `30px 30px`;
             } else {
-                grid.style.backgroundImage = `linear-gradient(rgba(255,255,255,0.2) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.2) 1px, transparent 1px)`;
-                grid.style.backgroundSize = `50px 50px`;
+                grid.style.backgroundImage = `linear-gradient(rgba(255,255,255,0.25) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.2) 1px, transparent 1px)`;
+                grid.style.backgroundSize = `30px 30px`;
             }
         }
 
@@ -5059,7 +5059,7 @@ class GameSession {
             const el = document.createElement('div');
             el.className = 'footprint';
             el.style.position = 'absolute';
-            el.style.left = `${fp.x + 15}px`; // Centraliza um pouco na grid
+            el.style.left = `${fp.x + 15}px;`; // Centraliza um pouco na grid
             el.style.top = `${fp.y + 15}px`;
             el.style.width = '20px';
             el.style.height = '20px';
@@ -6445,7 +6445,7 @@ class GameSession {
                         alert('Selecione um piso válido.');
                         return;
                     }
-                    const size = Math.max(50, Math.min(3000, Math.round((Number(this.floorDefaultSizePx || 150) || 150) / 50) * 50));
+                    const size = Math.max(50, Math.min(2000, Math.round((Number(this.floorDefaultSizePx || 150) || 150) / 50) * 50));
                     const tile = {
                         id: `floor_${Date.now().toString(36)}_${Math.random().toString(16).slice(2, 5)}`,
                         layer: Math.max(0, Math.min(4, Number(layer) || 0)),

@@ -208,7 +208,7 @@ const setupFormListeners = () => {
                     console.log('Google profile saved successfully');
                 } catch (dbError) {
                     console.error('Error saving Google profile to DB:', dbError);
-                }
+                } 
 
                 sessionStorage.setItem('just_logged_in', 'true');
                 window.location.replace('dashboard.html');

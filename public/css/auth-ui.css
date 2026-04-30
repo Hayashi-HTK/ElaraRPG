@@ -254,10 +254,10 @@ body.auth-page {
     left: 0;
     width: 100%;
     height: 100%;
-    background: url('../assets/BG.png') center/cover no-repeat;
-    opacity: 0.15;
+    background: url('/public/assets/BG2.png') center/cover no-repeat;
+    opacity: 1;
     z-index: -1;
-    filter: grayscale(100%) contrast(120%);
+    /* filter: grayscale(100%) contrast(120%); */
 }
 
 @media (max-width: 400px) {

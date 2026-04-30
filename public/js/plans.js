@@ -43,6 +43,10 @@ const normalizePlanKey = (raw) => {
   if (plain === 'heroi' || plain === 'hero') return 'basic'
   if (plain === 'lenda' || plain === 'legend') return 'premium'
   if (plain === 'aventureiro' || plain === 'adventurer') return 'free'
+  if (plain.includes('adm')) return 'adm'
+  if (plain.includes('premium') || plain.includes('lenda') || plain.includes('legend')) return 'premium'
+  if (plain.includes('basic') || plain.includes('heroi') || plain.includes('hero')) return 'basic'
+  if (plain.includes('free') || plain.includes('aventureiro') || plain.includes('adventurer')) return 'free'
   return 'free'
 }
 
@@ -78,7 +82,7 @@ export const getPlanPeriod = (profile) => {
 
 export const getPlanState = ({ user, profile }) => {
   const admin = isAdminUser(user, profile)
-  const rawKey = normalizePlanKey(profile?.plan)
+  const rawKey = normalizePlanKey(profile?.plan_type || profile?.plan)
   const rawStatus = String(profile?.plan_status || '').trim().toLowerCase()
   const status = rawStatus || (rawKey === 'free' ? 'free' : 'active')
   const { startsAt, endsAt, remainingDays } = getPlanPeriod(profile)

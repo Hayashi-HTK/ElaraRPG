@@ -17,17 +17,19 @@ const normalizeTag = (t) => {
 
 const tagLabel = (t) => (t === 'new' ? 'Novo' : t === 'fix' ? 'Correção' : 'Melhoria');
 
-const renderUpdates = (list) => {
+const renderUpdates = (list, { isAdmin } = {}) => {
   const timeline = document.getElementById('updates-timeline');
   if (!timeline) return;
   timeline.innerHTML = '';
 
-  if (!list.length) {
+  const visible = Array.isArray(list) ? list.filter((u) => !u?.is_deleted) : [];
+
+  if (!visible.length) {
     timeline.innerHTML = `<div class="release-card" style="opacity: 0.85;"><div class="release-header"><div class="release-title"><span class="version-badge" style="background: rgba(255,255,255,0.16);">v0.0.0</span><h2 style="margin:0; font-size:1.2rem;">Sem atualizações</h2></div><span class="release-date">—</span></div><div class="release-content"><ul><li><span class="tag ui">Melhoria</span>As atualizações aparecerão aqui assim que forem publicadas.</li></ul></div></div>`;
     return;
   }
 
-  list.forEach((u) => {
+  visible.forEach((u) => {
     const version = escapeHtml(u.version || 'v1.0.0');
     const title = escapeHtml(u.title || 'Atualização');
     const dateLabel = escapeHtml(u.date_label || '');
@@ -39,7 +41,7 @@ const renderUpdates = (list) => {
       return `<li><span class="tag ${tag}">${tagLabel(tag)}</span>${text}</li>`;
     }).filter(Boolean).join('');
 
-    const card = document.createElement('div');
+    const card = document.createElement('div');    
     card.className = 'release-card';
     card.innerHTML = `
       <div class="release-header">
@@ -53,6 +55,15 @@ const renderUpdates = (list) => {
         <ul>${li || `<li><span class="tag ui">Melhoria</span>Sem itens detalhados.</li>`}</ul>
       </div>
     `;
+
+    if (isAdmin) {
+      const btn = document.createElement('button');
+      btn.className = 'delete-update-btn-container';
+      btn.type = 'button';
+      btn.textContent = 'Excluir';
+      btn.addEventListener('click', () => deleteUpdate(u.id, btn));
+      card.querySelector('.release-content ul')?.appendChild(btn);
+    }
     timeline.appendChild(card);
   });
 };
@@ -144,6 +155,41 @@ const readAdminFlag = async (user) => {
   }
 };
 
+const deleteUpdate = async (updateId, btnEl) => {
+  const u = auth.currentUser;
+  const ok = await readAdminFlag(u);
+  if (!ok) return;
+  const id = String(updateId || '').trim();
+  if (!id) return;
+  if (!confirm('Excluir esta atualização?')) return;
+
+  const prev = btnEl ? btnEl.textContent : '';
+  if (btnEl) {
+    btnEl.disabled = true;
+    btnEl.textContent = 'Excluindo...';
+  }
+  try {
+    await updateDoc(doc(db, 'updates', id), {
+      is_deleted: true,
+      deleted_at: serverTimestamp(),
+      deleted_by: u?.uid || null,
+      updated_at: serverTimestamp()
+    });
+    await setDoc(doc(db, 'update_broadcasts', id), {
+      is_deleted: true,
+      deleted_at: serverTimestamp(),
+      deleted_by: u?.uid || null
+    }, { merge: true });
+  } catch (err) {
+    console.error(err);
+  } finally {
+    if (btnEl) {
+      btnEl.disabled = false;
+      btnEl.textContent = prev || 'Excluir';
+    }
+  }
+};
+
 const getFormData = () => {
   const version = document.getElementById('upd-version')?.value?.trim() || '';
   const title = document.getElementById('upd-title')?.value?.trim() || '';
@@ -195,18 +241,18 @@ const addItemRow = (tag = 'ui', placeholder = '') => {
 };
 
 document.addEventListener('DOMContentLoaded', async () => {
+  const user = await waitForAuth();
+  const isAdmin = await readAdminFlag(user);
+  setAdminPanelVisible(isAdmin);
+
   const q = query(collection(db, 'updates'), orderBy('created_at', 'desc'), limit(20));
   onSnapshot(q, (snap) => {
     const list = [];
     snap.forEach((d) => list.push({ id: d.id, ...d.data() }));
-    renderUpdates(list);
+    renderUpdates(list, { isAdmin });
   }, () => {
-    renderUpdates([]);
+    renderUpdates([], { isAdmin });
   });
-
-  const user = await waitForAuth();
-  const isAdmin = await readAdminFlag(user);
-  setAdminPanelVisible(isAdmin);
 
   if (isAdmin) {
     try {
@@ -286,6 +332,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         items: data.items,
         created_at: serverTimestamp(),
         created_by: u.uid
+        , is_deleted: false
       };
       try {
         const ref = await addDoc(collection(db, 'updates'), payload);
@@ -297,6 +344,7 @@ document.addEventListener('DOMContentLoaded', async () => {
           body,
           created_at: serverTimestamp(),
           created_by: u.uid
+          , is_deleted: false
         }, { merge: true });
         resetForm();
       } catch (err) {

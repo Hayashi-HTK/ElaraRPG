@@ -265,6 +265,7 @@
 }
 
 a {
+  text-decoration: none;
   color: var(--color-text);
   transition: color 0.2s ease, text-decoration-color 0.2s ease;
 }

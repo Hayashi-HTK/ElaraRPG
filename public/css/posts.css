@@ -400,6 +400,12 @@ body.posts-page {
   overflow: hidden;
   text-overflow: ellipsis;
 }
+.post-header:hover .post-author-sub  {
+  color: black;
+}
+.post-header:hover .post-author-name  {
+  color: black;
+}
 
 .post-menu {
   display: flex;

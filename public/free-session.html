@@ -16,8 +16,22 @@
     <link rel="stylesheet" href="css/multiplayer-lobby.css">
 </head>
 <style>
+    .btn-primary {
+    cursor: pointer;
+    border: none;
+    border-radius: 6px;
+    background-color: var(--dashboard-accent);
+    color: white;
+    padding: 0.5rem 1.5rem;
+    }
+    .btn-secondary {
+        cursor: pointer;
+        border: none;
+        border-radius: 6px;
+        padding: 0.5rem 1.5rem;
+    }
     .navbar {
-        top: -55px; /* Sobe um pouco mais para esconder bem o menu */
+        top: -72px; /* Sobe um pouco mais para esconder bem o menu */
         transition: top 0.3s ease-in-out;
         cursor: pointer;
         z-index: 1000;
@@ -358,7 +372,7 @@
                     if (navbar.classList.contains('active')) {
                         navbar.style.top = '0';
                     } else {
-                        navbar.style.top = '-55px';
+                        navbar.style.top = '-72px';
                     }
                 }
             });
