@@ -24,6 +24,19 @@ const recoverForm = document.getElementById('recover-form');
 const googleLoginBtn = document.getElementById('google-login-btn');
 const errorMsg = document.getElementById('error-message');
 
+// Terms and Conditions Checkbox
+const termsConditionsCheckbox = document.getElementById('terms-conditions-checkbox');
+const btnRegister = document.getElementById('register-btn');
+if (termsConditionsCheckbox) {
+  btnRegister.addEventListener('click', (e) => {
+    if (!termsConditionsCheckbox.checked) {
+      e.preventDefault();
+      showError('Por favor, aceite os termos e condições.');
+      return;
+    } 
+  });
+}
+
 // Utility to show error messages
 const showError = (message) => {
     if (errorMsg) {
@@ -54,16 +67,18 @@ const showSuccess = (message) => {
 // Toggle Mode Logic
 window.toggleAuthMode = (mode) => {
     const sections = {
-        'login': document.getElementById('login-section'),
-        'register': document.getElementById('register-section'),
+        'login': document.getElementById('login-container'),
+        'register': document.getElementById('register-container'),
         'recover': document.getElementById('recover-section')
     };
     
     Object.values(sections).forEach(section => {
         if (section && !section.classList.contains('hidden')) {
             section.style.opacity = '0';
+            section.style.display = 'none';
             section.style.transform = 'translateY(10px)';
-        }
+            section.style.transition = 'all 0.9s ease-in-out';
+        } 
     });
 
     setTimeout(() => {
@@ -74,7 +89,10 @@ window.toggleAuthMode = (mode) => {
                     section.classList.remove('hidden');
                     section.offsetHeight;
                     section.style.opacity = '1';
+                    section.style.display = 'flex';
+                    section.style.flexDirection = 'column';
                     section.style.transform = 'translateY(0)';
+                    section.style.transition = 'all 0.9s ease-in-out';
                 } else {
                     section.classList.add('hidden');
                 }
@@ -94,7 +112,7 @@ const setupFormListeners = () => {
             input.addEventListener('keydown', (e) => {
                 if (e.key !== 'Enter') return;
                 e.preventDefault();
-                const submitBtn = form.querySelector('button[type="submit"], input[type="submit"]');
+                const submitBtn = form.querySelector('button[type="submit"],#login-btn');
                 if (typeof form.requestSubmit === 'function') {
                     form.requestSubmit(submitBtn || undefined);
                     return;
@@ -240,6 +258,7 @@ const setupFormListeners = () => {
 
     // Register logic
     if (registerForm) {
+        
         const regUsernameInput = document.getElementById('reg-username');
         if (regUsernameInput) {
             regUsernameInput.addEventListener('blur', async () => {

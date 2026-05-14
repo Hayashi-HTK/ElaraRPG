@@ -6,10 +6,125 @@
     --auth-text: #e8dcc8;
     --auth-text-muted: #a09080;
     --auth-border: #3d2e1a;
-    --auth-input-bg: #221820;
+    --auth-input-bg: #0f0d0a;
 }
 
+body {
+  margin: 0;
+  height: 100vh;
+  background: url("sua-imagem.jpg") center/cover no-repeat;
+  font-family: Arial, sans-serif;
+}
+
+/* CARD */
+.card {
+  position: relative;
+  width: 420px;
+  padding: 50px 40px;
+  background: rgba(20, 18, 14, 0.92);
+  border-radius: 18px;
+  border: 1px solid #d4af37;
+  color: #d4af37;
+  text-align: center;
+  overflow: hidden;
+}
+
+/* GLOW EXTERNO */
+.card::before {
+  content: "";
+  position: absolute;
+  inset: -3px;
+  border-radius: 20px;
+  border: 1px solid rgba(212, 175, 55, 0.25);
+  pointer-events: none;
+}
+
+/* LINHAS DECORATIVAS */
+.card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 18px;
+  pointer-events: none;
+
+  background:
+    linear-gradient(#d4af37, #d4af37) top center / 80px 2px no-repeat,
+    linear-gradient(#d4af37, #d4af37) bottom center / 80px 2px no-repeat,
+    linear-gradient(#d4af37, #d4af37) center left / 2px 80px no-repeat,
+    linear-gradient(#d4af37, #d4af37) center right / 2px 80px no-repeat;
+}
+
+/* ✨ CANTOS ORNAMENTADOS */
+.card span.corner {
+  position: absolute;
+  width: 22px;
+  height: 22px;
+  border: 2px solid #d4af37;
+}
+
+/* cada canto */
+.corner.top-left {
+  top: -2px;
+  left: -2px;
+  border-right: none;
+  border-bottom: none;
+}
+
+.corner.top-right {
+  top: -2px;
+  right: -2px;
+  border-left: none;
+  border-bottom: none;
+}
+
+.corner.bottom-left {
+  bottom: -2px;
+  left: -2px;
+  border-right: none;
+  border-top: none;
+}
+
+.corner.bottom-right {
+  bottom: -2px;
+  right: -2px;
+  border-left: none;
+  border-top: none;
+}
+
+/* detalhe interno dos cantos (mini linha) */
+.corner::after {
+  content: "";
+  position: absolute;
+  width: 10px;
+  height: 2px;
+  background: #d4af37;
+}
+
+.top-left::after {
+  top: 6px;
+  left: 0;
+}
+
+.top-right::after {
+  top: 6px;
+  right: 0;
+}
+
+.bottom-left::after {
+  bottom: 6px;
+  left: 0;
+}
+
+.bottom-right::after {
+  bottom: 6px;
+  right: 0;
+}
+
+
 body.auth-page {
+    overflow: hidden;
+    /* margin-top: -2rem; */
+    flex-direction: column;
     background-color: var(--auth-bg);
     background-image: 
         radial-gradient(circle at 20% 30%, rgba(201, 168, 76, 0.12) 0%, transparent 50%),
@@ -43,7 +158,7 @@ body.auth-page {
 }
 
 .auth-section {
-    transition: opacity 0.3s ease, transform 0.3s ease;
+    transition: all 0.3s ease;
 }
 
 .auth-section.hidden {
@@ -53,8 +168,10 @@ body.auth-page {
 }
 
 .auth-logo {
+    position: relative;
     text-align: center;
-    margin-bottom: 30px;
+    /* margin-bottom: 30px; */
+    top: -150px;
 }
 
 .auth-logo img {
@@ -83,7 +200,7 @@ body.auth-page {
 }
 
 .auth-form-group {
-    margin-bottom: 20px;
+    margin-bottom: 8px;
 }
 
 .auth-form-group label {
@@ -94,7 +211,10 @@ body.auth-page {
     text-transform: uppercase;
     letter-spacing: 1px;
 }
-
+.auth-input::placeholder {
+    color: var(--auth-text-muted);
+    align-items: center;
+}
 .auth-input {
     width: 90%;
     background: var(--auth-input-bg);
@@ -106,11 +226,13 @@ body.auth-page {
     transition: all 0.3s ease;
 }
 
+
 .auth-input:focus {
     outline: none;
     border-color: var(--auth-accent);
     box-shadow: 0 0 10px rgba(201, 168, 76, 0.4);
-    background: #1a1a1d;
+    background: #817431;
+    color: #ffffff;
 }
 
 .auth-card::before {
@@ -126,7 +248,7 @@ body.auth-page {
     opacity: 0.3;
 }
 
-.auth-btn {
+/* .auth-btn {
     width: 100%;
     background: var(--auth-accent);
     color: white;
@@ -139,20 +261,24 @@ body.auth-page {
     transition: all 0.3s ease;
     text-transform: uppercase;
     letter-spacing: 1px;
-    margin-top: 10px;
 }
 
 .auth-btn:hover {
     background: var(--auth-accent-hover);
     transform: translateY(-1px);
     box-shadow: 0 5px 15px rgba(201, 168, 76, 0.3);
-}
+} */
 
 /* ---------- GOOGLE BUTTON ---------- */
 
 /* ---------- GOOGLE CIRCLE BUTTON ---------- */
 
 .auth-divider {
+    position: relative;
+    height: fit-content;    
+    /* top: 136px; */
+    right: -1px;
+    z-index: 99999;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -173,9 +299,10 @@ body.auth-page {
 
 .auth-divider span {
     padding: 0 12px;
+    user-select: none;
 }
 
-.auth-btn-google {
+.auth-btn-google{
     width: 48px;
     height: 48px;
     border-radius: 50%;
@@ -191,22 +318,30 @@ body.auth-page {
 }
 
 .auth-btn-google:hover {
+    scale: 0.9;
+    border-color: var(--auth-accent);
+    color: var(--auth-accent);
     background: #f8f9fa;
     transform: translateY(-1px);
     box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    cursor: pointer;
 }
 
 .google-icon {
-    font-size: 20px;
+    font-size: 14px;
     font-weight: bold;
     font-family: Arial, sans-serif;
-    color: #4285f4;
+    color: #ffffff;
+}
+#google-login-btn:hover .google-icon, #google-login-btn:hover span{
+    text-shadow: 0 0 10px rgba(179, 144, 40, 0.459);
+    color: #c4a250;
 }
 /* ---------- LINKS ---------- */
 
 .auth-links {
-    text-align: center;
-    margin-top: 25px;
+    text-align: end;
+    /* margin-top: 25px; */
     font-size: 0.9rem;
     color: var(--auth-text-muted);
 }
@@ -254,7 +389,7 @@ body.auth-page {
     left: 0;
     width: 100%;
     height: 100%;
-    background: url('/public/assets/BG2.png') center/cover no-repeat;
+    background: url('../assets/BG2.png') center/cover no-repeat;
     opacity: 1;
     z-index: -1;
     /* filter: grayscale(100%) contrast(120%); */
